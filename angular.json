@@ -119,6 +119,32 @@
       },
       "tags": [],
       "implicitDependencies": ["demo"]
+    },
+    "utils": {
+      "projectType": "library",
+      "root": "libs/utils",
+      "sourceRoot": "libs/utils/src",
+      "prefix": "kablamo",
+      "architect": {
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/utils"],
+          "options": {
+            "jestConfig": "libs/utils/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/utils/src/**/*.ts",
+              "libs/utils/src/**/*.html"
+            ]
+          }
+        }
+      },
+      "tags": []
     }
   }
 }
