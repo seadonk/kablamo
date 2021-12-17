@@ -34,6 +34,27 @@ export const isPrime = (n: number): boolean => {
     return n > 1;
 }
 
+export const factorsOf = (n: number): number[] => {
+    const result = [];
+    for (let i = 2, s = Math.floor(n / 2); i <= s; i++) {
+        !(n % i) && result.push(i);
+    }
+    return result;
+}
+
+export const primeFactorization = (n: number, result = {}): any => {
+    if (isPrime(n)) {
+        result[n] = (result[n] || 0) + 1;
+        return result;
+    }
+
+    const a = factorsOf(n).slice(-1)[0]
+    const b = n / a;
+    primeFactorization(b, result);
+    primeFactorization(a, result);
+    return result;
+}
+
 export const primesBelow = (max: number) => {
     const result = [];
     for (let i = max - 1; i > 0; i--) {
@@ -62,7 +83,9 @@ const actions = {
     primesBelow,
     twinPrimesBelow,
     factorial,
-    factorialAll
+    factorialAll,
+    factorsOf,
+    primeFactorization
 }
 
 const action: string = process.argv.slice(2)[0];

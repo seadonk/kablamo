@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-exports.twinPrimesBelow = exports.primesBelow = exports.isPrime = exports.factorialAll = exports.factorial = exports.test = exports.fibAllObject = exports.fibAllArray = exports.fibRecursive = void 0;
+exports.twinPrimesBelow = exports.primesBelow = exports.primeFactorization = exports.factorsOf = exports.isPrime = exports.factorialAll = exports.factorial = exports.test = exports.fibAllObject = exports.fibAllArray = exports.fibRecursive = void 0;
 var fibRecursive = function (n) { return n > 1 ? (0, exports.fibRecursive)(n - 1) + (0, exports.fibRecursive)(n - 2) : 1; };
 exports.fibRecursive = fibRecursive;
 var fibAllArray = function (n) {
@@ -38,6 +38,27 @@ var isPrime = function (n) {
     return n > 1;
 };
 exports.isPrime = isPrime;
+var factorsOf = function (n) {
+    var result = [];
+    for (var i = 2, s = Math.floor(n / 2); i <= s; i++) {
+        !(n % i) && result.push(i);
+    }
+    return result;
+};
+exports.factorsOf = factorsOf;
+var primeFactorization = function (n, result) {
+    if (result === void 0) { result = {}; }
+    if ((0, exports.isPrime)(n)) {
+        result[n] = (result[n] || 0) + 1;
+        return result;
+    }
+    var a = (0, exports.factorsOf)(n).slice(-1)[0];
+    var b = n / a;
+    (0, exports.primeFactorization)(b, result);
+    (0, exports.primeFactorization)(a, result);
+    return result;
+};
+exports.primeFactorization = primeFactorization;
 var primesBelow = function (max) {
     var result = [];
     for (var i = max - 1; i > 0; i--) {
@@ -67,7 +88,9 @@ var actions = {
     primesBelow: exports.primesBelow,
     twinPrimesBelow: exports.twinPrimesBelow,
     factorial: exports.factorial,
-    factorialAll: exports.factorialAll
+    factorialAll: exports.factorialAll,
+    factorsOf: exports.factorsOf,
+    primeFactorization: exports.primeFactorization
 };
 var action = process.argv.slice(2)[0];
 var args = process.argv.slice(3);
@@ -77,4 +100,3 @@ if (!actions[action]) {
 }
 var result = actions[action].apply(actions, args);
 console.log('result', result);
-//testing;
