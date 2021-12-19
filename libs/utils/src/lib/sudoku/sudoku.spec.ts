@@ -2,14 +2,19 @@ import {TestBed} from '@angular/core/testing';
 import {
   _,
   easyPreset,
+  easyPresetInvalidRegion,
   emptyBoard,
   getRange,
   getRegions,
   initBoard,
-  isBoardValid,
+  invalidRegions,
+  isComplete,
   isSetUnique,
+  isSolved,
+  isValid,
   printBoard,
   printRow,
+  solve,
   solved,
   transpose
 } from "@kablamo/utils";
@@ -29,6 +34,88 @@ describe('Sudoku', () => {
 
   it('initBoard should return a blank board', () => {
     expect(initBoard()).toStrictEqual(emptyBoard);
+  })
+
+  describe('isComplete', () => {
+    it('should return true for a complete board', () => {
+      expect(isComplete(solved)).toBeTruthy();
+    })
+
+    it('should return true for a complete, but invalid board', () => {
+      expect(isComplete(invalidRegions)).toBeTruthy();
+    })
+
+    it('should return false for an incomplete board', () => {
+      expect(isComplete(easyPreset)).toBeFalsy();
+    })
+  })
+
+  describe('isSolved', () => {
+    it('should return false if the board is invalid', () => {
+      // full but not valid board
+      expect(isSolved(invalidRegions)).toBeFalsy();
+    })
+
+    it('should return false if the board has empty cells', () => {
+      // valid but not full
+      expect(isSolved(easyPreset)).toBeFalsy();
+    })
+
+    it('should return true if the board is valid and full', () => {
+      expect(isSolved(solved)).toBeTruthy();
+    })
+  })
+
+  describe('isBoardValid', () => {
+
+
+    it('should return false if any row is invalid', () => {
+      expect(isValid([
+        [_, _, 1, _, _, _, 1, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _]
+      ])).toBeFalsy();
+    })
+    it('should return false if any column is invalid', () => {
+      expect(isValid([
+        [_, _, 1, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, 1, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _]
+      ])).toBeFalsy();
+    })
+    it('should return false if any region is invalid', () => {
+      expect(isValid([
+        [_, _, 1, _, _, _, _, _, _],
+        [_, 1, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _]
+      ])).toBeFalsy();
+    })
+
+    it('should return true for an empty board', () => {
+      expect(isValid(emptyBoard)).toBeTruthy();
+    })
+
+    it('should return true if all rows, columns, and regions are valid', () => {
+      expect(isValid(solved)).toBeTruthy();
+    })
   })
 
   // printing doesn't really need to be tested, because we can define whatever
@@ -100,58 +187,6 @@ describe('Sudoku', () => {
     })
   })
 
-  describe('isBoardValid', () => {
-
-
-    it('should show a board as invalid if any row is invalid', () => {
-      expect(isBoardValid([
-        [_, _, 1, _, _, _, 1, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _]
-      ])).toBeFalsy();
-    })
-    it('should show a board as invalid if any column is invalid', () => {
-      expect(isBoardValid([
-        [_, _, 1, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, 1, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _]
-      ])).toBeFalsy();
-    })
-    it('should show a board as invalid if any region is invalid', () => {
-      expect(isBoardValid([
-        [_, _, 1, _, _, _, _, _, _],
-        [_, 1, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _],
-        [_, _, _, _, _, _, _, _, _]
-      ])).toBeFalsy();
-    })
-
-    it('should show an empty board as valid', () => {
-      expect(isBoardValid(emptyBoard)).toBeTruthy();
-    })
-
-    it('should show a board as valid if all rows, columns, and regions are valid', () => {
-      expect(isBoardValid(solved)).toBeTruthy();
-    })
-  })
-
   describe('getRegions', () => {
     it('should get the board divided into 3x3 regions', () => {
       expect(getRegions(easyPreset)).toStrictEqual([
@@ -165,6 +200,33 @@ describe('Sudoku', () => {
         [7, _, 2, 3, 8, 1, 4, _, 9],
         [9, _, _, 2, _, 7, 6, 1, _]
       ]);
+    })
+  })
+
+  describe('solving', () => {
+    it('the original board should be a subset of the solved board', () => {
+      const board = [...easyPreset];
+    })
+
+    it('should not modify the board if it is already solved', () => {
+      const board = [...solved];
+      solve(board);
+      expect(solved).toBe(solved);
+    })
+
+    it('should return false if board is not solveable', () => {
+      expect(solve(easyPresetInvalidRegion)).toBeFalsy();
+    })
+
+    it('should return true if board is solveable', () => {
+      expect(solve(easyPreset)).toBeTruthy();
+    })
+
+    it('should solve a blank board', () => {
+      const board = [...emptyBoard];
+      expect(solve(board)).toBeTruthy();
+      expect(isSolved(board)).toBeTruthy();
+      expect(isValid(board)).toBeTruthy();
     })
   })
 });

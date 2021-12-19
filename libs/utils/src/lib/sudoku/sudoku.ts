@@ -46,13 +46,21 @@ export const getRegions = (board: SudokuBoard): SudokuSet[] => {
   return regionIndexes.map(([r, c]) => board.slice(r * 3, r * 3 + 3).flatMap(t => t.slice(c * 3, c * 3 + 3)));
 }
 
-export const isBoardValid = (board: SudokuBoard): boolean => {
+/** true if all sets of cells are unique within their respective rows, columns, and square regions */
+export const isValid = (board: SudokuBoard): boolean => {
   const rows = board;
   const columns = transpose(board);
   const regions = getRegions(board);
   return ![...rows, ...columns, ...regions].some(set => !isSetUnique(set));
 }
 
+/** returns true if there are no empty cells */
+export const isComplete = (board: SudokuBoard): boolean => !board.flatMap(t => t).some(cell => !cell);
+
+/** returns true if the board is valid and complete */
+export const isSolved = (board: SudokuBoard): boolean => isComplete(board) && isValid(board);
+
+// solving
 export const getNextOpenSquare = (board: SudokuBoard): { r: number, c: number } | undefined => {
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
@@ -63,23 +71,20 @@ export const getNextOpenSquare = (board: SudokuBoard): { r: number, c: number } 
   return undefined;
 }
 
-export const isBoardComplete = (board: SudokuBoard): boolean => !board.some(row => !row.some(cell => !cell));
-
-// solving
 /** returns true when a solution is found or false if none; */
-export const solve = (b: SudokuBoard): boolean => {
-  const nextOpenCell = getNextOpenSquare(b);
+export const solve = (board: SudokuBoard): boolean => {
+  const nextOpenCell = getNextOpenSquare(board);
   if (nextOpenCell) {
     const {r, c} = nextOpenCell;
     for (let v = 1; v < 10; v++) { // try all numbers in open cell
       // only make valid moves
-      b[r][c] = v;
-      if (isBoardValid(b)) { // check if move was possible
+      board[r][c] = v;
+      if (isValid(board)) { // check if move was possible
         // console.log(`set ${r},${c} tp ${v}`)
-        if (solve(b))
+        if (solve(board))
           return true;
       }
-      b[r][c] = _; // backtrack if not valid
+      board[r][c] = _; // backtrack if not valid
     }
     return false;
   }
@@ -93,25 +98,23 @@ export const stopWatch = (callback: any) => {
   console.log(`Finished in ${end - start} ms`);
 }
 
-// demo node code
-const board: SudokuBoard = easyPreset;
-logBoard(board);
-console.log(`Board Is ${isBoardValid(board) ? 'Valid' : 'Invalid'}`);
-console.log();
-stopWatch(() => {
-  const solved = solve(board);
-  if (solved) {
-    console.log('Solved!');
-    logBoard(board);
-  } else {
-    console.log('No Solutions!');
-  }
-});
-// const solvedBoard = solveBoard(board);
-// if (solvedBoard) {
-//   logBoard(solvedBoard);
-//   console.log(`Board Is ${isBoardValid(board) ? 'Valid' : 'Invalid'}`);
-// } else {
-//   console.log('Board is not solve-able');
-// }
 
+(function () {
+  // deep copy the preset so we don't modify it. modifying it might break tests.
+  // we should probably add logic to copy these examples for us
+  const board: SudokuBoard = JSON.parse(JSON.stringify(easyPreset));
+  console.log('isComplete', isComplete(board));
+  logBoard(board);
+  console.log(`Board Is ${isValid(board) ? 'Valid' : 'Invalid'}`);
+  console.log();
+  stopWatch(() => {
+    const solved = solve(board);
+    console.log('isComplete', isComplete(board));
+    logBoard(board);
+    if (solved) {
+      console.log('Solved!');
+    } else {
+      console.log('No Solutions!');
+    }
+  });
+})();
