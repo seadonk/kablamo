@@ -1,5 +1,5 @@
 /** just to make the ts sudoku board examples easier to read */
-export const _ = '';
+export const _ = 0;
 
 export const emptyBoard = [
   [_, _, _, _, _, _, _, _, _],

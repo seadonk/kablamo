@@ -1,6 +1,6 @@
-import {_, easyPresetInvalidRegion} from "./sudoku.examples";
+import {_, easyPreset} from "./sudoku.examples";
 
-export type SudokuValue = number | string;
+export type SudokuValue = number;
 export type SudokuSet = SudokuValue[];
 export type SudokuBoard = SudokuSet[];
 
@@ -53,8 +53,65 @@ export const isBoardValid = (board: SudokuBoard): boolean => {
   return ![...rows, ...columns, ...regions].some(set => !isSetUnique(set));
 }
 
+export const getNextOpenSquare = (board: SudokuBoard): { r: number, c: number } | undefined => {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (!board[r][c])
+        return {r, c}
+    }
+  }
+  return undefined;
+}
+
+export const isBoardComplete = (board: SudokuBoard): boolean => !board.some(row => !row.some(cell => !cell));
+
+// solving
+/** returns true when a solution is found or false if none; */
+export const solve = (b: SudokuBoard): boolean => {
+  const nextOpenCell = getNextOpenSquare(b);
+  if (nextOpenCell) {
+    const {r, c} = nextOpenCell;
+    for (let v = 1; v < 10; v++) { // try all numbers in open cell
+      // only make valid moves
+      b[r][c] = v;
+      if (isBoardValid(b)) { // check if move was possible
+        // console.log(`set ${r},${c} tp ${v}`)
+        if (solve(b))
+          return true;
+      }
+      b[r][c] = _; // backtrack if not valid
+    }
+    return false;
+  }
+  return true; // no more open cells, solved;
+}
+
+export const stopWatch = (callback: any) => {
+  const start = performance.now();
+  callback();
+  const end = performance.now();
+  console.log(`Finished in ${end - start} ms`);
+}
+
 // demo node code
-const board = easyPresetInvalidRegion;
+const board: SudokuBoard = easyPreset;
 logBoard(board);
 console.log(`Board Is ${isBoardValid(board) ? 'Valid' : 'Invalid'}`);
+console.log();
+stopWatch(() => {
+  const solved = solve(board);
+  if (solved) {
+    console.log('Solved!');
+    logBoard(board);
+  } else {
+    console.log('No Solutions!');
+  }
+});
+// const solvedBoard = solveBoard(board);
+// if (solvedBoard) {
+//   logBoard(solvedBoard);
+//   console.log(`Board Is ${isBoardValid(board) ? 'Valid' : 'Invalid'}`);
+// } else {
+//   console.log('Board is not solve-able');
+// }
 
