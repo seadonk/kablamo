@@ -98,19 +98,23 @@ export const stopWatch = (callback: any) => {
   console.log(`Finished in ${end - start} ms`);
 }
 
+const logStatus = (board: SudokuBoard) => {
+  logBoard(board);
+
+  // console.log('isComplete', isComplete(board));
+  // console.log('isValid', isValid(board));
+  // console.log('isSolved', isSolved(board));
+  console.log();
+}
 
 (function () {
   // deep copy the preset so we don't modify it. modifying it might break tests.
   // we should probably add logic to copy these examples for us
-  const board: SudokuBoard = JSON.parse(JSON.stringify(easyPreset));
-  console.log('isComplete', isComplete(board));
-  logBoard(board);
-  console.log(`Board Is ${isValid(board) ? 'Valid' : 'Invalid'}`);
-  console.log();
+  const board: SudokuBoard = easyPreset;
+  logStatus(board);
   stopWatch(() => {
     const solved = solve(board);
-    console.log('isComplete', isComplete(board));
-    logBoard(board);
+    logStatus(board);
     if (solved) {
       console.log('Solved!');
     } else {

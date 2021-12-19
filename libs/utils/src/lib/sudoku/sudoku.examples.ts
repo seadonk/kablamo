@@ -1,7 +1,9 @@
+import {deepCopy, SudokuBoard} from "@kablamo/utils";
+
 /** just to make the ts sudoku board examples easier to read */
 export const _ = 0;
 
-export const emptyBoard = [
+export const emptyBoard: SudokuBoard = deepCopy([
   [_, _, _, _, _, _, _, _, _],
   [_, _, _, _, _, _, _, _, _],
   [_, _, _, _, _, _, _, _, _],
@@ -11,8 +13,8 @@ export const emptyBoard = [
   [_, _, _, _, _, _, _, _, _],
   [_, _, _, _, _, _, _, _, _],
   [_, _, _, _, _, _, _, _, _]
-];
-export const easyPreset = [
+]);
+export const easyPreset: SudokuBoard = deepCopy([
   [3, 7, 4, 2, _, 8, 5, _, 1],
   [_, _, 5, _, _, _, _, _, _],
   [_, _, _, 1, _, _, _, _, _],
@@ -22,8 +24,8 @@ export const easyPreset = [
   [5, _, _, 7, _, 2, 9, _, _],
   [_, _, 9, 3, 8, 1, 2, _, 7],
   [_, _, 7, 4, _, 9, 6, 1, _],
-];
-export const easyPresetInvalidRegion = [
+]);
+export const easyPresetInvalidRegion: SudokuBoard = deepCopy([
   [3, 7, 4, 2, _, 8, 5, _, 1],
   [_, _, 5, _, _, _, _, _, _],
   [_, 3, _, 1, _, _, _, _, _],
@@ -33,9 +35,9 @@ export const easyPresetInvalidRegion = [
   [5, _, _, 7, _, 2, 9, _, _],
   [_, _, 9, 3, 8, 1, 2, _, 7],
   [_, _, 7, 4, _, 9, 6, 1, _],
-];
+]);
 /** columns and rows are valid, regions are invalid */
-export const invalidRegions = [
+export const invalidRegions: SudokuBoard = deepCopy([
   [1, 2, 3, 4, 5, 6, 7, 8, 9],
   [2, 3, 4, 5, 6, 7, 8, 9, 1],
   [3, 4, 5, 6, 7, 8, 9, 1, 2],
@@ -45,15 +47,17 @@ export const invalidRegions = [
   [7, 8, 9, 1, 2, 3, 4, 5, 6],
   [8, 9, 1, 2, 3, 4, 5, 6, 7],
   [9, 1, 2, 3, 4, 5, 6, 7, 8],
-];
-export const solved = [
-  [3, 7, 4, 2, 9, 8, 5, 6, 1],
-  [1, 8, 5, 6, 7, 3, 4, 2, 9],
-  [9, 6, 2, 1, 4, 5, 3, 7, 8],
-  [4, 9, 6, 5, 1, 7, 8, 3, 2],
-  [2, 1, 8, 9, 3, 6, 7, 4, 5],
-  [7, 5, 3, 8, 2, 4, 1, 9, 6],
-  [5, 3, 1, 7, 6, 2, 9, 8, 4],
-  [6, 4, 9, 3, 8, 1, 2, 5, 7],
-  [8, 2, 7, 4, 5, 9, 6, 1, 3],
-];
+]);
+export const solved: SudokuBoard = deepCopy([
+    [3, 7, 4, 2, 9, 8, 5, 6, 1],
+    [1, 8, 5, 6, 7, 3, 4, 2, 9],
+    [9, 6, 2, 1, 4, 5, 3, 7, 8],
+    [4, 9, 6, 5, 1, 7, 8, 3, 2],
+    [2, 1, 8, 9, 3, 6, 7, 4, 5],
+    [7, 5, 3, 8, 2, 4, 1, 9, 6],
+    [5, 3, 1, 7, 6, 2, 9, 8, 4],
+    [6, 4, 9, 3, 8, 1, 2, 5, 7],
+    [8, 2, 7, 4, 5, 9, 6, 1, 3],
+  ]
+);
+
