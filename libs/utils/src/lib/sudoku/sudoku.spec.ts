@@ -8,6 +8,7 @@ import {
   getRange,
   getRegions,
   getSize,
+  hash,
   initBoard,
   isComplete,
   isSetUnique,
@@ -16,6 +17,7 @@ import {
   isValid,
   printBoard,
   printRow,
+  shuffle,
   solve,
   solveAll,
   transpose
@@ -41,6 +43,20 @@ describe('Sudoku', () => {
     expect(getSize([[]])).toEqual(0);
     expect(getSize([[_, _], [_, _]])).toEqual(4);
     expect(getSize(Examples.emptyBoard)).toEqual(81);
+  })
+
+  it('should shuffle an array', () => {
+    const original = Array.from(Array(100).keys());
+    const shuffled = shuffle([...original]);
+    // yes it is technically possible that the array will be shuffled into the exact configuration of the original
+    // but extremely unlikely.
+    expect(original).not.toStrictEqual(shuffled);
+    expect(new Set(shuffled).size).toBe(100); // should still contain all items
+    expect(shuffled.sort((a,b) => a > b ? 1 : -1)).toStrictEqual(original); // sorting back numerically should produce original
+  })
+
+  it('should produce a hash for an array', () => {
+    expect(hash(Examples.easyPreset)).toBe('374208501005000000000100000090010800208900705750024190500702900009381207007409610');
   })
 
   describe('getNextOpenCell', () => {
@@ -312,6 +328,9 @@ describe('Sudoku', () => {
       })
 
       it('should return an empty set if board is not solveable', () => {
+        // incomplete invalid board
+        expect(solveAll(Examples.easyPresetInvalidRegion)).toHaveLength(0);
+        // complete invalid board
         expect(solveAll(Examples.invalidRegions)).toHaveLength(0);
       })
 
@@ -331,9 +350,22 @@ describe('Sudoku', () => {
         });
       })
 
+      it('should return the maxSolutions number of solutions if provided', () => {
+        const solutions = solveAll(Examples.twoSolutions, 1);
+        expect(solutions).toHaveLength(1);
+        solutions.forEach(t => {
+          expect(isSolved(t));
+          expect(isSubsetOf(Examples.easyPreset, t));
+        });
+      })
+
       // you'd be crazy to do this :)
       it.skip('should solve a blank board', () => {
         expect(solveAll(Examples.emptyBoard)).toHaveLength(6670903752021072936960);
+      })
+
+      it('should return after maxSolutions are found if provided', () => {
+        expect(solveAll(Examples.twoSolutions, 1)).toHaveLength(1);
       })
     })
 

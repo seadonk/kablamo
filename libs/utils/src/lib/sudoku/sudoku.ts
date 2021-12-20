@@ -1,5 +1,5 @@
 import {_} from "./sudoku.examples";
-import {deepCopy} from "../utils";
+import {deepCopy, shuffle} from "../utils";
 
 export type SudokuValue = number;
 export type SudokuSet = SudokuValue[];
@@ -53,31 +53,47 @@ export const isValid = (board: SudokuBoard): boolean => {
   return ![...rows, ...columns, ...regions].some(set => !isSetUnique(set));
 }
 
+/** returns true if a board has only one solution
+ * This will return false faster than it will return true */
+export const isUnique = (board: SudokuBoard): boolean => !!solveAll(board,2).length;
+
+/** tests whether a board has any solutions */
+export const isSolveable = (board: SudokuBoard): boolean => solve(deepCopy(board));
+
 /** returns true if there are no empty cells */
 export const isComplete = (board: SudokuBoard): boolean => !board.flatMap(t => t).some(cell => !cell);
 
 /** returns true if the board is valid and complete */
 export const isSolved = (board: SudokuBoard): boolean => isComplete(board) && isValid(board);
 
-// solving
-export const getNextOpenCell = (board: SudokuBoard): { r: number, c: number } | undefined => {
-  for (let r = 0; r < 9; r++) {
-    for (let c = 0; c < 9; c++) {
-      if (!board[r][c])
-        return {r, c}
-    }
-  }
-  return undefined;
-}
+/** returns a unique identifier for the board */
+export const hash = (board: SudokuBoard): string => board.flat().join('');
 
-/** returns true when a solution is found or false if none;
+/** the zero based r,c coordinates of a cell */
+export type CellPosition = { r: number, c: number };
+
+// solving
+/** finds the next empty cell.
+ * The default order is left to right top to bottom sequentially.
+ * A different order can be provided. */
+export const getNextOpenCell = (board: SudokuBoard, cellOrder?: CellPosition[]): CellPosition | undefined =>
+  (cellOrder ?? allCells()).find(({r, c}) => !board[r][c])
+
+/** Solves a board in place
+ * returns true when a solution is found or false if none;
  * This function is faster than solveAll because it stops when
- * it finds the first solution. */
-export const solve = (board: SudokuBoard): boolean => {
+ * it finds the first solution.
+ * if random is true, it will attempt to solve the board using
+ * random rather than sequential values. If there is more than one
+ * solution random will result in different solutions, whereas not random
+ * will always return the same solution.
+ * */
+export const solve = (board: SudokuBoard, random = false): boolean => {
   const nextOpenCell = getNextOpenCell(board);
   if (nextOpenCell) {
     const {r, c} = nextOpenCell;
-    for (let v = 1; v < 10; v++) { // try all numbers in open cell
+    const values = (random ? getRange(8) : shuffle(getRange(8))).map(t => t+1);
+    for(const v of values) { // try all numbers in open cell
       // only make valid moves
       board[r][c] = v;
       if (isValid(board)) { // check if move was possible
@@ -92,15 +108,21 @@ export const solve = (board: SudokuBoard): boolean => {
 }
 
 /** returns an array of all possible solutions to the given board */
-export const solveAll = (board: SudokuBoard): SudokuBoard[] => {
+export const solveAll = (board: SudokuBoard, maxSolutions?: number): SudokuBoard[] => {
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
       if (!board[r][c]) { // cell is empty
         const solutions: SudokuBoard[] = [];
-        for (let v = 1; v < 10; v++) {
+        // instead of 1 - 9, get a shuffled range of values each time
+        const shuffledValues = shuffle(getRange(8).map(t => t + 1));
+        for (const v of shuffledValues) { // try all numbers in open cell
           board[r][c] = v; // try all numbers in open cell
           if (isValid(board)) {
             solutions.push(...solveAll(board));
+            // limit number of solutions found
+            if(maxSolutions != null && (solutions.length >= maxSolutions)){
+              return solutions;
+            }
           }
           board[r][c] = _; // backtrack if not valid
         }
@@ -108,50 +130,81 @@ export const solveAll = (board: SudokuBoard): SudokuBoard[] => {
       }
     }
   }
-  return isSolved(board) ? [deepCopy(board)] : []; // deep copy board so it doesn't mutate when looking for more solutions
+  // no empty spots left, so this is a solution
+  return isSolved(board) ? [deepCopy(board)] : []; // deep copy board, so it doesn't mutate when looking for more solutions
+}
+
+/** returns a list of all cell positions in sequential order */
+export const allCells = (): CellPosition[] => getRange(8).flatMap(r => getRange(8).map(c => ({r: r, c: c})));
+/** returns a list of all cell positions in random order */
+export const getRandomCellOrder = (): CellPosition[] => shuffle(allCells());
+
+/** generates a solved board somewhat randomly */
+export const generateSolvedBoard = (): SudokuBoard => {
+  const board = initBoard();
+  solve(board, true)
+  return board;
 }
 
 /** generates a solveable board with the given number of clues.
  * board is not guaranteed to have a unique solution */
 export const generateBoard = (clues: number): SudokuBoard => {
-  const genBoard = (board: SudokuBoard, clues: number): boolean => {
-    if (getFilledCells(board) < clues) {
-      const nextOpenCell = getNextOpenCell(board); // determine next cell
-      if (nextOpenCell) {
-        const {r, c} = nextOpenCell;
-        for (let v = 1; v < 10; v++) { // try all numbers in open cell
-          // only make valid moves
-          board[r][c] = v;
-          if (isValid(board)) { // check if move was possible
-            if(genBoard(board, clues))
-              return true;
-          }
-          board[r][c] = _; // backtrack if not valid
-        }
-        return false;
-      }
-    }
-    return true;
+  const shuffledCells = getRandomCellOrder();
+  const solvedBoard = generateSolvedBoard();
+  const emptyCellsNeeded = getSize(solvedBoard) - clues;
+  // remove cells until we get to the appropriate number of clues
+  for(let i = 0; i < emptyCellsNeeded; i++){
+    const {r,c} = shuffledCells[i];
+    solvedBoard[r][c] = _;
   }
+  return solvedBoard;
 
-  const board = initBoard();
-  genBoard(board, clues);
-  return board;
-  // whileLoop:
-  //   while (getFilledCells(board) < clues) {
-  //     const nextOpenCell = getNextOpenCell(board);
+
+  // if (type === 'random' && clues > 50) {
+  //   console.error('Using clues > 50 (for an 81 cell board) will result in increasingly slow performance.');
+  //   console.log();
+  // }
+  // // internal function to be called recursively
+  // const genBoard = (board: SudokuBoard, clues: number): boolean => {
+  //   if (getFilledCells(board) < clues) {
+  //     const nextOpenCell = _getNextOpenCell(board); // determine next cell
   //     if (nextOpenCell) {
-  //       console.log(nextOpenCell);
   //       const {r, c} = nextOpenCell;
-  //       for (let v = 1; v <= 9; v++) {
+  //       // instead of 1 - 9, get a shuffled range of values each time
+  //       const shuffledValues = shuffle(getRange(8).map(t => t + 1));
+  //       for (const v of shuffledValues) { // try all numbers in open cell
+  //         // only make valid moves
   //         board[r][c] = v;
-  //         if (isValid(board))
-  //           continue whileLoop;
+  //         if (isValid(board)) { // check if move was possible
+  //           if (genBoard(board, clues))
+  //             return true;
+  //         }
+  //         board[r][c] = _; // backtrack if not valid
   //       }
+  //       return false;
   //     }
-  //     break;
   //   }
+  //   return isSolveable(board);
+  // }
+  //
+  // const board = initBoard();
+  // genBoard(board, clues);
   // return board;
+  // // whileLoop:
+  // //   while (getFilledCells(board) < clues) {
+  // //     const nextOpenCell = getNextOpenCell(board);
+  // //     if (nextOpenCell) {
+  // //       console.log(nextOpenCell);
+  // //       const {r, c} = nextOpenCell;
+  // //       for (let v = 1; v <= 9; v++) {
+  // //         board[r][c] = v;
+  // //         if (isValid(board))
+  // //           continue whileLoop;
+  // //       }
+  // //     }
+  // //     break;
+  // //   }
+  // // return board;
 }
 
 
@@ -172,11 +225,11 @@ export const getFilledCells = (board: SudokuBoard): number => board.flatMap(t =>
 /** returns the number of cells in a board */
 export const getSize = (board: SudokuBoard): number => board.length * board[0].length;
 
-export const analyzeBoard = (board: SudokuBoard) => {
+export const analyzeBoard = (board: SudokuBoard, showAllSolutions = false) => {
   const filledCells = getFilledCells(board);
-  const completeRegions = getRegions(board).filter(t => isSetUnique(t)).length;
-  const completeColumns = transpose(board).filter(t => isSetUnique(t)).length;
-  const completeRows = board.filter(t => isSetUnique(t)).length;
+  const completeRegions = getRegions(board).filter(t => !t.some(c => !c) && isSetUnique(t)).length;
+  const completeColumns = transpose(board).filter(t => !t.some(c => !c) && isSetUnique(t)).length;
+  const completeRows = board.filter(t => !t.some(c => !c) && isSetUnique(t)).length;
   const regions = getRegions(board).length;
   const rows = board.length;
   const columns = transpose(board).length;
@@ -186,13 +239,16 @@ export const analyzeBoard = (board: SudokuBoard) => {
   console.log(`${completeColumns}/${columns} - Complete Columns`);
   console.log(`${completeRows}/${rows} - Complete Rows`);
 
-  const solutions = solveAll(board);
-  console.log('Solutions: ', solutions.length);
-  solutions.forEach((t, i) => {
-    console.log();
-    console.log(`Solution ${i + 1}`);
-    logBoard(t)
-  });
+  console.log(`isSolveable: ${isSolveable(board)}`);
+  if (showAllSolutions) {
+    const solutions = solveAll(board);
+    console.log('Solutions: ', solutions.length);
+    solutions.forEach((t, i) => {
+      console.log();
+      console.log(`Solution ${i + 1}`);
+      logBoard(t)
+    });
+  }
 }
 
 export const stopWatch = (callback: any) => {
@@ -209,7 +265,7 @@ export const logStatus = (board: SudokuBoard) => {
   // console.log('isComplete', isComplete(board));
   // console.log('isValid', isValid(board));
   // console.log('isSolved', isSolved(board));
-  // analyzeBoard(board);
+  analyzeBoard(board, true);
   console.log();
 }
 
