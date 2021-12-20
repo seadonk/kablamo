@@ -111,6 +111,50 @@ export const solveAll = (board: SudokuBoard): SudokuBoard[] => {
   return isSolved(board) ? [deepCopy(board)] : []; // deep copy board so it doesn't mutate when looking for more solutions
 }
 
+/** generates a solveable board with the given number of clues.
+ * board is not guaranteed to have a unique solution */
+export const generateBoard = (clues: number): SudokuBoard => {
+  const genBoard = (board: SudokuBoard, clues: number): boolean => {
+    if (getFilledCells(board) < clues) {
+      const nextOpenCell = getNextOpenCell(board); // determine next cell
+      if (nextOpenCell) {
+        const {r, c} = nextOpenCell;
+        for (let v = 1; v < 10; v++) { // try all numbers in open cell
+          // only make valid moves
+          board[r][c] = v;
+          if (isValid(board)) { // check if move was possible
+            if(genBoard(board, clues))
+              return true;
+          }
+          board[r][c] = _; // backtrack if not valid
+        }
+        return false;
+      }
+    }
+    return true;
+  }
+
+  const board = initBoard();
+  genBoard(board, clues);
+  return board;
+  // whileLoop:
+  //   while (getFilledCells(board) < clues) {
+  //     const nextOpenCell = getNextOpenCell(board);
+  //     if (nextOpenCell) {
+  //       console.log(nextOpenCell);
+  //       const {r, c} = nextOpenCell;
+  //       for (let v = 1; v <= 9; v++) {
+  //         board[r][c] = v;
+  //         if (isValid(board))
+  //           continue whileLoop;
+  //       }
+  //     }
+  //     break;
+  //   }
+  // return board;
+}
+
+
 /** returns true if all filled cells from the source are contained in the target */
 export const isSubsetOf = (source: SudokuBoard, target: SudokuBoard) => {
   for (let r = 0; r < 9; r++) {
@@ -122,8 +166,14 @@ export const isSubsetOf = (source: SudokuBoard, target: SudokuBoard) => {
   return true;
 }
 
+/** returns the number of filled cells in a board */
+export const getFilledCells = (board: SudokuBoard): number => board.flatMap(t => t).filter(t => t).length;
+
+/** returns the number of cells in a board */
+export const getSize = (board: SudokuBoard): number => board.length * board[0].length;
+
 export const analyzeBoard = (board: SudokuBoard) => {
-  const filledCells = board.flatMap(t => t).filter(t => t).length;
+  const filledCells = getFilledCells(board);
   const completeRegions = getRegions(board).filter(t => isSetUnique(t)).length;
   const completeColumns = transpose(board).filter(t => isSetUnique(t)).length;
   const completeRows = board.filter(t => isSetUnique(t)).length;

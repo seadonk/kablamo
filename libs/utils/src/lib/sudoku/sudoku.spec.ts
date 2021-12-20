@@ -2,8 +2,12 @@ import {TestBed} from "@angular/core/testing";
 import {
   _,
   Examples,
+  generateBoard,
+  getFilledCells,
+  getNextOpenCell,
   getRange,
   getRegions,
+  getSize,
   initBoard,
   isComplete,
   isSetUnique,
@@ -31,6 +35,47 @@ describe('Sudoku', () => {
 
   it('initBoard should return a blank board', () => {
     expect(initBoard()).toStrictEqual(Examples.emptyBoard);
+  })
+
+  it('getSize should return the number of cells in a grid', () => {
+    expect(getSize([[]])).toEqual(0);
+    expect(getSize([[_, _], [_, _]])).toEqual(4);
+    expect(getSize(Examples.emptyBoard)).toEqual(81);
+  })
+
+  describe('getNextOpenCell', () => {
+    it('should return undefined if the board is full', () => {
+      expect(getNextOpenCell(Examples.solved)).toBeUndefined();
+    })
+
+    it('should return the first cell if the board is empty', () => {
+      expect(getNextOpenCell(Examples.emptyBoard)).toStrictEqual({r: 0, c: 0});
+    })
+
+    it('should return the next sequential row/column that is empty', () => {
+      const board = Examples.solved;
+      board[5][6] = _;
+      expect(getNextOpenCell(board)).toStrictEqual({r: 5, c: 6});
+    })
+  })
+
+  describe('filledCells', () => {
+    it('should return 0 for an empty board', () => {
+      expect(getFilledCells(Examples.emptyBoard)).toEqual(0);
+    })
+
+    it('should return the size of a board for a solved board', () => {
+      const size = getSize(Examples.solved);
+      expect(getFilledCells(Examples.solved)).toEqual(size);
+    })
+
+    it('should return the number of filled cells', () => {
+      const board = Examples.emptyBoard;
+      board[0][0] = 1;
+      board[1][1] = 1;
+      board[2][2] = 1;
+      expect(getFilledCells(board)).toEqual(3);
+    })
   })
 
   describe('isSubsetOf', () => {
@@ -289,6 +334,23 @@ describe('Sudoku', () => {
       // you'd be crazy to do this :)
       it.skip('should solve a blank board', () => {
         expect(solveAll(Examples.emptyBoard)).toHaveLength(6670903752021072936960);
+      })
+    })
+
+    describe('generateBoard', () => {
+      it('should generate an empty board for zero clues', () => {
+        expect(generateBoard(0)).toStrictEqual(Examples.emptyBoard);
+      })
+
+      it('should generate a solved board for size(board) clues', () => {
+        expect(isSolved(generateBoard(81))).toBeTruthy();
+      })
+
+      it('should generate a solveable board with x clues', () => {
+        const board = generateBoard(10);
+        expect(getFilledCells(board)).toEqual(10);
+        expect(isValid(board)).toBeTruthy();
+        expect(solve(board)).toBeTruthy();
       })
     })
   })
