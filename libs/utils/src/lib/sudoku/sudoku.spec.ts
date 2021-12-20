@@ -1,24 +1,21 @@
-import {TestBed} from '@angular/core/testing';
+import {TestBed} from "@angular/core/testing";
 import {
   _,
-  easyPreset,
-  easyPresetInvalidRegion,
-  emptyBoard,
+  Examples,
   getRange,
   getRegions,
   initBoard,
-  invalidRegions,
   isComplete,
   isSetUnique,
   isSolved,
+  isSubsetOf,
   isValid,
   printBoard,
   printRow,
   solve,
-  solved,
+  solveAll,
   transpose
 } from "@kablamo/utils";
-
 
 describe('Sudoku', () => {
 
@@ -33,36 +30,58 @@ describe('Sudoku', () => {
   })
 
   it('initBoard should return a blank board', () => {
-    expect(initBoard()).toStrictEqual(emptyBoard);
+    expect(initBoard()).toStrictEqual(Examples.emptyBoard);
+  })
+
+  describe('isSubsetOf', () => {
+    it('should return true when the source is a subset of the target', () => {
+      const source = Examples.solved;
+      source[0][0] = _;
+      expect(isSubsetOf(source, Examples.solved)).toBeTruthy();
+    })
+
+    it('should return true when the source is an empty board', () => {
+      expect(isSubsetOf(Examples.emptyBoard, Examples.solved)).toBeTruthy();
+    })
+
+    it('should return true when the source and target are the same', () => {
+      expect(isSubsetOf(Examples.solved, Examples.solved)).toBeTruthy();
+    })
+
+    it('should return false when the source is not subset of the target', () => {
+      const source = Examples.easyPreset;
+      source[1][0] = 1;
+      expect(isSubsetOf(source, Examples.easyPreset)).toBeFalsy();
+    })
   })
 
   describe('isComplete', () => {
     it('should return true for a complete board', () => {
-      expect(isComplete(solved)).toBeTruthy();
+      expect(isComplete(Examples.solved)).toBeTruthy();
     })
 
     it('should return true for a complete, but invalid board', () => {
-      expect(isComplete(invalidRegions)).toBeTruthy();
+      expect(isComplete(Examples.invalidRegions)).toBeTruthy();
     })
 
     it('should return false for an incomplete board', () => {
-      expect(isComplete(easyPreset)).toBeFalsy();
+      expect(isComplete(Examples.easyPreset)).toBeFalsy();
     })
   })
 
   describe('isSolved', () => {
     it('should return false if the board is invalid', () => {
       // full but not valid board
-      expect(isSolved(invalidRegions)).toBeFalsy();
+      expect(isSolved(Examples.invalidRegions)).toBeFalsy();
     })
 
     it('should return false if the board has empty cells', () => {
       // valid but not full
-      expect(isSolved(easyPreset)).toBeFalsy();
+      expect(isSolved(Examples.easyPreset)).toBeFalsy();
     })
 
     it('should return true if the board is valid and full', () => {
-      expect(isSolved(solved)).toBeTruthy();
+      expect(isSolved(Examples.solved)).toBeTruthy();
     })
   })
 
@@ -110,11 +129,11 @@ describe('Sudoku', () => {
     })
 
     it('should return true for an empty board', () => {
-      expect(isValid(emptyBoard)).toBeTruthy();
+      expect(isValid(Examples.emptyBoard)).toBeTruthy();
     })
 
     it('should return true if all rows, columns, and regions are valid', () => {
-      expect(isValid(solved)).toBeTruthy();
+      expect(isValid(Examples.solved)).toBeTruthy();
     })
   })
 
@@ -125,7 +144,7 @@ describe('Sudoku', () => {
       expect(printRow([1, 2, 3, _, _, 6, 7, _, 9])).toMatchSnapshot();
     })
     it('should match the printBoard snapshot', () => {
-      expect(printBoard(easyPreset)).toMatchSnapshot();
+      expect(printBoard(Examples.easyPreset)).toMatchSnapshot();
     })
   })
 
@@ -143,7 +162,7 @@ describe('Sudoku', () => {
     })
 
     it('should transpose a board', () => {
-      expect(transpose(solved)).toStrictEqual([
+      expect(transpose(Examples.solved)).toStrictEqual([
         [3, 1, 9, 4, 2, 7, 5, 6, 8],
         [7, 8, 6, 9, 1, 5, 3, 4, 2],
         [4, 5, 2, 6, 8, 3, 1, 9, 7],
@@ -189,7 +208,7 @@ describe('Sudoku', () => {
 
   describe('getRegions', () => {
     it('should get the board divided into 3x3 regions', () => {
-      expect(getRegions(easyPreset)).toStrictEqual([
+      expect(getRegions(Examples.easyPreset)).toStrictEqual([
         [3, 7, 4, _, _, 5, _, _, _],
         [2, _, 8, _, _, _, 1, _, _],
         [5, _, 1, _, _, _, _, _, _],
@@ -204,29 +223,73 @@ describe('Sudoku', () => {
   })
 
   describe('solving', () => {
-    it('the original board should be a subset of the solved board', () => {
-      const board = [...easyPreset];
-    })
 
-    it('should not modify the board if it is already solved', () => {
-      const board = [...solved];
-      solve(board);
-      expect(solved).toBe(solved);
-    })
+    describe('solve', () => {
+      it('the original board should be a subset of the solved board', () => {
+        const board = Examples.easyPreset;
+        solve(board);
+        expect(isSubsetOf(Examples.easyPreset, board)).toBeTruthy();
+      })
 
-    it('should return false if board is not solveable', () => {
-      expect(solve(easyPresetInvalidRegion)).toBeFalsy();
-    })
+      it('should not modify the board if it is already solved', () => {
+        const board = Examples.solved;
+        solve(board);
+        expect(board).toBe(board);
+      })
 
-    it('should return true if board is solveable', () => {
-      expect(solve(easyPreset)).toBeTruthy();
-    })
+      it('should return false if board is not solveable', () => {
+        expect(solve(Examples.easyPresetInvalidRegion)).toBeFalsy();
+      })
 
-    it('should solve a blank board', () => {
-      const board = [...emptyBoard];
-      expect(solve(board)).toBeTruthy();
-      expect(isSolved(board)).toBeTruthy();
-      expect(isValid(board)).toBeTruthy();
+      it('should return true if board is solveable', () => {
+        expect(solve(Examples.easyPreset)).toBeTruthy();
+      })
+
+      it('should solve a blank board', () => {
+        const board = [...Examples.emptyBoard];
+        expect(solve(board)).toBeTruthy();
+        expect(isSolved(board)).toBeTruthy();
+        expect(isValid(board)).toBeTruthy();
+      })
+    });
+
+    describe('solveAll', () => {
+      it('the original board should be a subset of the solved board', () => {
+        const board = Examples.easyPreset;
+        const solutions = solveAll(board);
+        expect(isSubsetOf(Examples.easyPreset, solutions[0])).toBeTruthy();
+      })
+
+      it('should not modify the board', () => {
+        const board = Examples.easyPreset;
+        solveAll(board);
+        expect(board).toStrictEqual(Examples.easyPreset);
+      })
+
+      it('should return an empty set if board is not solveable', () => {
+        expect(solveAll(Examples.invalidRegions)).toHaveLength(0);
+      })
+
+      it('should return a valid solution if board is solveable', () => {
+        const solutions = solveAll(Examples.easyPreset);
+        expect(solutions).toHaveLength(1);
+        expect(isSolved(solutions[0]));
+        expect(isSubsetOf(Examples.easyPreset, solutions[0]));
+      })
+
+      it('should return all valid solutions if the board has more than one', () => {
+        const solutions = solveAll(Examples.twoSolutions);
+        expect(solutions).toHaveLength(2);
+        solutions.forEach(t => {
+          expect(isSolved(t));
+          expect(isSubsetOf(Examples.easyPreset, t));
+        });
+      })
+
+      // you'd be crazy to do this :)
+      it.skip('should solve a blank board', () => {
+        expect(solveAll(Examples.emptyBoard)).toHaveLength(6670903752021072936960);
+      })
     })
   })
 });

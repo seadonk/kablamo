@@ -1,4 +1,5 @@
-import {_, easyPreset} from "./sudoku.examples";
+import {_} from "./sudoku.examples";
+import {deepCopy} from "../utils";
 
 export type SudokuValue = number;
 export type SudokuSet = SudokuValue[];
@@ -15,8 +16,6 @@ export const printBoard = (board: SudokuBoard): string => {
   const separator = (index: number) => ((index < 8 && (index + 1) % 3 === 0) ? `--- --- ---` + '\n' : '').split('').join(' ');
   return board?.map((row, i) => printRow(row) + '\n' + separator(i)).join('') + '';
 }
-
-export const logBoard = (board: SudokuBoard) => console.log(printBoard(board));
 
 export const initBoard = (): SudokuBoard => getRange(8).map(() => getRange(8).map(() => _));
 
@@ -61,7 +60,7 @@ export const isComplete = (board: SudokuBoard): boolean => !board.flatMap(t => t
 export const isSolved = (board: SudokuBoard): boolean => isComplete(board) && isValid(board);
 
 // solving
-export const getNextOpenSquare = (board: SudokuBoard): { r: number, c: number } | undefined => {
+export const getNextOpenCell = (board: SudokuBoard): { r: number, c: number } | undefined => {
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
       if (!board[r][c])
@@ -71,16 +70,17 @@ export const getNextOpenSquare = (board: SudokuBoard): { r: number, c: number } 
   return undefined;
 }
 
-/** returns true when a solution is found or false if none; */
+/** returns true when a solution is found or false if none;
+ * This function is faster than solveAll because it stops when
+ * it finds the first solution. */
 export const solve = (board: SudokuBoard): boolean => {
-  const nextOpenCell = getNextOpenSquare(board);
+  const nextOpenCell = getNextOpenCell(board);
   if (nextOpenCell) {
     const {r, c} = nextOpenCell;
     for (let v = 1; v < 10; v++) { // try all numbers in open cell
       // only make valid moves
       board[r][c] = v;
       if (isValid(board)) { // check if move was possible
-        // console.log(`set ${r},${c} tp ${v}`)
         if (solve(board))
           return true;
       }
@@ -91,6 +91,60 @@ export const solve = (board: SudokuBoard): boolean => {
   return true; // no more open cells, solved;
 }
 
+/** returns an array of all possible solutions to the given board */
+export const solveAll = (board: SudokuBoard): SudokuBoard[] => {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (!board[r][c]) { // cell is empty
+        const solutions: SudokuBoard[] = [];
+        for (let v = 1; v < 10; v++) {
+          board[r][c] = v; // try all numbers in open cell
+          if (isValid(board)) {
+            solutions.push(...solveAll(board));
+          }
+          board[r][c] = _; // backtrack if not valid
+        }
+        return solutions; // exhausted all numbers, return to caller
+      }
+    }
+  }
+  return isSolved(board) ? [deepCopy(board)] : []; // deep copy board so it doesn't mutate when looking for more solutions
+}
+
+/** returns true if all filled cells from the source are contained in the target */
+export const isSubsetOf = (source: SudokuBoard, target: SudokuBoard) => {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (source[r][c] && source[r][c] !== target[r][c])
+        return false;
+    }
+  }
+  return true;
+}
+
+export const analyzeBoard = (board: SudokuBoard) => {
+  const filledCells = board.flatMap(t => t).filter(t => t).length;
+  const completeRegions = getRegions(board).filter(t => isSetUnique(t)).length;
+  const completeColumns = transpose(board).filter(t => isSetUnique(t)).length;
+  const completeRows = board.filter(t => isSetUnique(t)).length;
+  const regions = getRegions(board).length;
+  const rows = board.length;
+  const columns = transpose(board).length;
+  const cells = board.flatMap(t => t).length;
+  console.log(`${filledCells}/${cells} - Filled Cells`);
+  console.log(`${completeRegions}/${regions} - Complete Regions`);
+  console.log(`${completeColumns}/${columns} - Complete Columns`);
+  console.log(`${completeRows}/${rows} - Complete Rows`);
+
+  const solutions = solveAll(board);
+  console.log('Solutions: ', solutions.length);
+  solutions.forEach((t, i) => {
+    console.log();
+    console.log(`Solution ${i + 1}`);
+    logBoard(t)
+  });
+}
+
 export const stopWatch = (callback: any) => {
   const start = performance.now();
   callback();
@@ -98,27 +152,14 @@ export const stopWatch = (callback: any) => {
   console.log(`Finished in ${end - start} ms`);
 }
 
-const logStatus = (board: SudokuBoard) => {
+export const logBoard = (board: SudokuBoard) => console.log(printBoard(board));
+export const logStatus = (board: SudokuBoard) => {
   logBoard(board);
 
   // console.log('isComplete', isComplete(board));
   // console.log('isValid', isValid(board));
   // console.log('isSolved', isSolved(board));
+  // analyzeBoard(board);
   console.log();
 }
 
-(function () {
-  // deep copy the preset so we don't modify it. modifying it might break tests.
-  // we should probably add logic to copy these examples for us
-  const board: SudokuBoard = easyPreset;
-  logStatus(board);
-  stopWatch(() => {
-    const solved = solve(board);
-    logStatus(board);
-    if (solved) {
-      console.log('Solved!');
-    } else {
-      console.log('No Solutions!');
-    }
-  });
-})();
