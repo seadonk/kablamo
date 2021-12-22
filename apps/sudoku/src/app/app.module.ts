@@ -5,14 +5,19 @@ import {AppComponent} from './app.component';
 import {NxWelcomeComponent} from './nx-welcome.component';
 import {RouterModule} from '@angular/router';
 import {SudokuService} from "./services/sudoku.service";
+import {BoardComponent} from './components/board/board.component';
+import {MainComponent} from './pages/main/main.component';
+import {routes} from "./app.routes";
+import {CellComponent} from './components/cell/cell.component';
 
 @NgModule({
-  declarations: [AppComponent, NxWelcomeComponent],
+  declarations: [AppComponent, NxWelcomeComponent, BoardComponent, MainComponent, CellComponent],
   imports: [
     BrowserModule,
-    RouterModule.forRoot([], { initialNavigation: 'enabledBlocking' }),
+    RouterModule.forRoot(routes, {initialNavigation: 'enabledBlocking'}),
   ],
   providers: [SudokuService],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+}

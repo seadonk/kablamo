@@ -16,3 +16,85 @@ exports[`Sudoku printing should match the printBoard snapshot 1`] = `
 `;
 
 exports[`Sudoku printing should match the printRow snapshot 1`] = `"1 2 3 |     6 | 7   9"`;
+
+exports[`Sudoku region and cell positions should return all of the cell positions within a given region 1`] = `
+Array [
+  Object {
+    "c": 0,
+    "r": 0,
+  },
+  Object {
+    "c": 1,
+    "r": 0,
+  },
+  Object {
+    "c": 2,
+    "r": 0,
+  },
+  Object {
+    "c": 0,
+    "r": 1,
+  },
+  Object {
+    "c": 1,
+    "r": 1,
+  },
+  Object {
+    "c": 2,
+    "r": 1,
+  },
+  Object {
+    "c": 0,
+    "r": 2,
+  },
+  Object {
+    "c": 1,
+    "r": 2,
+  },
+  Object {
+    "c": 2,
+    "r": 2,
+  },
+]
+`;
+
+exports[`Sudoku region and cell positions should return all region positions 1`] = `
+Array [
+  Object {
+    "c": 0,
+    "r": 0,
+  },
+  Object {
+    "c": 1,
+    "r": 0,
+  },
+  Object {
+    "c": 2,
+    "r": 0,
+  },
+  Object {
+    "c": 0,
+    "r": 1,
+  },
+  Object {
+    "c": 1,
+    "r": 1,
+  },
+  Object {
+    "c": 2,
+    "r": 1,
+  },
+  Object {
+    "c": 0,
+    "r": 2,
+  },
+  Object {
+    "c": 1,
+    "r": 2,
+  },
+  Object {
+    "c": 2,
+    "r": 2,
+  },
+]
+`;

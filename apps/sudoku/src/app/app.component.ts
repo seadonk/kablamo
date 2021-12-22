@@ -3,7 +3,7 @@ import {printBoard} from '@kablamo/utils';
 import {SudokuService} from './services/sudoku.service';
 
 @Component({
-  selector: 'kablamo-root',
+  selector: 'sudoku-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })

@@ -1,0 +1,25 @@
+<div> Board Hash: {{cells.join('')}}</div>
+<div> Selected Value: {{ cells[selected] }}</div>
+<div> Selected Index: {{ selected }}</div>
+<pre><code>
+  {{
+  {
+    solved: solved,
+    valid: valid,
+    solveable: solveable
+  } | json
+  }}
+</code></pre>
+<button (click)="solve()">Solve</button>
+<button (click)="reset()">Reset</button>
+<button (click)="clear()">Clear</button>
+
+<div class="board">
+  <ng-container *ngFor="let cell of cells; let i = index;">
+    <sudoku-cell (click)="selectCell(i)"
+                 [selected]="selected === i"
+                 [highlightNumber]="cell == cells[selected]"
+                 [highlightSet]="isSameSet(i)"
+                 (valueChanged)="onValueChanged(i,$event)">{{cell || ''}}</sudoku-cell>
+  </ng-container>
+</div>

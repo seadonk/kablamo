@@ -1,0 +1,48 @@
+$border: 3px solid black;
+$cellSize: 2rem;
+
+.board {
+  margin: 2rem;
+  display: grid;
+  grid-template-columns: repeat(9, fit-content(100%));
+  grid-template-rows: auto;
+  align-items: center;
+  justify-content: center;
+
+
+  > * {
+    aspect-ratio: 1;
+    border-right: 1px solid gray;
+    border-bottom: 1px solid gray;
+
+
+    // region vertical borders
+    &:nth-child(9n+3), &:nth-child(9n+6) {
+      border-right: $border;
+    }
+    &:nth-child(9n+1) {
+      border-left: $border;
+    }
+    &:nth-child(9n) {
+      border-right: $border;
+    }
+    // region horizontal borders
+    @for $i from 0 through 8 {
+      &:nth-child(27n-#{$i}) {
+        border-bottom: $border;
+      }
+      $j: 81-$i - 1;
+      &:nth-child(81n-#{$j}) {
+        border-top: $border;
+      }
+    }
+
+  }
+}
+
+.cell {
+  width: $cellSize;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

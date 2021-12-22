@@ -5,7 +5,7 @@
       "projectType": "application",
       "root": "apps/demo",
       "sourceRoot": "apps/demo/src",
-      "prefix": "kablamo",
+      "prefix": "demo",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -124,7 +124,7 @@
       "projectType": "application",
       "root": "apps/sudoku",
       "sourceRoot": "apps/sudoku/src",
-      "prefix": "kablamo",
+      "prefix": "sudoku",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -243,7 +243,7 @@
       "projectType": "library",
       "root": "libs/utils",
       "sourceRoot": "libs/utils/src",
-      "prefix": "kablamo",
+      "prefix": "utils",
       "architect": {
         "test": {
           "builder": "@nrwl/jest:jest",

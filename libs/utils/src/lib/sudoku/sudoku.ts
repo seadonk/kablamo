@@ -17,7 +17,18 @@ export const printBoard = (board: SudokuBoard): string => {
   return board?.map((row, i) => printRow(row) + '\n' + separator(i)).join('') + '';
 }
 
-export const initBoard = (): SudokuBoard => getRange(8).map(() => getRange(8).map(() => _));
+/** initializes an empty board, or a board matching the given hash if provided */
+export const initBoard = (hash?: SudokuHash): SudokuBoard => hash ? initBoardFromHash(hash) : getRange(8).map(() => getRange(8).map(() => _));
+
+/** initializes a board from the given hash */
+const initBoardFromHash = (hash: SudokuHash): SudokuBoard => {
+  const board = initBoard();
+  [...hash].forEach((t, i) => {
+    const {r, c} = getCellPositionByIndex(i);
+    board[r][c] = +t;
+  })
+  return board;
+}
 
 export const randomizeBoard = (board: SudokuBoard) => {
   const randValue = () => Math.floor(Math.random() * 9) + 1;
@@ -39,23 +50,39 @@ export const isSetUnique = (set: any[]): boolean => {
 /** returns an array of numbers from 0 to N */
 export const getRange = (n: number) => Array.from(Array(n + 1).keys());
 
-/** returns all 3x3 regions of the board */
-export const getRegions = (board: SudokuBoard): SudokuSet[] => {
-  const regionIndexes = getRange(2).flatMap(t => getRange(2).map(o => [t, o]));
-  return regionIndexes.map(([r, c]) => board.slice(r * 3, r * 3 + 3).flatMap(t => t.slice(c * 3, c * 3 + 3)));
+/** returns an array of all region positions within the board */
+export const getRegionPositions = (): RegionPosition[] =>
+  getRange(2).flatMap(r => getRange(2).map(c => ({r: r, c: c})));
+
+/** returns all 3x3 region set values of the board */
+export const getRegionSets = (board: SudokuBoard): SudokuSet[] =>
+  getRegionPositions().map(({r, c}) =>
+    board.slice(r * 3, r * 3 + 3).flatMap(t => t.slice(c * 3, c * 3 + 3)));
+
+
+/** gets the cell positions of all cells within in the given region by index */
+export const getRegionCellPositions = (regionIndex: RegionPosition): CellPosition[] => {
+  const regionWidth = 3;
+  const regionHeight = 3;
+  const rows = Array.from(Array(regionHeight).keys()).map(r => regionHeight * regionIndex.r + r);
+  const columns = Array.from(Array(regionWidth).keys()).map(c => regionWidth * regionIndex.c + c);
+  return rows.flatMap(r => columns.map(c => ({r: r, c})));
 }
+/** returns true if the given cell is contained within the given region */
+export const isCellInRegion = (regionIndex: RegionPosition, cellPosition: CellPosition): boolean =>
+  getRegionCellPositions(regionIndex).some(t => t.c === cellPosition.c && t.r === cellPosition.r);
 
 /** true if all sets of cells are unique within their respective rows, columns, and square regions */
 export const isValid = (board: SudokuBoard): boolean => {
   const rows = board;
   const columns = transpose(board);
-  const regions = getRegions(board);
+  const regions = getRegionSets(board);
   return ![...rows, ...columns, ...regions].some(set => !isSetUnique(set));
 }
 
 /** returns true if a board has only one solution
  * This will return false faster than it will return true */
-export const isUnique = (board: SudokuBoard): boolean => !!solveAll(board,2).length;
+export const isUnique = (board: SudokuBoard): boolean => !!solveAll(board, 2).length;
 
 /** tests whether a board has any solutions */
 export const isSolveable = (board: SudokuBoard): boolean => solve(deepCopy(board));
@@ -66,11 +93,23 @@ export const isComplete = (board: SudokuBoard): boolean => !board.flatMap(t => t
 /** returns true if the board is valid and complete */
 export const isSolved = (board: SudokuBoard): boolean => isComplete(board) && isValid(board);
 
+export type SudokuHash = string;
 /** returns a unique identifier for the board */
-export const hash = (board: SudokuBoard): string => board.flat().join('');
+export const hash = (board: SudokuBoard): SudokuHash => board.flat().join('');
 
 /** the zero based r,c coordinates of a cell */
 export type CellPosition = { r: number, c: number };
+/** the zero based r,c coordinates of a region, within the grid of regions.
+ * Not to be confused with the cell positions of cells in a region.
+ */
+export type RegionPosition = CellPosition;
+
+/** gets the cell position in r,c format, from a given sequential index within the board. */
+export const getCellPositionByIndex = (i: number): CellPosition => ({r: (i - i % 9) / 9, c: i % 9});
+
+/** gets the region position in r,c format, from a given cell position within the board */
+export const getCellRegionByPosition = (position: CellPosition) =>
+  getRegionPositions().find(p => isCellInRegion(p, position));
 
 // solving
 /** finds the next empty cell.
@@ -92,8 +131,8 @@ export const solve = (board: SudokuBoard, random = false): boolean => {
   const nextOpenCell = getNextOpenCell(board);
   if (nextOpenCell) {
     const {r, c} = nextOpenCell;
-    const values = (random ? getRange(8) : shuffle(getRange(8))).map(t => t+1);
-    for(const v of values) { // try all numbers in open cell
+    const values = (random ? getRange(8) : shuffle(getRange(8))).map(t => t + 1);
+    for (const v of values) { // try all numbers in open cell
       // only make valid moves
       board[r][c] = v;
       if (isValid(board)) { // check if move was possible
@@ -120,7 +159,7 @@ export const solveAll = (board: SudokuBoard, maxSolutions?: number): SudokuBoard
           if (isValid(board)) {
             solutions.push(...solveAll(board));
             // limit number of solutions found
-            if(maxSolutions != null && (solutions.length >= maxSolutions)){
+            if (maxSolutions != null && (solutions.length >= maxSolutions)) {
               return solutions;
             }
           }
@@ -151,10 +190,10 @@ export const generateSolvedBoard = (): SudokuBoard => {
 export const generateBoard = (clues: number): SudokuBoard => {
   const shuffledCells = getRandomCellOrder();
   const solvedBoard = generateSolvedBoard();
-  const emptyCellsNeeded = getSize(solvedBoard) - clues;
+  const emptyCellsNeeded = getNumCells(solvedBoard) - clues;
   // remove cells until we get to the appropriate number of clues
-  for(let i = 0; i < emptyCellsNeeded; i++){
-    const {r,c} = shuffledCells[i];
+  for (let i = 0; i < emptyCellsNeeded; i++) {
+    const {r, c} = shuffledCells[i];
     solvedBoard[r][c] = _;
   }
   return solvedBoard;
@@ -222,15 +261,18 @@ export const isSubsetOf = (source: SudokuBoard, target: SudokuBoard) => {
 /** returns the number of filled cells in a board */
 export const getFilledCells = (board: SudokuBoard): number => board.flatMap(t => t).filter(t => t).length;
 
+/** the size of a board: width, height */
+export type BoardSize = CellPosition;
+export const getBoardSize = (board: SudokuBoard): BoardSize => ({r: board.length, c: board[0].length});
 /** returns the number of cells in a board */
-export const getSize = (board: SudokuBoard): number => board.length * board[0].length;
+export const getNumCells = (board: SudokuBoard): number => board.length * board[0].length;
 
 export const analyzeBoard = (board: SudokuBoard, showAllSolutions = false) => {
   const filledCells = getFilledCells(board);
-  const completeRegions = getRegions(board).filter(t => !t.some(c => !c) && isSetUnique(t)).length;
+  const completeRegions = getRegionSets(board).filter(t => !t.some(c => !c) && isSetUnique(t)).length;
   const completeColumns = transpose(board).filter(t => !t.some(c => !c) && isSetUnique(t)).length;
   const completeRows = board.filter(t => !t.some(c => !c) && isSetUnique(t)).length;
-  const regions = getRegions(board).length;
+  const regions = getRegionSets(board).length;
   const rows = board.length;
   const columns = transpose(board).length;
   const cells = board.flatMap(t => t).length;

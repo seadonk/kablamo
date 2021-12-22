@@ -1,15 +1,22 @@
 import {TestBed} from "@angular/core/testing";
 import {
   _,
+  CellPosition,
   Examples,
   generateBoard,
+  getBoardSize,
+  getCellPositionByIndex,
+  getCellRegionByPosition,
   getFilledCells,
   getNextOpenCell,
+  getNumCells,
   getRange,
-  getRegions,
-  getSize,
+  getRegionCellPositions,
+  getRegionPositions,
+  getRegionSets,
   hash,
   initBoard,
+  isCellInRegion,
   isComplete,
   isSetUnique,
   isSolved,
@@ -17,6 +24,7 @@ import {
   isValid,
   printBoard,
   printRow,
+  RegionPosition,
   shuffle,
   solve,
   solveAll,
@@ -39,10 +47,25 @@ describe('Sudoku', () => {
     expect(initBoard()).toStrictEqual(Examples.emptyBoard);
   })
 
-  it('getSize should return the number of cells in a grid', () => {
-    expect(getSize([[]])).toEqual(0);
-    expect(getSize([[_, _], [_, _]])).toEqual(4);
-    expect(getSize(Examples.emptyBoard)).toEqual(81);
+  it('initBoard should initialize a board matching the given hash', () => {
+    const easyHash = '374208501005000000000100000090010800208900705750024190500702900009381207007409610';
+    const board = initBoard(easyHash);
+    expect(board).toBeTruthy();
+    expect(hash(board)).toEqual(easyHash);
+  })
+
+  it('getBoardSize should return the width,height of a board', () => {
+    expect(getBoardSize([[], []])).toEqual({r: 2, c: 0});
+    expect(getBoardSize([[]])).toEqual({r: 1, c: 0});
+    expect(getBoardSize([[_, _], [_, _]])).toEqual({r: 2, c: 2});
+    expect(getBoardSize([[_, _, _], [_, _, _]])).toEqual({r: 2, c: 3});
+    expect(getBoardSize(Examples.emptyBoard)).toStrictEqual({r: 9, c: 9});
+  })
+
+  it('getNumCells should return the number of cells in a grid', () => {
+    expect(getNumCells([[]])).toEqual(0);
+    expect(getNumCells([[_, _], [_, _]])).toEqual(4);
+    expect(getNumCells(Examples.emptyBoard)).toEqual(81);
   })
 
   it('should shuffle an array', () => {
@@ -52,11 +75,47 @@ describe('Sudoku', () => {
     // but extremely unlikely.
     expect(original).not.toStrictEqual(shuffled);
     expect(new Set(shuffled).size).toBe(100); // should still contain all items
-    expect(shuffled.sort((a,b) => a > b ? 1 : -1)).toStrictEqual(original); // sorting back numerically should produce original
+    expect(shuffled.sort((a, b) => a > b ? 1 : -1)).toStrictEqual(original); // sorting back numerically should produce original
   })
 
   it('should produce a hash for an array', () => {
     expect(hash(Examples.easyPreset)).toBe('374208501005000000000100000090010800208900705750024190500702900009381207007409610');
+  })
+
+  describe('region and cell positions', () => {
+    it('should return all region positions', () => {
+      const regions = getRegionPositions();
+      expect(regions).toHaveLength(9);
+      expect(regions).toMatchSnapshot();
+    })
+
+    it('should return the corresponding region for the given cell when getCellRegionByPosition is called', () => {
+      expect(getCellRegionByPosition({r: 0, c: 0})).toStrictEqual({r: 0, c: 0});
+      expect(getCellRegionByPosition({r: 3, c: 3})).toStrictEqual({r: 1, c: 1});
+      expect(getCellRegionByPosition({r: 3, c: 7})).toStrictEqual({r: 1, c: 2});
+      expect(getCellRegionByPosition({r: 8, c: 8})).toStrictEqual({r: 2, c: 2});
+    })
+
+    it('should return the cell position by index', () => {
+      expect(getCellPositionByIndex(0)).toStrictEqual({r: 0, c: 0});
+      expect(getCellPositionByIndex(80)).toStrictEqual({r: 8, c: 8});
+      expect(getCellPositionByIndex(11)).toStrictEqual({r: 1, c: 2});
+    })
+
+    it('should return all of the cell positions within a given region', () => {
+      let region: RegionPosition = {r: 0, c: 0};
+      const cells = getRegionCellPositions(region);
+      expect(cells).toHaveLength(9);
+      expect(cells).toMatchSnapshot();
+    })
+
+    it('should return true if the cell is in the region', () => {
+      const region: RegionPosition = {r: 0, c: 0};
+      const cellInRegion: CellPosition = {r: 2, c: 2};
+      const cellOutRegion: CellPosition = {r: 0, c: 3};
+      expect(isCellInRegion(region, cellInRegion)).toBeTruthy();
+      expect(isCellInRegion(region, cellOutRegion)).toBeFalsy();
+    })
   })
 
   describe('getNextOpenCell', () => {
@@ -81,7 +140,7 @@ describe('Sudoku', () => {
     })
 
     it('should return the size of a board for a solved board', () => {
-      const size = getSize(Examples.solved);
+      const size = getNumCells(Examples.solved);
       expect(getFilledCells(Examples.solved)).toEqual(size);
     })
 
@@ -269,7 +328,7 @@ describe('Sudoku', () => {
 
   describe('getRegions', () => {
     it('should get the board divided into 3x3 regions', () => {
-      expect(getRegions(Examples.easyPreset)).toStrictEqual([
+      expect(getRegionSets(Examples.easyPreset)).toStrictEqual([
         [3, 7, 4, _, _, 5, _, _, _],
         [2, _, 8, _, _, _, 1, _, _],
         [5, _, 1, _, _, _, _, _, _],

@@ -1,0 +1,33 @@
+$cellSize: 2rem;
+
+:host {
+  width: $cellSize;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  font-size: 1.5rem;
+
+  &.--selected > .body {
+    font-weight: bold;
+    border: 3px solid green;
+    background-color: lightgreen;
+  }
+
+  &.--highlightNumber > .body {
+    background-color: lightblue;
+    color: green;
+  }
+
+  &.--highlightSet {
+    background-color: gainsboro;
+  }
+
+  > .body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+}
+
+
