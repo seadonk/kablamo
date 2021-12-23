@@ -19,7 +19,16 @@ $cellSize: 2rem;
   }
 
   &.--highlightSet {
-    background-color: gainsboro;
+    background-color: #e3f8ff;
+  }
+
+  // locked cells will be black, others will be blue
+  color: royalblue;
+
+  &.--locked {
+    color: black;
+    //background-color: lightgoldenrodyellow;
+    //color: gray;
   }
 
   > .body {
@@ -29,5 +38,3 @@ $cellSize: 2rem;
     width: 100%;
   }
 }
-
-

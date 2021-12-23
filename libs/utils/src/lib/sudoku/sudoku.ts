@@ -23,7 +23,7 @@ export const initBoard = (hash?: SudokuHash): SudokuBoard => hash ? initBoardFro
 /** initializes a board from the given hash */
 const initBoardFromHash = (hash: SudokuHash): SudokuBoard => {
   const board = initBoard();
-  [...hash].forEach((t, i) => {
+  hash.split('').forEach((t, i) => {
     const {r, c} = getCellPositionByIndex(i);
     board[r][c] = +t;
   })
@@ -197,55 +197,7 @@ export const generateBoard = (clues: number): SudokuBoard => {
     solvedBoard[r][c] = _;
   }
   return solvedBoard;
-
-
-  // if (type === 'random' && clues > 50) {
-  //   console.error('Using clues > 50 (for an 81 cell board) will result in increasingly slow performance.');
-  //   console.log();
-  // }
-  // // internal function to be called recursively
-  // const genBoard = (board: SudokuBoard, clues: number): boolean => {
-  //   if (getFilledCells(board) < clues) {
-  //     const nextOpenCell = _getNextOpenCell(board); // determine next cell
-  //     if (nextOpenCell) {
-  //       const {r, c} = nextOpenCell;
-  //       // instead of 1 - 9, get a shuffled range of values each time
-  //       const shuffledValues = shuffle(getRange(8).map(t => t + 1));
-  //       for (const v of shuffledValues) { // try all numbers in open cell
-  //         // only make valid moves
-  //         board[r][c] = v;
-  //         if (isValid(board)) { // check if move was possible
-  //           if (genBoard(board, clues))
-  //             return true;
-  //         }
-  //         board[r][c] = _; // backtrack if not valid
-  //       }
-  //       return false;
-  //     }
-  //   }
-  //   return isSolveable(board);
-  // }
-  //
-  // const board = initBoard();
-  // genBoard(board, clues);
-  // return board;
-  // // whileLoop:
-  // //   while (getFilledCells(board) < clues) {
-  // //     const nextOpenCell = getNextOpenCell(board);
-  // //     if (nextOpenCell) {
-  // //       console.log(nextOpenCell);
-  // //       const {r, c} = nextOpenCell;
-  // //       for (let v = 1; v <= 9; v++) {
-  // //         board[r][c] = v;
-  // //         if (isValid(board))
-  // //           continue whileLoop;
-  // //       }
-  // //     }
-  // //     break;
-  // //   }
-  // // return board;
 }
-
 
 /** returns true if all filled cells from the source are contained in the target */
 export const isSubsetOf = (source: SudokuBoard, target: SudokuBoard) => {
@@ -291,13 +243,6 @@ export const analyzeBoard = (board: SudokuBoard, showAllSolutions = false) => {
       logBoard(t)
     });
   }
-}
-
-export const stopWatch = (callback: any) => {
-  const start = performance.now();
-  callback();
-  const end = performance.now();
-  console.log(`Finished in ${end - start} ms`);
 }
 
 export const logBoard = (board: SudokuBoard) => console.log(printBoard(board));

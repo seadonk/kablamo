@@ -19,3 +19,10 @@ export function shuffle(array: any[]) {
 
   return array;
 }
+
+export const stopWatch = (callback: any) => {
+    const start = performance.now();
+    callback();
+    const end = performance.now();
+    console.log(`Finished in ${end - start} ms`);
+}

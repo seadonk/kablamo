@@ -39,10 +39,16 @@ $cellSize: 2rem;
 
   }
 }
+.settings {
+  > * {
+    display: block;
+  }
+}
 
-.cell {
-  width: $cellSize;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.stats {
+  position: fixed;
+}
+.board {
+  position: relative;
+  top: 5rem;
 }

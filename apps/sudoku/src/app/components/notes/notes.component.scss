@@ -1,0 +1,18 @@
+:host {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto;
+  align-items: stretch;
+  justify-content: space-around;
+  font-size: 30%;
+  width: 2rem; // temporary width, this should be responsive
+  position: absolute;
+
+  > * {
+    aspect-ratio: 1;
+    // center text vertically and horizontally
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

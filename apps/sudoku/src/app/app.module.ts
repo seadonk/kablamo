@@ -9,9 +9,10 @@ import {BoardComponent} from './components/board/board.component';
 import {MainComponent} from './pages/main/main.component';
 import {routes} from "./app.routes";
 import {CellComponent} from './components/cell/cell.component';
+import {NotesComponent} from './components/notes/notes.component';
 
 @NgModule({
-  declarations: [AppComponent, NxWelcomeComponent, BoardComponent, MainComponent, CellComponent],
+  declarations: [AppComponent, NxWelcomeComponent, BoardComponent, MainComponent, CellComponent, NotesComponent],
   imports: [
     BrowserModule,
     RouterModule.forRoot(routes, {initialNavigation: 'enabledBlocking'}),
