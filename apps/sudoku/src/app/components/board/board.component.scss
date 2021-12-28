@@ -20,12 +20,15 @@ $cellSize: 2rem;
     &:nth-child(9n+3), &:nth-child(9n+6) {
       border-right: $border;
     }
+
     &:nth-child(9n+1) {
       border-left: $border;
     }
+
     &:nth-child(9n) {
       border-right: $border;
     }
+
     // region horizontal borders
     @for $i from 0 through 8 {
       &:nth-child(27n-#{$i}) {
@@ -39,16 +42,26 @@ $cellSize: 2rem;
 
   }
 }
-.settings {
-  > * {
-    display: block;
-  }
-}
 
-.stats {
-  position: fixed;
-}
-.board {
-  position: relative;
-  top: 5rem;
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .stats {
+    flex: 0 1 auto;
+    //position: fixed;
+
+    .settings {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-column-gap: 1rem;
+      grid-row-gap: 1rem;
+    }
+  }
+
+  .board {
+    //position: relative;
+    //top: 5rem;
+  }
 }

@@ -179,7 +179,7 @@ export class BoardComponent {
   /** clears all editable cells */
   reset = () => {
     this.updateCellsFromBoard(this.board);
-    this.cells.map((v,i) => i).filter(i => !this.lockedCells.includes(i)).forEach(i => this.cells[i] = _);
+    this.cells.map((v, i) => i).filter(i => !this.lockedCells.includes(i)).forEach(i => this.cells[i] = _);
     this.updateBoardFromCells(this.cells);
   }
 
@@ -200,5 +200,14 @@ export class BoardComponent {
     this.initBoard(localStorage.getItem('board'), lockedCells);
   }
 
+  // to unicode from 5digit decimals
+  // getBoardHash = () => String.fromCodePoint(...this.groupInto(5, [...hash(this.board)]).map(t => (+t)));
   getBoardHash = () => hash(this.board);
+  // to 32 bit unit
+  // getBoardHash = () => this.groupInto(5, [...hash(this.board)]).map(t => (+t+1111).toString(32)).join("");
+  // getBoardNumsFromHash = (hash: string) =>
+
+  private groupInto = (n: number, list: string[]) => list.reduce((r, e, i) =>
+      (i % n ? r[r.length - 1].push(e) : r.push([e])) && r
+    , []).map(t => t.join(""));
 }
