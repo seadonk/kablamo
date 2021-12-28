@@ -41,7 +41,6 @@ export class CellComponent {
   @Input() notes: SudokuValue[];
   @Input() showNotes: boolean;
 
-  @Output() valueChanged = new EventEmitter<SudokuValue>();
   @Output() notesChanged = new EventEmitter<SudokuValue[]>();
 
 }

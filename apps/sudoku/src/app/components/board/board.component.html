@@ -1,26 +1,15 @@
 <div class="container">
-
   <div class="board">
-    <!--  <ng-container *ngFor="let cell of cells; let i = index;">-->
-    <!--    <sudoku-cell (click)="selectCell(i)"-->
-    <!--                 [selected]="selected === i"-->
-    <!--                 [highlightNumber]="highlightNumber && cell == cells[selected]"-->
-    <!--                 [highlightSet]="highlightSets && isSameSet(i)"-->
-    <!--                 [locked]="isLocked(i)"-->
-    <!--                 (valueChanged)="onValueChanged(i,$event)">{{cell || ''}}</sudoku-cell>-->
-    <!--  </ng-container>-->
-
-    <ng-container *ngFor="let row of board; let r = index;">
+    <ng-container *ngFor="let row of sudokuService.board; let r = index;">
       <ng-container *ngFor="let cell of row; let c = index;">
-        <sudoku-cell (click)="selectCell2({r: r, c: c})"
-                     [selected]="selected === r*9+c"
-                     [highlightNumber]="highlightNumber && cells[selected] && cell == cells[selected]"
-                     [highlightSet]="highlightSets && isSameSet2({r: r, c: c})"
-                     [locked]="isLocked(r*9+c)"
+        <sudoku-cell (click)="selectCell({r: r, c: c})"
+                     [selected]="selectedIndex === r*9+c"
+                     [highlightNumber]="highlightNumber && selectedPosition && cell == sudokuService.getPositionValue(selectedPosition)"
+                     [highlightSet]="highlightSets && isSameSet({r: r, c: c}, this.selectedPosition)"
+                     [locked]="sudokuService.isPositionLocked({r:r, c:c})"
                      [value]="cell"
                      [notesMode]="notesMode"
-                     [showNotes]="showNotes"
-                     (valueChanged)="onValueChanged(r*9+c,$event)">
+                     [showNotes]="showNotes">
         </sudoku-cell>
       </ng-container>
     </ng-container>
@@ -28,10 +17,12 @@
 
   <div class="stats">
     <div class="settings">
-      <button (click)="solve()">Solve</button>
-      <button (click)="reset()">Reset</button>
-      <button (click)="clear()">Clear</button>
-      <button (click)="generate()">Generate</button>
+      <button (click)="sudokuService.undo()">Undo</button>
+      <button (click)="sudokuService.redo()">Redo</button>
+      <button (click)="sudokuService.solve()">Solve</button>
+      <button (click)="sudokuService.reset()">Reset</button>
+      <button (click)="sudokuService.clear()">Clear</button>
+      <button (click)="sudokuService.generate()">Generate</button>
       <button (click)="highlightNumber = !highlightNumber">{{ highlightNumber ? "Don't" : ""}} Highlight Same Numbers
       </button>
       <button (click)="highlightSets = !highlightSets">{{ highlightSets ? "Don't" : ""}} Highlight Selected Sets
@@ -42,12 +33,10 @@
     <pre><code>
   {{
       {
-        'Board Hash': getBoardHash(),
-        'Selected Value': cells[selected] || 0,
-        'Selected Index': selected || 'none',
-        solved: solved,
-        valid: valid,
-        solveable: solveable
+        'Initial Board Hash': sudokuService.getInitHash(),
+        'Current Board Hash': sudokuService.getCurrentHash(),
+        'Selected Value': sudokuService.getPositionValue(selectedPosition),
+        'Selected Index': selectedIndex || 'none'
       } | json
       }}
 </code></pre>
