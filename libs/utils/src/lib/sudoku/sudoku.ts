@@ -18,7 +18,7 @@ export const printBoard = (board: SudokuBoard): string => {
 }
 
 /** initializes an empty board, or a board matching the given hash if provided */
-export const initBoard = (hash?: SudokuHash): SudokuBoard => hash ? initBoardFromHash(hash) : getRange(8).map(() => getRange(8).map(() => _));
+export const initBoard = (hash?: SudokuHash): SudokuBoard => hash ? initBoardFromHash(hash) : GetEmptyBoard();
 
 /** initializes a board from the given hash */
 const initBoardFromHash = (hash: SudokuHash): SudokuBoard => {
@@ -49,6 +49,8 @@ export const isSetUnique = (set: any[]): boolean => {
 
 /** returns an array of numbers from 0 to N */
 export const getRange = (n: number) => Array.from(Array(n + 1).keys());
+
+const GetEmptyBoard = (): SudokuBoard => getRange(8).map(() => getRange(8).map(() => _));
 
 /** returns an array of all region positions within the board */
 export const getRegionPositions = (): RegionPosition[] =>
@@ -111,6 +113,19 @@ export const getCellPositionByIndex = (i: number): CellPosition => ({r: (i - i %
 export const getCellRegionByPosition = (position: CellPosition) =>
   getRegionPositions().find(p => isCellInRegion(p, position));
 
+/** returns true if two positions are in the same set */
+export const isSameSet = (a: CellPosition, b: CellPosition): boolean => {
+  if (!(a && b))
+    return false;
+  const region = getCellRegionByPosition(b);
+  if (region) {
+    return (
+      b?.r === a.r ||
+      b?.c === a.c ||
+      isCellInRegion(region, a));
+  }
+  return false;
+}
 // solving
 /** finds the next empty cell.
  * The default order is left to right top to bottom sequentially.

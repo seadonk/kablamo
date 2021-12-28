@@ -18,6 +18,7 @@ import {
   initBoard,
   isCellInRegion,
   isComplete,
+  isSameSet,
   isSetUnique,
   isSolved,
   isSubsetOf,
@@ -150,6 +151,35 @@ describe('Sudoku', () => {
       board[1][1] = 1;
       board[2][2] = 1;
       expect(getFilledCells(board)).toEqual(3);
+    })
+  })
+
+  describe('isSameSet', () => {
+    it('should return true if two cells are in the same column', () => {
+      const a = {r: 1, c: 3};
+      const b = {r: 8, c: 3};
+      expect(isSameSet(a, b)).toBeTruthy();
+
+    })
+
+    it('should return true if two cells are in the same row', () => {
+      const a = {r: 6, c: 0};
+      const b = {r: 6, c: 8};
+      expect(isSameSet(a, b)).toBeTruthy();
+
+    })
+
+    it('should return true if two cells are in the same region', () => {
+      const a = {r: 6, c: 6};
+      const b = {r: 8, c: 8};
+      expect(isSameSet(a, b)).toBeTruthy();
+
+    })
+
+    it('should return true if two cells do not share any sets', () => {
+      const a = {r: 0, c: 0};
+      const b = {r: 4, c: 4};
+      expect(isSameSet(a, b)).toBeFalsy();
     })
   })
 
