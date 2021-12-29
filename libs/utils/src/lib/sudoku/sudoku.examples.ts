@@ -61,6 +61,20 @@ export class Examples {
     ]
   };
 
+  static get noSolutions(): SudokuBoard {
+    return [
+      [5, 1, 6, 8, 4, 9, 7, 3, 2],
+      [3, _, 7, 6, _, 5, _, _, _],
+      [8, _, 9, 7, _, _, _, 6, 5],
+      [1, 3, 5, _, 6, _, 9, _, 7],
+      [4, 7, 2, 5, 9, 1, _, _, 6],
+      [9, 6, 8, 3, 7, _, _, 5, _],
+      [2, 5, 3, 1, 8, 6, _, 7, 4],
+      [6, 8, 4, 2, _, 7, 5, _, _],
+      [7, 9, 1, _, 5, _, 6, _, 8],
+    ]
+  };
+
   /** columns and rows are valid, regions are invalid */
   static get invalidRegions(): SudokuBoard {
     return [

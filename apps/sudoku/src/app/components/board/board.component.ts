@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, HostListener} from '@angular/core';
 import {
+  _,
   BoardSize,
   CellPosition,
   getBoardSize,
@@ -22,29 +23,20 @@ export class BoardComponent {
   solved: boolean;
   boardSize: BoardSize;
   numCells: number;
-
   notesMode: boolean;
   showNotes: boolean;
   highlightNumber: boolean = true;
   highlightSets: boolean = true;
+  highlightBlanks: boolean = false;
+  isSameSet = isSameSet;
 
-  get selectedIndex(): number {
-    return this.selectedPosition && this.sudokuService.getIndexByPosition(this.selectedPosition);
-  }
+  @HostListener('keydown.control.z') undo = () => this.sudokuService.undo();
+  @HostListener('keydown.control.y') redo = () => this.sudokuService.redo();
+  @HostListener('window:keydown', ['$event']) handleKeyboardEvent = (event: KeyboardEvent) => this.handleKeyboardNavigation(event) || this.handleInputEvent(event);
 
   constructor(public sudokuService: SudokuService) {
     this.boardSize = getBoardSize(this.sudokuService.board);
     this.numCells = getNumCells(this.sudokuService.board);
-  }
-
-  @HostListener('keydown.control.z') undo = () => this.sudokuService.undo();
-  @HostListener('keydown.control.y') redo = () => this.sudokuService.redo();
-
-  @HostListener('window:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
-    if (this.handleKeyboardNavigation(event))
-      return;
-    this.handleInputEvent(event);
   }
 
   // returns true if the keyboard was used to modify a cell value
@@ -90,5 +82,19 @@ export class BoardComponent {
   }
 
   selectCell = (cell: CellPosition) => this.selectedPosition = cell;
-  isSameSet = isSameSet;
+
+  isSelected = (cell: CellPosition): boolean => {
+    const {selectedPosition: s} = this;
+    return s && s.r === cell.r && s.c === cell.c;
+  }
+
+  highlightCell = (cell: CellPosition, value: SudokuValue): boolean => {
+    if (!(this.highlightNumber && this.selectedPosition))
+      return false;
+    if (value != this.sudokuService.getPositionValue(this.selectedPosition))
+      return false;
+    if (value === _ && !this.highlightBlanks)
+      return false;
+    return true;
+  }
 }

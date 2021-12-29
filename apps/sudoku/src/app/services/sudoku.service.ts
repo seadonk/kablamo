@@ -91,10 +91,7 @@ export class SudokuService {
     if (this.isPositionLocked(pos) || currentValue === value)
       return;
 
-    const x = this.initialBoard;
     this.board[pos.r][pos.c] = value;
-    console.log(x);
-    console.log(this.board);
     if (pushToStack) {
       this.actions.push({pos: pos, oldValue: currentValue, newValue: value});
     }
@@ -103,7 +100,7 @@ export class SudokuService {
 
   isPositionLocked = (pos: CellPosition): boolean => pos && !!this.initialBoard[pos.r][pos.c];
 
-  getIndexByPosition = (pos: CellPosition) => pos && pos.r * this.board[0].length + pos.c;
+
 
   getPositionValue = (pos: CellPosition): SudokuValue => pos && this.board[pos.r][pos.c];
 }

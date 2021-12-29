@@ -5,6 +5,7 @@ import {
   Examples,
   generateBoard,
   getBoardSize,
+  getCellIndexByPosition,
   getCellPositionByIndex,
   getCellRegionByPosition,
   getFilledCells,
@@ -20,11 +21,14 @@ import {
   isComplete,
   isSameSet,
   isSetUnique,
+  isSolveable,
   isSolved,
   isSubsetOf,
+  isUnique,
   isValid,
   printBoard,
   printRow,
+  randomizeBoard,
   RegionPosition,
   shuffle,
   solve,
@@ -103,6 +107,13 @@ describe('Sudoku', () => {
       expect(getCellPositionByIndex(11)).toStrictEqual({r: 1, c: 2});
     })
 
+    it('should return cell index by position', () => {
+      const board = Examples.emptyBoard;
+      expect(getCellIndexByPosition(board, {r: 0, c: 0})).toBe(0);
+      expect(getCellIndexByPosition(board, {r: 3, c: 5})).toBe(32);
+      expect(getCellIndexByPosition(board, {r: 8, c: 8})).toBe(80);
+    })
+
     it('should return all of the cell positions within a given region', () => {
       let region: RegionPosition = {r: 0, c: 0};
       const cells = getRegionCellPositions(region);
@@ -133,6 +144,11 @@ describe('Sudoku', () => {
       board[5][6] = _;
       expect(getNextOpenCell(board)).toStrictEqual({r: 5, c: 6});
     })
+
+    it('should return the cell according to the cell order', () => {
+      const cellOrder = [{r: 5, c: 6}];
+      expect(getNextOpenCell(Examples.emptyBoard, cellOrder)).toStrictEqual(cellOrder[0]);
+    })
   })
 
   describe('filledCells', () => {
@@ -154,26 +170,60 @@ describe('Sudoku', () => {
     })
   })
 
+  describe('analytics', () => {
+    describe('isUnique', () => {
+      it('should return true if a board has only one solution', () => {
+        expect(isUnique(Examples.easyPreset)).toBeTruthy();
+      })
+      it('should return false if a board has no solutions', () => {
+        expect(isUnique(Examples.easyPresetInvalidRegion)).toBeFalsy();
+      })
+      it('should return false if a board is complete and invalid', () => {
+        expect(isComplete(Examples.invalidRegions)).toBeTruthy();
+        expect(isUnique(Examples.invalidRegions)).toBeFalsy();
+      })
+      it('should return false if a board has more than one solution', () => {
+        expect(isUnique(Examples.twoSolutions)).toBeFalsy();
+      })
+    })
+
+    describe('isSolveable', () => {
+      it('should return true if a board has one solution', () => {
+        expect(isSolveable(Examples.easyPreset)).toBeTruthy();
+      })
+      it('should return true if a board has more than one solution', () => {
+        expect(isSolveable(Examples.twoSolutions)).toBeTruthy();
+      })
+      it('should return false if a board is complete but invalid', () => {
+        expect(isComplete(Examples.invalidRegions)).toBeTruthy();
+        expect(isSolveable(Examples.invalidRegions)).toBeFalsy();
+      })
+      it('should return true for an empty board', () => {
+        expect(isSolveable(Examples.emptyBoard)).toBeTruthy();
+      })
+      it('should return false if a board is valid but has no solutions', () => {
+        expect(isSolveable(Examples.noSolutions)).toBeFalsy();
+      })
+    })
+  })
+
   describe('isSameSet', () => {
     it('should return true if two cells are in the same column', () => {
       const a = {r: 1, c: 3};
       const b = {r: 8, c: 3};
       expect(isSameSet(a, b)).toBeTruthy();
-
     })
 
     it('should return true if two cells are in the same row', () => {
       const a = {r: 6, c: 0};
       const b = {r: 6, c: 8};
       expect(isSameSet(a, b)).toBeTruthy();
-
     })
 
     it('should return true if two cells are in the same region', () => {
       const a = {r: 6, c: 6};
       const b = {r: 8, c: 8};
       expect(isSameSet(a, b)).toBeTruthy();
-
     })
 
     it('should return true if two cells do not share any sets', () => {
@@ -455,6 +505,24 @@ describe('Sudoku', () => {
 
       it('should return after maxSolutions are found if provided', () => {
         expect(solveAll(Examples.twoSolutions, 1)).toHaveLength(1);
+      })
+    })
+
+    describe('randomizeBoard', () => {
+      beforeEach(() => {
+        jest.spyOn(Math, 'random').mockImplementation(
+          (() => {
+            let index = 0;
+            let arrayOfValues = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+            return () => {
+              return arrayOfValues[index++ % 9];
+            };
+          })()
+        );
+      })
+
+      it('should produce a random board', () => {
+        expect(randomizeBoard(Examples.emptyBoard)).toMatchSnapshot();
       })
     })
 

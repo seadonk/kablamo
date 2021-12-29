@@ -26,3 +26,6 @@ export const stopWatch = (callback: any) => {
     const end = performance.now();
     console.log(`Finished in ${end - start} ms`);
 }
+
+/** returns an array of numbers from 0 to N */
+export const getRange = (n: number) => Array.from(Array(n + 1).keys());

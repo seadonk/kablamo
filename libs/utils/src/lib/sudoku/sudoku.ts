@@ -1,5 +1,5 @@
 import {_} from "./sudoku.examples";
-import {deepCopy, shuffle} from "../utils";
+import {deepCopy, getRange, shuffle} from "../utils";
 
 export type SudokuValue = number;
 export type SudokuSet = SudokuValue[];
@@ -8,13 +8,13 @@ export type SudokuBoard = SudokuSet[];
 export const printRow = (row: SudokuSet): string => {
   const separator = (index: number) => (index < 8 && (index + 1) % 3 === 0) ? '|' : '';
   const printCell = (value: SudokuValue) => value || ' ';
-  const result = row?.map((cell, i) => printCell(cell) + separator(i)).join('');
+  const result = row.map((cell, i) => printCell(cell) + separator(i)).join('');
   return `${result}`.split('').join(' ');
 }
 
 export const printBoard = (board: SudokuBoard): string => {
   const separator = (index: number) => ((index < 8 && (index + 1) % 3 === 0) ? `--- --- ---` + '\n' : '').split('').join(' ');
-  return board?.map((row, i) => printRow(row) + '\n' + separator(i)).join('') + '';
+  return board.map((row, i) => printRow(row) + '\n' + separator(i)).join('') + '';
 }
 
 /** initializes an empty board, or a board matching the given hash if provided */
@@ -46,9 +46,6 @@ export const isSetUnique = (set: any[]): boolean => {
   const original = set.filter(v => v); // remove nulls
   return original.length === new Set(original).size;
 }
-
-/** returns an array of numbers from 0 to N */
-export const getRange = (n: number) => Array.from(Array(n + 1).keys());
 
 const GetEmptyBoard = (): SudokuBoard => getRange(8).map(() => getRange(8).map(() => _));
 
@@ -84,7 +81,7 @@ export const isValid = (board: SudokuBoard): boolean => {
 
 /** returns true if a board has only one solution
  * This will return false faster than it will return true */
-export const isUnique = (board: SudokuBoard): boolean => !!solveAll(board, 2).length;
+export const isUnique = (board: SudokuBoard): boolean => solveAll(board, 2).length === 1;
 
 /** tests whether a board has any solutions */
 export const isSolveable = (board: SudokuBoard): boolean => solve(deepCopy(board));
@@ -109,23 +106,18 @@ export type RegionPosition = CellPosition;
 /** gets the cell position in r,c format, from a given sequential index within the board. */
 export const getCellPositionByIndex = (i: number): CellPosition => ({r: (i - i % 9) / 9, c: i % 9});
 
+export const getCellIndexByPosition = (board: SudokuBoard, pos: CellPosition): number => pos && board && pos.r * board[0].length + pos.c;
+
 /** gets the region position in r,c format, from a given cell position within the board */
 export const getCellRegionByPosition = (position: CellPosition) =>
   getRegionPositions().find(p => isCellInRegion(p, position));
 
 /** returns true if two positions are in the same set */
 export const isSameSet = (a: CellPosition, b: CellPosition): boolean => {
-  if (!(a && b))
-    return false;
   const region = getCellRegionByPosition(b);
-  if (region) {
-    return (
-      b?.r === a.r ||
-      b?.c === a.c ||
-      isCellInRegion(region, a));
-  }
-  return false;
+  return b.r === a.r  || b.c === a.c || (region != null && isCellInRegion(region, a));
 }
+
 // solving
 /** finds the next empty cell.
  * The default order is left to right top to bottom sequentially.
@@ -158,7 +150,7 @@ export const solve = (board: SudokuBoard, random = false): boolean => {
     }
     return false;
   }
-  return true; // no more open cells, solved;
+  return isValid(board); // no more open cells, solved;
 }
 
 /** returns an array of all possible solutions to the given board */
@@ -233,41 +225,4 @@ export type BoardSize = CellPosition;
 export const getBoardSize = (board: SudokuBoard): BoardSize => ({r: board.length, c: board[0].length});
 /** returns the number of cells in a board */
 export const getNumCells = (board: SudokuBoard): number => board.length * board[0].length;
-
-export const analyzeBoard = (board: SudokuBoard, showAllSolutions = false) => {
-  const filledCells = getFilledCells(board);
-  const completeRegions = getRegionSets(board).filter(t => !t.some(c => !c) && isSetUnique(t)).length;
-  const completeColumns = transpose(board).filter(t => !t.some(c => !c) && isSetUnique(t)).length;
-  const completeRows = board.filter(t => !t.some(c => !c) && isSetUnique(t)).length;
-  const regions = getRegionSets(board).length;
-  const rows = board.length;
-  const columns = transpose(board).length;
-  const cells = board.flatMap(t => t).length;
-  console.log(`${filledCells}/${cells} - Filled Cells`);
-  console.log(`${completeRegions}/${regions} - Complete Regions`);
-  console.log(`${completeColumns}/${columns} - Complete Columns`);
-  console.log(`${completeRows}/${rows} - Complete Rows`);
-
-  console.log(`isSolveable: ${isSolveable(board)}`);
-  if (showAllSolutions) {
-    const solutions = solveAll(board);
-    console.log('Solutions: ', solutions.length);
-    solutions.forEach((t, i) => {
-      console.log();
-      console.log(`Solution ${i + 1}`);
-      logBoard(t)
-    });
-  }
-}
-
-export const logBoard = (board: SudokuBoard) => console.log(printBoard(board));
-export const logStatus = (board: SudokuBoard) => {
-  logBoard(board);
-
-  // console.log('isComplete', isComplete(board));
-  // console.log('isValid', isValid(board));
-  // console.log('isSolved', isSolved(board));
-  analyzeBoard(board, true);
-  console.log();
-}
 

@@ -3,9 +3,9 @@
     <ng-container *ngFor="let row of sudokuService.board; let r = index;">
       <ng-container *ngFor="let cell of row; let c = index;">
         <sudoku-cell (click)="selectCell({r: r, c: c})"
-                     [selected]="selectedIndex === r*9+c"
-                     [highlightNumber]="highlightNumber && selectedPosition && cell == sudokuService.getPositionValue(selectedPosition)"
-                     [highlightSet]="highlightSets && isSameSet({r: r, c: c}, this.selectedPosition)"
+                     [selected]="isSelected({r: r, c:c})"
+                     [highlightNumber]="highlightCell({r: r, c: c}, cell)"
+                     [highlightSet]="selectedPosition && highlightSets && isSameSet({r: r, c: c}, this.selectedPosition)"
                      [locked]="sudokuService.isPositionLocked({r:r, c:c})"
                      [value]="cell"
                      [notesMode]="notesMode"
@@ -27,6 +27,8 @@
       </button>
       <button (click)="highlightSets = !highlightSets">{{ highlightSets ? "Don't" : ""}} Highlight Selected Sets
       </button>
+      <button (click)="highlightBlanks = !highlightBlanks">{{ highlightBlanks ? "Don't" : ""}} Highlight Same Blanks
+      </button>
       <button (click)="notesMode = !notesMode">{{ notesMode ? "Notes" : "Value"}} Mode</button>
       <button (click)="showNotes = !showNotes">{{ showNotes ? "Hide" : "Show"}} Notes</button>
     </div>
@@ -36,7 +38,7 @@
         'Initial Board Hash': sudokuService.getInitHash(),
         'Current Board Hash': sudokuService.getCurrentHash(),
         'Selected Value': sudokuService.getPositionValue(selectedPosition),
-        'Selected Index': selectedIndex || 'none'
+        'Selected Position': this.selectedPosition || 'none'
       } | json
       }}
 </code></pre>
