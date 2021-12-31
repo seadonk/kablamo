@@ -46,8 +46,11 @@ export class BoardComponent {
       return false;
 
     const newValue: SudokuValue = +event.key ? +event.key : 0;
-    this.sudokuService.setValue(this.selectedPosition, newValue);
-    // this.analyzeBoard();
+    if (this.notesMode) {
+      this.sudokuService.setNote(this.selectedPosition, newValue);
+    } else {
+      this.sudokuService.setValue(this.selectedPosition, newValue);
+    }
     return true;
   }
 
@@ -97,4 +100,9 @@ export class BoardComponent {
       return false;
     return true;
   }
+
+  getBoardNotes = (): any => this.sudokuService.notes.map(r => r.map(c => [...c]));
+
+  // trickery to not have to initialize every note position
+  getNotes = ({r, c}: CellPosition) => this.sudokuService.notes && this.sudokuService.notes[r] && this.sudokuService.notes[r][c]
 }

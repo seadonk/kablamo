@@ -4,6 +4,12 @@ import {deepCopy, getRange, shuffle} from "../utils";
 export type SudokuValue = number;
 export type SudokuSet = SudokuValue[];
 export type SudokuBoard = SudokuSet[];
+/** notes for a single cell
+ * NOTE: these are not serializable to JSON, so when storing them as JSON convert to/from an Array
+ */
+export type SudokuNote = Set<SudokuValue>;
+/** notes for an entire board */
+export type SudokuNotes = SudokuNote[][];
 
 export const printRow = (row: SudokuSet): string => {
   const separator = (index: number) => (index < 8 && (index + 1) % 3 === 0) ? '|' : '';
@@ -115,7 +121,7 @@ export const getCellRegionByPosition = (position: CellPosition) =>
 /** returns true if two positions are in the same set */
 export const isSameSet = (a: CellPosition, b: CellPosition): boolean => {
   const region = getCellRegionByPosition(b);
-  return b.r === a.r  || b.c === a.c || (region != null && isCellInRegion(region, a));
+  return b.r === a.r || b.c === a.c || (region != null && isCellInRegion(region, a));
 }
 
 // solving

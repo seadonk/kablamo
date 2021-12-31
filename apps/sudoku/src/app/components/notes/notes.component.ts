@@ -1,4 +1,5 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {SudokuNote} from "@kablamo/utils";
 
 @Component({
   selector: 'sudoku-notes',
@@ -7,4 +8,5 @@ import {ChangeDetectionStrategy, Component} from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NotesComponent {
+  @Input() notes: SudokuNote;
 }

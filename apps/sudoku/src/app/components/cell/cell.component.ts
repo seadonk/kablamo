@@ -1,5 +1,5 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, Output} from '@angular/core';
-import {SudokuValue} from "@kablamo/utils";
+import {ChangeDetectionStrategy, Component, HostBinding, Input} from '@angular/core';
+import {SudokuNote, SudokuValue} from "@kablamo/utils";
 
 @Component({
   selector: 'sudoku-cell',
@@ -26,6 +26,7 @@ export class CellComponent {
     return result;
   }
 
+  // allow cells to be focused
   @HostBinding('tabIndex') tabIndex = 0;
 
   /** currently focused cell */
@@ -38,9 +39,6 @@ export class CellComponent {
   @Input() locked: boolean;
   @Input() value: SudokuValue;
   @Input() notesMode: boolean;
-  @Input() notes: SudokuValue[];
+  @Input() notes: SudokuNote;
   @Input() showNotes: boolean;
-
-  @Output() notesChanged = new EventEmitter<SudokuValue[]>();
-
 }

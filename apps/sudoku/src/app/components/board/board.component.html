@@ -8,6 +8,7 @@
                      [highlightSet]="selectedPosition && highlightSets && isSameSet({r: r, c: c}, this.selectedPosition)"
                      [locked]="sudokuService.isPositionLocked({r:r, c:c})"
                      [value]="cell"
+                     [notes]="getNotes({r: r, c:c})"
                      [notesMode]="notesMode"
                      [showNotes]="showNotes">
         </sudoku-cell>
@@ -38,7 +39,8 @@
         'Initial Board Hash': sudokuService.getInitHash(),
         'Current Board Hash': sudokuService.getCurrentHash(),
         'Selected Value': sudokuService.getPositionValue(selectedPosition),
-        'Selected Position': this.selectedPosition || 'none'
+        'Selected Position': this.selectedPosition || 'none',
+        notes: getBoardNotes()
       } | json
       }}
 </code></pre>

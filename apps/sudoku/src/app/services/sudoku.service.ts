@@ -7,6 +7,7 @@ import {
   solve,
   SudokuBoard,
   SudokuHash,
+  SudokuNotes,
   SudokuValue
 } from "@kablamo/utils";
 
@@ -33,10 +34,21 @@ export class SudokuService {
     this._board = value;
   }
 
+  private _notes: SudokuNotes;
+  get notes(): SudokuNotes {
+    return this._notes;
+  }
+
+  private set notes(value: SudokuNotes) {
+    this._notes = value;
+  }
+
   /** initializes the board from a given hash */
   private initBoard = (boardHash?: SudokuHash, initBoardHash?: SudokuHash) => {
     this.board = initBoard(boardHash);
     this.initialBoard = initBoard(initBoardHash ?? hash(this.board));
+    // sets are not serializable, so convert from array
+    this.notes = (JSON.parse(localStorage.getItem('notes')) ?? [[]]).map(r => r.map(c => new Set<SudokuValue>(c)));
     this.save();
   }
 
@@ -57,9 +69,13 @@ export class SudokuService {
   save = () => {
     localStorage.setItem('currentBoard', this.getCurrentHash());
     localStorage.setItem('initBoard', this.getInitHash());
+    // sets are not serializable, so convert to array
+    localStorage.setItem('notes', JSON.stringify(this.notes.map(r => r.map(c => [...c]))));
   }
 
-  load = () => this.initBoard(localStorage.getItem('currentBoard'), localStorage.getItem('initBoard'));
+  load = () => {
+    this.initBoard(localStorage.getItem('currentBoard'), localStorage.getItem('initBoard'));
+  }
 
   /** a stack of actions */
   actions: { pos: CellPosition, oldValue: SudokuValue, newValue: SudokuValue }[] = [];
@@ -98,8 +114,28 @@ export class SudokuService {
     this.save();
   }
 
-  isPositionLocked = (pos: CellPosition): boolean => pos && !!this.initialBoard[pos.r][pos.c];
+  setNote = (pos: CellPosition, value: SudokuValue, pushToStack = true) => {
+    const {r, c} = pos;
+    const currentValue = this.board[r][c];
+    // don't write notes in completed cells
+    if (currentValue || !value)
+      return;
 
+    // init notes;
+    this.notes[r] = this.notes[r] ?? [];
+    this.notes[r][c] = this.notes[r][c] ?? new Set<SudokuValue>();
+    const notes = this.notes[r][c];
+    notes.has(value) ? notes.delete(value) : notes.add(value);
+    // for now clone notes, so that we trigger change detection in onPush mode;
+    this.notes[r][c] = new Set<SudokuValue>([...notes]);
+    // this.board[pos.r][pos.c] = value;
+    // if (pushToStack) {
+    //   this.actions.push({pos: pos, oldValue: currentValue, newValue: value});
+    // }
+    this.save();
+  }
+
+  isPositionLocked = (pos: CellPosition): boolean => pos && !!this.initialBoard[pos.r][pos.c];
 
 
   getPositionValue = (pos: CellPosition): SudokuValue => pos && this.board[pos.r][pos.c];
