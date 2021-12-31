@@ -1,15 +1,19 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
+import {SudokuService} from "../../services/sudoku.service";
+import {SettingsService} from "../../services/settings.service";
 
 @Component({
   selector: 'sudoku-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss']
 })
-export class MainComponent implements OnInit {
+export class MainComponent {
 
-  constructor() { }
+  constructor(public sudokuService: SudokuService,
+              public settings: SettingsService) {
 
-  ngOnInit(): void {
   }
+
+  getBoardNotes = (): any => this.sudokuService.notes.map(r => r.map(c => [...c]));
 
 }

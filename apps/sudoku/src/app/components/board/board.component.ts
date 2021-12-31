@@ -1,15 +1,7 @@
 import {ChangeDetectionStrategy, Component, HostListener} from '@angular/core';
-import {
-  _,
-  BoardSize,
-  CellPosition,
-  getBoardSize,
-  getCellPositionByIndex,
-  getNumCells,
-  isSameSet,
-  SudokuValue
-} from "@kablamo/utils";
+import {_, CellPosition, getCellPositionByIndex, isSamePosition, isSameSet, SudokuValue} from "@kablamo/utils";
 import {SudokuService} from "../../services/sudoku.service";
+import {SettingsService} from "../../services/settings.service";
 
 @Component({
   selector: 'sudoku-board',
@@ -18,25 +10,14 @@ import {SudokuService} from "../../services/sudoku.service";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BoardComponent {
-  selectedPosition: CellPosition;
-  valid: boolean;
-  solved: boolean;
-  boardSize: BoardSize;
-  numCells: number;
-  notesMode: boolean;
-  showNotes: boolean;
-  highlightNumber: boolean = true;
-  highlightSets: boolean = true;
-  highlightBlanks: boolean = false;
   isSameSet = isSameSet;
 
   @HostListener('keydown.control.z') undo = () => this.sudokuService.undo();
   @HostListener('keydown.control.y') redo = () => this.sudokuService.redo();
   @HostListener('window:keydown', ['$event']) handleKeyboardEvent = (event: KeyboardEvent) => this.handleKeyboardNavigation(event) || this.handleInputEvent(event);
 
-  constructor(public sudokuService: SudokuService) {
-    this.boardSize = getBoardSize(this.sudokuService.board);
-    this.numCells = getNumCells(this.sudokuService.board);
+  constructor(public sudokuService: SudokuService,
+              public settings: SettingsService) {
   }
 
   // returns true if the keyboard was used to modify a cell value
@@ -46,63 +27,61 @@ export class BoardComponent {
       return false;
 
     const newValue: SudokuValue = +event.key ? +event.key : 0;
-    if (this.notesMode) {
-      this.sudokuService.setNote(this.selectedPosition, newValue);
+    if (this.settings.notesMode) {
+      this.sudokuService.setNote(this.sudokuService.selectedPosition, newValue);
     } else {
-      this.sudokuService.setValue(this.selectedPosition, newValue);
+      this.sudokuService.setValue(this.sudokuService.selectedPosition, newValue);
     }
     return true;
   }
 
   // returns true if a keyboard navigation occurred
   private handleKeyboardNavigation(event: KeyboardEvent): boolean {
-    if (this.selectedPosition == null) {
-      this.selectedPosition = {r: 0, c: 0};
+    if (this.sudokuService.selectedPosition == null) {
+      this.sudokuService.selectedPosition = {r: 0, c: 0};
       return true;
     }
-    const {c: columns} = this.boardSize;
-    let index = this.selectedPosition.r * columns + this.selectedPosition.c;
+    const {c: columns} = this.sudokuService.boardSize;
+    let index = this.sudokuService.selectedPosition.r * columns + this.sudokuService.selectedPosition.c;
     switch (event.key) {
       case 'ArrowRight':
-        index = (index + 1) % this.numCells;
+        index = (index + 1) % this.sudokuService.numCells;
         break;
       case 'ArrowLeft':
-        index = (index - 1) % this.numCells;
+        index = (index - 1) % this.sudokuService.numCells;
         break;
       case 'ArrowUp':
-        index = (index - columns) % this.numCells;
+        index = (index - columns) % this.sudokuService.numCells;
         break;
       case 'ArrowDown':
-        index = (index + columns) % this.numCells;
+        index = (index + columns) % this.sudokuService.numCells;
         break;
       default:
         return false;
     }
     if (index < 0)
-      index += this.numCells;
-    this.selectedPosition = getCellPositionByIndex(index);
+      index += this.sudokuService.numCells;
+    this.sudokuService.selectedPosition = getCellPositionByIndex(index);
     return true;
   }
 
-  selectCell = (cell: CellPosition) => this.selectedPosition = cell;
+  selectCell = (cell: CellPosition) => this.sudokuService.selectedPosition = cell;
 
-  isSelected = (cell: CellPosition): boolean => {
-    const {selectedPosition: s} = this;
-    return s && s.r === cell.r && s.c === cell.c;
-  }
+  isSelected = (cell: CellPosition): boolean => isSamePosition(this.sudokuService.selectedPosition, cell);
 
   highlightCell = (cell: CellPosition, value: SudokuValue): boolean => {
-    if (!(this.highlightNumber && this.selectedPosition))
+    if (!(this.settings.highlightNumber && this.sudokuService.selectedPosition))
       return false;
-    if (value != this.sudokuService.getPositionValue(this.selectedPosition))
+    if (value != this.sudokuService.getPositionValue(this.sudokuService.selectedPosition))
       return false;
-    if (value === _ && !this.highlightBlanks)
+    if (value === _ && !this.settings.highlightBlanks)
       return false;
     return true;
   }
 
-  getBoardNotes = (): any => this.sudokuService.notes.map(r => r.map(c => [...c]));
-
   // trickery to not have to initialize every note position
-  getNotes = ({r, c}: CellPosition) => this.sudokuService.notes && this.sudokuService.notes[r] && this.sudokuService.notes[r][c]
+  getNotes = ({
+                r,
+                c
+              }: CellPosition) => this.sudokuService.notes && this.sudokuService.notes[r] && this.sudokuService.notes[r][c]
 }

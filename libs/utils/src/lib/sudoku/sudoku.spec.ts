@@ -19,6 +19,7 @@ import {
   initBoard,
   isCellInRegion,
   isComplete,
+  isSamePosition,
   isSameSet,
   isSetUnique,
   isSolveable,
@@ -230,6 +231,32 @@ describe('Sudoku', () => {
       const a = {r: 0, c: 0};
       const b = {r: 4, c: 4};
       expect(isSameSet(a, b)).toBeFalsy();
+    })
+  })
+
+  describe('isSamePosition', () => {
+    it('should return true if two cells have the same coordinates', () => {
+      const a = {r: 6, c: 8};
+      const b = {r: 6, c: 8};
+      expect(isSamePosition(a, b)).toBeTruthy();
+    })
+
+    it('should return false if two cells have different rows', () => {
+      const a = {r: 1, c: 3};
+      const b = {r: 8, c: 3};
+      expect(isSamePosition(a, b)).toBeFalsy();
+    })
+
+    it('should return false if two cells have different columns', () => {
+      const a = {r: 3, c: 4};
+      const b = {r: 3, c: 5};
+      expect(isSamePosition(a, b)).toBeFalsy();
+    })
+
+    it('should return false if two cells have different rows and columns', () => {
+      const a = {r: 1, c: 4};
+      const b = {r: 2, c: 5};
+      expect(isSamePosition(a, b)).toBeFalsy();
     })
   })
 

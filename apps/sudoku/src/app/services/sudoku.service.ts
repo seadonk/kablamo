@@ -1,7 +1,10 @@
 import {Injectable} from '@angular/core';
 import {
+  BoardSize,
   CellPosition,
   generateBoard,
+  getBoardSize,
+  getNumCells,
   hash,
   initBoard,
   solve,
@@ -19,6 +22,12 @@ import {
   providedIn: 'root'
 })
 export class SudokuService {
+  selectedPosition: CellPosition;
+  valid: boolean;
+  solved: boolean;
+  boardSize: BoardSize;
+  numCells: number;
+
   constructor() {
     this.load();
   }
@@ -49,6 +58,8 @@ export class SudokuService {
     this.initialBoard = initBoard(initBoardHash ?? hash(this.board));
     // sets are not serializable, so convert from array
     this.notes = (JSON.parse(localStorage.getItem('notes')) ?? [[]]).map(r => r.map(c => new Set<SudokuValue>(c)));
+    this.boardSize = getBoardSize(this.board);
+    this.numCells = getNumCells(this.board);
     this.save();
   }
 

@@ -38,7 +38,6 @@ export class CellComponent {
   /** this is one of the clues, and is locked from editing */
   @Input() locked: boolean;
   @Input() value: SudokuValue;
-  @Input() notesMode: boolean;
   @Input() notes: SudokuNote;
   @Input() showNotes: boolean;
 }

@@ -1,50 +1,16 @@
-<div class="container">
-  <div class="board">
-    <ng-container *ngFor="let row of sudokuService.board; let r = index;">
-      <ng-container *ngFor="let cell of row; let c = index;">
-        <sudoku-cell (click)="selectCell({r: r, c: c})"
-                     [selected]="isSelected({r: r, c:c})"
-                     [highlightNumber]="highlightCell({r: r, c: c}, cell)"
-                     [highlightSet]="selectedPosition && highlightSets && isSameSet({r: r, c: c}, this.selectedPosition)"
-                     [locked]="sudokuService.isPositionLocked({r:r, c:c})"
-                     [value]="cell"
-                     [notes]="getNotes({r: r, c:c})"
-                     [notesMode]="notesMode"
-                     [showNotes]="showNotes">
-        </sudoku-cell>
-      </ng-container>
+<div class="board">
+  <ng-container *ngFor="let row of sudokuService.board; let r = index;">
+    <ng-container *ngFor="let cell of row; let c = index;">
+      <sudoku-cell (click)="selectCell({r: r, c: c})"
+                   [selected]="isSelected({r: r, c:c})"
+                   [highlightNumber]="highlightCell({r: r, c: c}, cell)"
+                   [highlightSet]="sudokuService.selectedPosition && settings.highlightSets && isSameSet({r: r, c: c}, this.sudokuService.selectedPosition)"
+                   [locked]="sudokuService.isPositionLocked({r:r, c:c})"
+                   [value]="cell"
+                   [notes]="getNotes({r: r, c:c})"
+                   [showNotes]="settings.showNotes">
+      </sudoku-cell>
     </ng-container>
-  </div>
-
-  <div class="stats">
-    <div class="settings">
-      <button (click)="sudokuService.undo()">Undo</button>
-      <button (click)="sudokuService.redo()">Redo</button>
-      <button (click)="sudokuService.solve()">Solve</button>
-      <button (click)="sudokuService.reset()">Reset</button>
-      <button (click)="sudokuService.clear()">Clear</button>
-      <button (click)="sudokuService.generate()">Generate</button>
-      <button (click)="highlightNumber = !highlightNumber">{{ highlightNumber ? "Don't" : ""}} Highlight Same Numbers
-      </button>
-      <button (click)="highlightSets = !highlightSets">{{ highlightSets ? "Don't" : ""}} Highlight Selected Sets
-      </button>
-      <button (click)="highlightBlanks = !highlightBlanks">{{ highlightBlanks ? "Don't" : ""}} Highlight Same Blanks
-      </button>
-      <button (click)="notesMode = !notesMode">{{ notesMode ? "Notes" : "Value"}} Mode</button>
-      <button (click)="showNotes = !showNotes">{{ showNotes ? "Hide" : "Show"}} Notes</button>
-    </div>
-    <pre><code>
-  {{
-      {
-        'Initial Board Hash': sudokuService.getInitHash(),
-        'Current Board Hash': sudokuService.getCurrentHash(),
-        'Selected Value': sudokuService.getPositionValue(selectedPosition),
-        'Selected Position': this.selectedPosition || 'none',
-        notes: getBoardNotes()
-      } | json
-      }}
-</code></pre>
-  </div>
-
+  </ng-container>
 </div>
 

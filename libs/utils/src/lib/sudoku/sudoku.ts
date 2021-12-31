@@ -124,6 +124,10 @@ export const isSameSet = (a: CellPosition, b: CellPosition): boolean => {
   return b.r === a.r || b.c === a.c || (region != null && isCellInRegion(region, a));
 }
 
+/** returns true if two positions have the same coordinates */
+export const isSamePosition = (a: CellPosition, b: CellPosition): boolean => a.r === b.r && a.c === b.c;
+
+
 // solving
 /** finds the next empty cell.
  * The default order is left to right top to bottom sequentially.

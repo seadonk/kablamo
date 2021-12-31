@@ -1,1 +1,33 @@
-<sudoku-board></sudoku-board>
+<div class="container">
+  <sudoku-board></sudoku-board>
+
+  <div class="stats">
+    <div class="settings">
+      <button (click)="sudokuService.undo()">Undo</button>
+      <button (click)="sudokuService.redo()">Redo</button>
+      <button (click)="sudokuService.solve()">Solve</button>
+      <button (click)="sudokuService.reset()">Reset</button>
+      <button (click)="sudokuService.clear()">Clear</button>
+      <button (click)="sudokuService.generate()">Generate</button>
+      <button (click)="settings.highlightNumber = !settings.highlightNumber">{{ settings.highlightNumber ? "Don't" : ""}} Highlight Same Numbers
+      </button>
+      <button (click)="settings.highlightSets = !settings.highlightSets">{{ settings.highlightSets ? "Don't" : ""}} Highlight Selected Sets
+      </button>
+      <button (click)="settings.highlightBlanks = !settings.highlightBlanks">{{ settings.highlightBlanks ? "Don't" : ""}} Highlight Same Blanks
+      </button>
+      <button (click)="settings.notesMode = !settings.notesMode">{{ settings.notesMode ? "Notes" : "Value"}} Mode</button>
+      <button (click)="settings.showNotes = !settings.showNotes">{{ settings.showNotes ? "Hide" : "Show"}} Notes</button>
+    </div>
+    <pre><code>
+  {{
+      {
+        'Initial Board Hash': sudokuService.getInitHash(),
+        'Current Board Hash': sudokuService.getCurrentHash(),
+        'Selected Value': sudokuService.getPositionValue(sudokuService.selectedPosition),
+        'Selected Position': this.sudokuService.selectedPosition || 'none',
+        notes: getBoardNotes()
+      } | json
+      }}
+</code></pre>
+  </div>
+</div>
