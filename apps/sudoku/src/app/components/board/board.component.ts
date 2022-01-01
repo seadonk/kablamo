@@ -28,8 +28,10 @@ export class BoardComponent {
     this.sudokuService.update.subscribe(() => this.cd.markForCheck());
   }
 
+  numberButtonInput = i => this.handleInputEvent({key: i});
+
   // returns true if the keyboard was used to modify a cell value
-  private handleInputEvent(event: KeyboardEvent): boolean {
+  private handleInputEvent(event: KeyboardEvent | { key: string, code?: string }): boolean {
     // ignore non numeric/deletion keys
     if (!+event.key && !['Numpad0', 'Backspace', 'Space', 'Delete', '0'].includes(event.code))
       return false;
