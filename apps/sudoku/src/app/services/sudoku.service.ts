@@ -13,6 +13,7 @@ import {
   SudokuNotes,
   SudokuValue
 } from "@kablamo/utils";
+import {Subject} from "rxjs";
 
 /**
  * This service will maintain the state of a sudoku board / game
@@ -22,6 +23,7 @@ import {
   providedIn: 'root'
 })
 export class SudokuService {
+  update = new Subject<void>();
   selectedPosition: CellPosition;
   valid: boolean;
   solved: boolean;
@@ -57,7 +59,7 @@ export class SudokuService {
     this.board = initBoard(boardHash);
     this.initialBoard = initBoard(initBoardHash ?? hash(this.board));
     // sets are not serializable, so convert from array
-    this.notes = (JSON.parse(localStorage.getItem('notes')) ?? [[]]).map(r => r.map(c => new Set<SudokuValue>(c)));
+    this.notes = (JSON.parse(localStorage.getItem('notes')) ?? [[]]).map(r => r?.map(c => new Set<SudokuValue>(c)));
     this.boardSize = getBoardSize(this.board);
     this.numCells = getNumCells(this.board);
     this.save();
@@ -69,19 +71,20 @@ export class SudokuService {
   getInitHash = () => hash(this.initialBoard);
 
   /** clears the entire board, producing an empty board */
-  clear = () => this.initBoard()
+  clear = () => this.initBoard();
 
   generate = (clues = 25) => this.initBoard(hash(generateBoard(clues)))
 
   reset = () => this.initBoard(this.getInitHash());
 
-  solve = () => solve(this.board);
+  solve = () => solve(this.board) && this.save();
 
   save = () => {
     localStorage.setItem('currentBoard', this.getCurrentHash());
     localStorage.setItem('initBoard', this.getInitHash());
     // sets are not serializable, so convert to array
-    localStorage.setItem('notes', JSON.stringify(this.notes.map(r => r.map(c => [...c]))));
+    localStorage.setItem('notes', JSON.stringify(this.notes.map(r => r?.map(c => [...c]))));
+    this.update.next();
   }
 
   load = () => {
@@ -125,7 +128,7 @@ export class SudokuService {
     this.save();
   }
 
-  setNote = (pos: CellPosition, value: SudokuValue, pushToStack = true) => {
+  setNote = (pos: CellPosition, value: SudokuValue) => {
     const {r, c} = pos;
     const currentValue = this.board[r][c];
     // don't write notes in completed cells

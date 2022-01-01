@@ -540,7 +540,7 @@ describe('Sudoku', () => {
         jest.spyOn(Math, 'random').mockImplementation(
           (() => {
             let index = 0;
-            let arrayOfValues = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+            let arrayOfValues = [0.1, 0.2, 0.3, 0.7, 0.8, 0.9, 0.4, 0.5, 0.6];
             return () => {
               return arrayOfValues[index++ % 9];
             };
@@ -549,7 +549,9 @@ describe('Sudoku', () => {
       })
 
       it('should produce a random board', () => {
-        expect(randomizeBoard(Examples.emptyBoard)).toMatchSnapshot();
+        const board = Examples.emptyBoard;
+        randomizeBoard(board);
+        expect(printBoard(board)).toMatchSnapshot();
       })
     })
 

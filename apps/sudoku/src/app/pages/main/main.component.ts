@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {SudokuService} from "../../services/sudoku.service";
-import {SettingsService} from "../../services/settings.service";
+import {Settings, SettingsService} from "../../services/settings.service";
+import {FormBuilder, FormGroup} from "@angular/forms";
 
 @Component({
   selector: 'sudoku-main',
@@ -8,12 +9,21 @@ import {SettingsService} from "../../services/settings.service";
   styleUrls: ['./main.component.scss']
 })
 export class MainComponent {
+  settingsForm: FormGroup;
 
-  constructor(public sudokuService: SudokuService,
-              public settings: SettingsService) {
-
+  get settings(): Settings {
+    return this.settingsService.settings;
   }
 
-  getBoardNotes = (): any => this.sudokuService.notes.map(r => r.map(c => [...c]));
-
+  constructor(public sudokuService: SudokuService,
+              public settingsService: SettingsService,
+              private fb: FormBuilder) {
+    const group = {};
+    for (let key in settingsService.settings) {
+      group[key] = ['']
+    }
+    this.settingsForm = fb.group(group);
+    this.settingsForm.setValue(this.settings);
+    this.settingsForm.valueChanges.subscribe(t => this.settingsService.setState(t));
+  }
 }

@@ -99,4 +99,17 @@ Array [
 ]
 `;
 
-exports[`Sudoku solving randomizeBoard should produce a random board 1`] = `undefined`;
+exports[`Sudoku solving randomizeBoard should produce a random board 1`] = `
+"1 2 3 | 7 8 9 | 4 5 6
+1 2 3 | 7 8 9 | 4 5 6
+1 2 3 | 7 8 9 | 4 5 6
+- - -   - - -   - - - 
+1 2 3 | 7 8 9 | 4 5 6
+1 2 3 | 7 8 9 | 4 5 6
+1 2 3 | 7 8 9 | 4 5 6
+- - -   - - -   - - - 
+1 2 3 | 7 8 9 | 4 5 6
+1 2 3 | 7 8 9 | 4 5 6
+1 2 3 | 7 8 9 | 4 5 6
+"
+`;

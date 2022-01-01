@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, HostListener} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener} from '@angular/core';
 import {_, CellPosition, getCellPositionByIndex, isSamePosition, isSameSet, SudokuValue} from "@kablamo/utils";
 import {SudokuService} from "../../services/sudoku.service";
-import {SettingsService} from "../../services/settings.service";
+import {Settings, SettingsService} from "../../services/settings.service";
 
 @Component({
   selector: 'sudoku-board',
@@ -16,8 +16,16 @@ export class BoardComponent {
   @HostListener('keydown.control.y') redo = () => this.sudokuService.redo();
   @HostListener('window:keydown', ['$event']) handleKeyboardEvent = (event: KeyboardEvent) => this.handleKeyboardNavigation(event) || this.handleInputEvent(event);
 
+  get settings(): Settings {
+    return this.settingsService.settings;
+  }
+
   constructor(public sudokuService: SudokuService,
-              public settings: SettingsService) {
+              public settingsService: SettingsService,
+              private cd: ChangeDetectorRef) {
+    // manage change detection, since we aren't using inputs here, and have changeDetection set to onPush
+    this.settingsService.update.subscribe(() => this.cd.markForCheck());
+    this.sudokuService.update.subscribe(() => this.cd.markForCheck());
   }
 
   // returns true if the keyboard was used to modify a cell value
@@ -67,16 +75,14 @@ export class BoardComponent {
 
   selectCell = (cell: CellPosition) => this.sudokuService.selectedPosition = cell;
 
-  isSelected = (cell: CellPosition): boolean => isSamePosition(this.sudokuService.selectedPosition, cell);
+  isSelected = (cell: CellPosition): boolean => this.sudokuService.selectedPosition && isSamePosition(this.sudokuService.selectedPosition, cell);
 
   highlightCell = (cell: CellPosition, value: SudokuValue): boolean => {
     if (!(this.settings.highlightNumber && this.sudokuService.selectedPosition))
       return false;
     if (value != this.sudokuService.getPositionValue(this.sudokuService.selectedPosition))
       return false;
-    if (value === _ && !this.settings.highlightBlanks)
-      return false;
-    return true;
+    return !(value === _ && !this.settings.highlightBlanks);
   }
 
   // trickery to not have to initialize every note position
