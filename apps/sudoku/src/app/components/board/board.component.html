@@ -1,16 +1,14 @@
-<div class="board">
-  <ng-container *ngFor="let row of sudokuService.board; let r = index;">
-    <ng-container *ngFor="let cell of row; let c = index;">
-      <sudoku-cell (click)="selectCell({r: r, c: c})"
-                   [selected]="isSelected({r: r, c:c})"
-                   [highlightNumber]="highlightCell({r: r, c: c}, cell)"
-                   [highlightSet]="sudokuService.selectedPosition && settings.highlightSets && isSameSet({r: r, c: c}, this.sudokuService.selectedPosition)"
-                   [locked]="sudokuService.isPositionLocked({r:r, c:c})"
-                   [value]="cell"
-                   [notes]="getNotes({r: r, c:c})"
-                   [showNotes]="settings.showNotes">
-      </sudoku-cell>
-    </ng-container>
+<ng-container *ngFor="let row of sudokuService.board; let r = index;">
+  <ng-container *ngFor="let cell of row; let c = index;">
+    <sudoku-cell (click)="selectCell({r: r, c: c})"
+                 [selected]="isSelected({r: r, c:c})"
+                 [highlightNumber]="highlightCell({r: r, c: c}, cell)"
+                 [highlightSet]="sudokuService.selectedPosition && settings.highlightSets && isSameSet({r: r, c: c}, this.sudokuService.selectedPosition)"
+                 [locked]="sudokuService.isPositionLocked({r:r, c:c})"
+                 [value]="cell"
+                 [notes]="getNotes({r: r, c:c})"
+                 [showNotes]="settings.showNotes">
+    </sudoku-cell>
   </ng-container>
-</div>
+</ng-container>
 

@@ -1,11 +1,14 @@
-$cellSize: 2rem;
-
 :host {
-  width: $cellSize;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: stretch;
-  font-size: 1.5rem;
+  font-size: 7vmin;
+
+  .body {
+    border-right: 1px solid gray;
+    border-bottom: 1px solid gray;
+  }
 
   &.--selected > .body {
     font-weight: bold;
@@ -27,8 +30,6 @@ $cellSize: 2rem;
 
   &.--locked {
     color: black;
-    //background-color: lightgoldenrodyellow;
-    //color: gray;
   }
 
   > .body {

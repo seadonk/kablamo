@@ -1,21 +1,22 @@
-$border: 3px solid black;
-$cellSize: 2rem;
+$borderColor: black;
+$border: 3px solid $borderColor;
 
-.board {
+:host {
+  // responsive square
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 1/1;
+  background-color: $borderColor; // used as a border-color where cells have a margin
+
   margin: 2rem;
   display: grid;
-  grid-template-columns: repeat(9, fit-content(100%));
-  grid-template-rows: auto;
+  grid-template-columns: repeat(9, 1fr);
   align-items: center;
   justify-content: center;
-
 
   > * {
     background-color: white;
     aspect-ratio: 1;
-    border-right: 1px solid gray;
-    border-bottom: 1px solid gray;
-
 
     // region vertical borders
     &:nth-child(9n+3), &:nth-child(9n+6) {

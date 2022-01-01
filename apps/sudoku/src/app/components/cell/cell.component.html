@@ -1,5 +1,5 @@
 <div class="body">
   <!--  <ng-content></ng-content>-->
   {{ value || ''}}
+  <sudoku-notes *ngIf="showNotes && !value" [notes]="notes"></sudoku-notes>
 </div>
-<sudoku-notes *ngIf="showNotes && !value" [notes]="notes"></sudoku-notes>

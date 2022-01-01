@@ -1,15 +1,14 @@
 :host {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: auto;
+  grid-template-rows: repeat(3, 1fr);
   align-items: stretch;
   justify-content: space-around;
   font-size: 30%;
-  width: 2rem; // temporary width, this should be responsive
-  position: absolute;
+  width: 100%;
+  height: 100%;
 
   > * {
-    aspect-ratio: 1;
     // center text vertically and horizontally
     display: flex;
     justify-content: center;
