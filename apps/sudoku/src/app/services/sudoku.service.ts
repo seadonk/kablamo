@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {
+  _,
   BoardSize,
   CellPosition,
   generateBoard,
@@ -118,10 +119,11 @@ export class SudokuService {
    */
   setValue = (pos: CellPosition, value: SudokuValue, pushToStack = true) => {
     const currentValue = this.board[pos.r][pos.c];
-    if (this.isPositionLocked(pos) || currentValue === value)
+    if (this.isPositionLocked(pos))
       return;
 
-    this.board[pos.r][pos.c] = value;
+    // if value is already set, toggle off
+    this.board[pos.r][pos.c] = currentValue === value ? _ : value;
     if (pushToStack) {
       this.actions.push({pos: pos, oldValue: currentValue, newValue: value});
     }
