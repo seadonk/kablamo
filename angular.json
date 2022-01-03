@@ -120,6 +120,32 @@
       "tags": [],
       "implicitDependencies": ["demo"]
     },
+    "sudoku": {
+      "projectType": "library",
+      "root": "libs/sudoku",
+      "sourceRoot": "libs/sudoku/src",
+      "prefix": "kablamo",
+      "architect": {
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/sudoku"],
+          "options": {
+            "jestConfig": "libs/sudoku/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/sudoku/src/**/*.ts",
+              "libs/sudoku/src/**/*.html"
+            ]
+          }
+        }
+      },
+      "tags": []
+    },
     "sudoku-ang": {
       "projectType": "application",
       "root": "apps/sudoku-ang",

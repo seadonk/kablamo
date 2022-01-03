@@ -10,7 +10,7 @@ import {
   SudokuBoard,
   transpose
 } from "./sudoku";
-import {getRange, stopWatch} from "../utils";
+import {getRange, stopWatch} from "../../../../utils/src/lib/utils";
 
 (function () {
   stopWatch(() => {

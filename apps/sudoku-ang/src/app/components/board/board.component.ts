@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component,} from '@angular/core';
-import {_, CellPosition, isSamePosition, isSameSet, SudokuValue,} from '@kablamo/utils';
+import {_, CellPosition, isSamePosition, isSameSet, SudokuValue,} from '@kablamo/sudoku';
 import {SudokuService} from '../../services/sudoku.service';
 import {Settings, SettingsService} from '../../services/settings.service';
 

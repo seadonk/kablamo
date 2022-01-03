@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, HostBinding, Input,} from '@angular/core';
-import {SudokuNote, SudokuValue} from '@kablamo/utils';
+import {SudokuNote, SudokuValue} from '@kablamo/sudoku';
 
 @Component({
   selector: 'sudoku-cell',

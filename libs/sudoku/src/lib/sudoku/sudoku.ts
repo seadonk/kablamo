@@ -1,5 +1,5 @@
 import {_} from "./sudoku.examples";
-import {deepCopy, getRange, shuffle} from "../utils";
+import {deepCopy, getRange, shuffle} from "../../../../utils/src/lib/utils";
 
 export type SudokuValue = number;
 export type SudokuSet = SudokuValue[];

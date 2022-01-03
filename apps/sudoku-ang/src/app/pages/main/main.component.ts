@@ -2,7 +2,7 @@ import {Component, HostListener} from '@angular/core';
 import {SudokuService} from '../../services/sudoku.service';
 import {Settings, SettingsService} from '../../services/settings.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
-import {getCellPositionByIndex, SudokuValue} from '@kablamo/utils';
+import {getCellPositionByIndex, SudokuValue} from '@kablamo/sudoku';
 
 @Component({
   selector: 'sudoku-main',

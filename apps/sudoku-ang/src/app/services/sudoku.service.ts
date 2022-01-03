@@ -13,7 +13,7 @@ import {
   SudokuHash,
   SudokuNotes,
   SudokuValue,
-} from '@kablamo/utils';
+} from '@kablamo/sudoku';
 import {Subject} from 'rxjs';
 
 /**

@@ -1,4 +1,5 @@
 import {TestBed} from "@angular/core/testing";
+import {getRange, shuffle} from "@kablamo/utils";
 import {
   _,
   CellPosition,
@@ -11,7 +12,6 @@ import {
   getFilledCells,
   getNextOpenCell,
   getNumCells,
-  getRange,
   getRegionCellPositions,
   getRegionPositions,
   getRegionSets,
@@ -31,11 +31,10 @@ import {
   printRow,
   randomizeBoard,
   RegionPosition,
-  shuffle,
   solve,
   solveAll,
   transpose
-} from "@kablamo/utils";
+} from "@kablamo/sudoku";
 
 describe('Sudoku', () => {
 
@@ -116,7 +115,7 @@ describe('Sudoku', () => {
     })
 
     it('should return all of the cell positions within a given region', () => {
-      let region: RegionPosition = {r: 0, c: 0};
+      const region: RegionPosition = {r: 0, c: 0};
       const cells = getRegionCellPositions(region);
       expect(cells).toHaveLength(9);
       expect(cells).toMatchSnapshot();
@@ -540,7 +539,7 @@ describe('Sudoku', () => {
         jest.spyOn(Math, 'random').mockImplementation(
           (() => {
             let index = 0;
-            let arrayOfValues = [0.1, 0.2, 0.3, 0.7, 0.8, 0.9, 0.4, 0.5, 0.6];
+            const arrayOfValues = [0.1, 0.2, 0.3, 0.7, 0.8, 0.9, 0.4, 0.5, 0.6];
             return () => {
               return arrayOfValues[index++ % 9];
             };

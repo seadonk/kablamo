@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@kablamo/sudoku": ["libs/sudoku/src/index.ts"],
       "@kablamo/utils": ["libs/utils/src/index.ts"]
     }
   },

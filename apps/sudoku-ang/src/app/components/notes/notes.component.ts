@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
-import {SudokuNote} from '@kablamo/utils';
+import {SudokuNote} from '@kablamo/sudoku';
 
 @Component({
   selector: 'sudoku-notes',
