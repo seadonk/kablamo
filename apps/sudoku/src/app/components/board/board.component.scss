@@ -2,56 +2,41 @@ $borderColor: black;
 $border: 3px solid $borderColor;
 
 :host {
-  > .board {
-    // responsive square
-    height: 100%;
-    max-width: 100%;
-    aspect-ratio: 1/1;
-    background-color: $borderColor; // used as a border-color where cells have a margin
+  // responsive square
+  aspect-ratio: 1/1;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  align-items: center;
+  justify-content: center;
 
-    margin: 2rem;
-    display: grid;
-    grid-template-columns: repeat(9, 1fr);
-    align-items: center;
-    justify-content: center;
+  > * {
+    background-color: white;
+    aspect-ratio: 1;
 
-    > * {
-      background-color: white;
-      aspect-ratio: 1;
+    // region vertical borders
+    &:nth-child(9n+3), &:nth-child(9n+6) {
+      border-right: $border;
+    }
 
-      // region vertical borders
-      &:nth-child(9n+3), &:nth-child(9n+6) {
-        border-right: $border;
+    &:nth-child(9n+1) {
+      border-left: $border;
+    }
+
+    &:nth-child(9n) {
+      border-right: $border;
+    }
+
+    // region horizontal borders
+    @for $i from 0 through 8 {
+      &:nth-child(27n-#{$i}) {
+        border-bottom: $border;
       }
-
-      &:nth-child(9n+1) {
-        border-left: $border;
+      $j: 81-$i - 1;
+      &:nth-child(81n-#{$j}) {
+        border-top: $border;
       }
-
-      &:nth-child(9n) {
-        border-right: $border;
-      }
-
-      // region horizontal borders
-      @for $i from 0 through 8 {
-        &:nth-child(27n-#{$i}) {
-          border-bottom: $border;
-        }
-        $j: 81-$i - 1;
-        &:nth-child(81n-#{$j}) {
-          border-top: $border;
-        }
-      }
-
     }
 
   }
-  .buttons {
-    display: flex;
-    justify-content: space-between;
 
-    > button {
-      font-size: 2rem;
-    }
-  }
 }

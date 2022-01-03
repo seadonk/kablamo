@@ -1,3 +1,9 @@
+$highlightBackColor: #e3f8ff;
+$highlightForeColor: green;
+$lockedCellForeColor: black;
+$cellForeColor: royalblue;
+$selectedBackColor: lightgreen;
+
 :host {
   box-sizing: border-box;
   display: flex;
@@ -12,24 +18,24 @@
 
   &.--selected > .body {
     font-weight: bold;
-    border: 1px solid green;
-    background-color: lightgreen;
+    background-color: $selectedBackColor;
   }
 
   &.--highlightNumber > .body {
-    background-color: lightblue;
-    color: green;
+    font-weight: bold;
+    background-color: $highlightBackColor;
+    color: $highlightForeColor;
   }
 
   &.--highlightSet > .body {
-    background-color: #e3f8ff;
+    background-color: $highlightBackColor;
   }
 
   // locked cells will be black, others will be blue
-  color: royalblue;
+  color: $cellForeColor;
 
   &.--locked {
-    color: black;
+    color: $lockedCellForeColor;
   }
 
   > .body {
