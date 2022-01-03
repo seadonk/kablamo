@@ -25,7 +25,16 @@ import {Subject} from "rxjs";
 })
 export class SudokuService {
   update = new Subject<void>();
-  selectedPosition: CellPosition;
+  private _selectedPosition: CellPosition;
+  get selectedPosition(): CellPosition {
+    return this._selectedPosition;
+  }
+
+  set selectedPosition(value: CellPosition) {
+    this._selectedPosition = value;
+    this.update.next();
+  }
+
   valid: boolean;
   solved: boolean;
   boardSize: BoardSize;
