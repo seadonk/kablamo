@@ -1,4 +1,4 @@
-import {SudokuBoard} from "./sudoku";
+import {SudokuBoard} from "./sudoku.utils";
 
 /** just to make the ts sudoku board examples easier to read */
 export const _ = 0;

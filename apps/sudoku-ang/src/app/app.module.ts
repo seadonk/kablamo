@@ -3,7 +3,6 @@ import {BrowserModule} from '@angular/platform-browser';
 
 import {AppComponent} from './app.component';
 import {RouterModule} from '@angular/router';
-import {SudokuService} from './services/sudoku.service';
 import {BoardComponent} from './components/board/board.component';
 import {MainComponent} from './pages/main/main.component';
 import {routes} from './app.routes';
@@ -15,6 +14,10 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
+import {SudokuGame} from "@kablamo/sudoku";
+import {SettingsComponent} from './components/settings/settings.component';
+import {InputsComponent} from './components/inputs/inputs.component';
+import {ControlsComponent} from './components/controls/controls.component';
 
 @NgModule({
   declarations: [
@@ -23,11 +26,14 @@ import {MatIconModule} from '@angular/material/icon';
     MainComponent,
     CellComponent,
     NotesComponent,
+    SettingsComponent,
+    InputsComponent,
+    ControlsComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    RouterModule.forRoot(routes, { initialNavigation: 'enabledBlocking' }),
+    RouterModule.forRoot(routes, {initialNavigation: 'enabledBlocking'}),
     MatSlideToggleModule,
     MatButtonModule,
     MatButtonToggleModule,
@@ -35,7 +41,8 @@ import {MatIconModule} from '@angular/material/icon';
     ReactiveFormsModule,
     MatIconModule,
   ],
-  providers: [SudokuService],
+  providers: [{provide: SudokuGame}],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+}

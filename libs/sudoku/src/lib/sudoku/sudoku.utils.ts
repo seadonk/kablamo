@@ -1,3 +1,4 @@
+/** This file holds the stateless logic/functions needed for a sudoku game */
 import {_} from "./sudoku.examples";
 import {deepCopy, getRange, shuffle} from "../../../../utils/src/lib/utils";
 

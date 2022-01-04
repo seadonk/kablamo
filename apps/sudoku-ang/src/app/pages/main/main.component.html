@@ -1,79 +1,12 @@
 <div class="container">
   <div class="board">
     <sudoku-board></sudoku-board>
-
     <div class="spacer"></div>
-
-    <div class="controls">
-      <button mat-mini-fab (click)="sudokuService.undo()" title="Undo">
-        <mat-icon>undo</mat-icon>
-      </button>
-      <button mat-mini-fab (click)="sudokuService.redo()" title="Redo">
-        <mat-icon>redo</mat-icon>
-      </button>
-      <button mat-mini-fab (click)="sudokuService.solve()" title="Solve">
-        <mat-icon>auto_fix_high</mat-icon>
-      </button>
-      <button mat-mini-fab (click)="sudokuService.reset()" title="Reset">
-        <mat-icon>restart_alt</mat-icon>
-      </button>
-      <button mat-mini-fab (click)="sudokuService.clear()" title="Clear">
-        <mat-icon>delete</mat-icon>
-      </button>
-      <button mat-mini-fab (click)="sudokuService.generate()" title="Generate">
-        <mat-icon>factory</mat-icon>
-      </button>
-    </div>
-
+    <sudoku-controls></sudoku-controls>
     <div class="spacer"></div>
-
-    <div class="numbers">
-      <ng-container *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9]">
-        <button mat-mini-fab color="primary" (click)="numberButtonInput(i)">
-          {{ i }}
-        </button>
-      </ng-container>
-    </div>
+    <sudoku-inputs></sudoku-inputs>
   </div>
   <div class="stats">
-    <ng-container *ngTemplateOutlet="controls"></ng-container>
+    <sudoku-settings></sudoku-settings>
   </div>
 </div>
-
-<ng-template #controls>
-  <form [formGroup]="settingsForm">
-    <div class="settings">
-      <div class="numbers"></div>
-      <mat-slide-toggle
-        formControlName="highlightNumber"
-        title="If a filled in cell is selected,all cells with the same value will be highlighted"
-      >
-        Highlight Same Numbers
-      </mat-slide-toggle>
-      <mat-slide-toggle
-        formControlName="highlightSets"
-        title="If a cell is selected, all cells in the same row, column, or region set will be highlighted"
-      >
-        Highlight Selected Sets
-      </mat-slide-toggle>
-      <mat-slide-toggle
-        formControlName="highlightBlanks"
-        title="If a blank is selected, all other blanks will be highlighted"
-        >Highlight Same Blanks
-      </mat-slide-toggle>
-      <mat-slide-toggle
-        formControlName="showNotes"
-        title="Display existing notes in empty cells"
-        >Show Notes
-      </mat-slide-toggle>
-      <mat-button-toggle-group
-        name="inputMode"
-        aria-label="Input Mode"
-        formControlName="notesMode"
-      >
-        <mat-button-toggle [value]="false">Value</mat-button-toggle>
-        <mat-button-toggle [value]="true">Notes</mat-button-toggle>
-      </mat-button-toggle-group>
-    </div>
-  </form>
-</ng-template>

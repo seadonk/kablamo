@@ -3,7 +3,7 @@
     <sudoku-cell
       (click)="selectCell({ r: r, c: c })"
       [selected]="isSelected({ r: r, c: c })"
-      [highlightNumber]="highlightCell({ r: r, c: c }, cell)"
+      [highlightNumber]="isHighlighted({ r: r, c: c }, cell)"
       [highlightSet]="
         sudokuService.selectedPosition &&
         settings.highlightSets &&

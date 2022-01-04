@@ -1,2 +1,3 @@
 export * from './sudoku.examples';
-export * from './sudoku';
+export * from './sudoku.utils';
+export * from './sudoku.game';

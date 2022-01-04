@@ -5,8 +5,6 @@
   @media (orientation: portrait) {
     flex-direction: column;
   }
-  //justify-content: center;
-  //align-items: center;
 
   .board {
     display: flex;
@@ -19,55 +17,17 @@
       flex-direction: column;
     }
 
-    .controls {
-      > button {
-        display: block;
-      }
-    }
-
     .spacer {
       width: 1rem;
       height: 1rem;
       flex: 0 0 1rem;
-    }
-
-    .controls {
-      justify-content: space-around;
-    }
-
-    .numbers {
-      justify-content: space-between;
-    }
-
-    .controls,
-    .numbers {
-      > button {
-        font-size: 2rem;
-      }
-    }
-
-    .controls,
-    .numbers {
-      display: flex;
-      flex-direction: column;
-      @media (orientation: portrait) {
-        flex-direction: row;
-      }
     }
   }
 
   .stats {
     margin: 2rem;
     flex: 0 1 auto;
-
-    .settings {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
-      .numbers {
-        display: flex;
-      }
-    }
   }
+
 }
+

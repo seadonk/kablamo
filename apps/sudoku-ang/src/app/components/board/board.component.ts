@@ -1,6 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component,} from '@angular/core';
-import {_, CellPosition, isSamePosition, isSameSet, SudokuValue,} from '@kablamo/sudoku';
-import {SudokuService} from '../../services/sudoku.service';
+import {_, CellPosition, isSamePosition, isSameSet, SudokuGame, SudokuValue,} from '@kablamo/sudoku';
 import {Settings, SettingsService} from '../../services/settings.service';
 
 @Component({
@@ -16,7 +15,7 @@ export class BoardComponent {
   }
 
   constructor(
-    public sudokuService: SudokuService,
+    public sudokuService: SudokuGame,
     public settingsService: SettingsService,
     private cd: ChangeDetectorRef
   ) {
@@ -32,7 +31,7 @@ export class BoardComponent {
     this.sudokuService.selectedPosition &&
     isSamePosition(this.sudokuService.selectedPosition, cell);
 
-  highlightCell = (cell: CellPosition, value: SudokuValue): boolean => {
+  isHighlighted = (cell: CellPosition, value: SudokuValue): boolean => {
     if (!(this.settings.highlightNumber && this.sudokuService.selectedPosition))
       return false;
     if (

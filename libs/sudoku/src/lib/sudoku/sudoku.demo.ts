@@ -9,7 +9,7 @@ import {
   solveAll,
   SudokuBoard,
   transpose
-} from "./sudoku";
+} from "./sudoku.utils";
 import {getRange, stopWatch} from "../../../../utils/src/lib/utils";
 
 (function () {

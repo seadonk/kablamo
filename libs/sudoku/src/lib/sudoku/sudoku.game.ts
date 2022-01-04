@@ -1,4 +1,5 @@
-import {Injectable} from '@angular/core';
+/** This file holds the stateful logic needed for a sudoku game */
+import {Subject} from "rxjs";
 import {
   _,
   BoardSize,
@@ -12,31 +13,23 @@ import {
   SudokuBoard,
   SudokuHash,
   SudokuNotes,
-  SudokuValue,
-} from '@kablamo/sudoku';
-import {Subject} from 'rxjs';
+  SudokuValue
+} from "@kablamo/sudoku";
 
-/**
- * This service will maintain the state of a sudoku board / game
- * as opposed to the utility logic which is stateless.
- */
-@Injectable({
-  providedIn: 'root',
-})
-export class SudokuService {
+export class SudokuGame {
   update = new Subject<void>();
-  private _selectedPosition: CellPosition;
-  get selectedPosition(): CellPosition {
+  private _selectedPosition: CellPosition | undefined;
+  get selectedPosition(): CellPosition | undefined {
     return this._selectedPosition;
   }
 
-  set selectedPosition(value: CellPosition) {
+  set selectedPosition(value: CellPosition | undefined) {
     this._selectedPosition = value;
     this.update.next();
   }
 
-  valid: boolean;
-  solved: boolean;
+  valid = false;
+  solved = false;
   boardSize: BoardSize;
   numCells: number;
 
@@ -55,7 +48,7 @@ export class SudokuService {
     this._board = value;
   }
 
-  private _notes: SudokuNotes;
+  private _notes: SudokuNotes = [[]];
   get notes(): SudokuNotes {
     return this._notes;
   }
@@ -69,7 +62,10 @@ export class SudokuService {
     this.board = initBoard(boardHash);
     this.initialBoard = initBoard(initBoardHash ?? hash(this.board));
     // sets are not serializable, so convert from array
-    this.notes = (JSON.parse(localStorage.getItem('notes')) ?? [[]]).map((r) =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const storedNotes = (JSON.parse(localStorage.getItem('notes')) ?? [[]]) as SudokuNotes;
+    this.notes = storedNotes.map((r) =>
       r?.map((c) => new Set<SudokuValue>(c))
     );
     this.boardSize = getBoardSize(this.board);
@@ -104,18 +100,20 @@ export class SudokuService {
 
   load = () => {
     this.initBoard(
-      localStorage.getItem('currentBoard'),
-      localStorage.getItem('initBoard')
+      localStorage.getItem('currentBoard') || undefined,
+      localStorage.getItem('initBoard') || undefined
     );
   };
 
   /** a stack of actions */
+    // eslint-disable-next-line @typescript-eslint/member-ordering
   actions: {
     pos: CellPosition;
     oldValue: SudokuValue;
     newValue: SudokuValue;
   }[] = [];
   /** a stack of actions that have been undone */
+    // eslint-disable-next-line @typescript-eslint/member-ordering
   undoActions: {
     pos: CellPosition;
     oldValue: SudokuValue;
@@ -149,13 +147,13 @@ export class SudokuService {
     // if value is already set, toggle off
     this.board[pos.r][pos.c] = currentValue === value ? _ : value;
     if (pushToStack) {
-      this.actions.push({ pos: pos, oldValue: currentValue, newValue: value });
+      this.actions.push({pos: pos, oldValue: currentValue, newValue: value});
     }
     this.save();
   };
 
   setNote = (pos: CellPosition, value: SudokuValue) => {
-    const { r, c } = pos;
+    const {r, c} = pos;
     const currentValue = this.board[r][c];
     // don't write notes in completed cells
     if (currentValue || !value) return;
