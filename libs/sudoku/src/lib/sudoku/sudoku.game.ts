@@ -20,6 +20,9 @@ import {
 } from "@kablamo/sudoku";
 
 export class SudokuGame {
+  /** indicates a long task is running */
+  loading = new Subject<boolean>();
+
   update = new Subject<void>();
   private _selectedPosition: CellPosition | undefined;
   get selectedPosition(): CellPosition | undefined {
@@ -79,11 +82,29 @@ export class SudokuGame {
   /** clears the entire board, producing an empty board */
   clear = () => this.initBoard();
 
-  generate = (clues = 25) => this.initBoard(hash(generateBoard(clues)));
+  generate = async (clues = 25) => {
+    this.loading.next(true);
+    await new Promise(resolve => {
+      setTimeout(() => {
+        this.initBoard(hash(generateBoard(clues)));
+        resolve(true);
+      }, 1000);
+    });
+    this.loading.next(false);
+  }
 
   reset = () => this.initBoard(this.getInitHash());
 
-  solve = () => solve(this.board) && this.save();
+  solve = async () => {
+    this.loading.next(true);
+    await new Promise(resolve => {
+      setTimeout(() => {
+        solve(this.board) && this.save();
+        resolve(true);
+      }, 1000);
+    });
+    this.loading.next(false);
+  }
 
   save = () => {
     localStorage.setItem('currentBoard', this.getCurrentHash());
@@ -96,7 +117,7 @@ export class SudokuGame {
     const currentBoard = localStorage.getItem('currentBoard') || undefined;
     const initBoard = localStorage.getItem('initBoard') || undefined;
     const notes = parseNotes(localStorage.getItem('notes'));
-    this.initBoard(currentBoard,initBoard,notes);
+    this.initBoard(currentBoard, initBoard, notes);
   };
 
   /** a stack of actions */

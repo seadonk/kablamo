@@ -18,6 +18,7 @@ import {SudokuGame} from "@kablamo/sudoku";
 import {SettingsComponent} from './components/settings/settings.component';
 import {InputsComponent} from './components/inputs/inputs.component';
 import {ControlsComponent} from './components/controls/controls.component';
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [
@@ -30,17 +31,18 @@ import {ControlsComponent} from './components/controls/controls.component';
     InputsComponent,
     ControlsComponent,
   ],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    RouterModule.forRoot(routes, {initialNavigation: 'enabledBlocking'}),
-    MatSlideToggleModule,
-    MatButtonModule,
-    MatButtonToggleModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatIconModule,
-  ],
+    imports: [
+        BrowserModule,
+        BrowserAnimationsModule,
+        RouterModule.forRoot(routes, {initialNavigation: 'enabledBlocking'}),
+        MatSlideToggleModule,
+        MatButtonModule,
+        MatButtonToggleModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+    ],
   providers: [{provide: SudokuGame}],
   bootstrap: [AppComponent],
 })

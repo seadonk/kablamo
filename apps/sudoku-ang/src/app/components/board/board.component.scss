@@ -38,4 +38,26 @@ $border: 3px solid $borderColor;
       }
     }
   }
+
+
+  .loading, .loading > .backdrop {
+    position: absolute;
+    z-index: 9999;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+
+    .backdrop {
+      background-color: #7f7f7f;
+      opacity: .6;
+    }
+  }
 }

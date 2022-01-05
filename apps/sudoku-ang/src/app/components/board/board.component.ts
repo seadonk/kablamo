@@ -9,6 +9,8 @@ import {Settings, SettingsService} from '../../services/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardComponent {
+  loading: boolean;
+
   isSameSet = isSameSudokuSet;
   get settings(): Settings {
     return this.settingsService.settings;
@@ -22,6 +24,10 @@ export class BoardComponent {
     // manage change detection, since we aren't using inputs here, and have changeDetection set to onPush
     this.settingsService.update.subscribe(() => this.cd.markForCheck());
     this.sudokuService.update.subscribe(() => this.cd.markForCheck());
+    this.sudokuService.loading.subscribe(t => {
+      this.loading = t;
+      this.cd.markForCheck();
+    });
   }
 
   selectCell = (cell: CellPosition) =>
