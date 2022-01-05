@@ -95,7 +95,7 @@ export class SudokuGame {
   load = () => {
     const currentBoard = localStorage.getItem('currentBoard') || undefined;
     const initBoard = localStorage.getItem('initBoard') || undefined;
-    const notes = parseNotes(localStorage.getItem('notes')) || undefined;
+    const notes = parseNotes(localStorage.getItem('notes'));
     this.initBoard(currentBoard,initBoard,notes);
   };
 
@@ -136,6 +136,7 @@ export class SudokuGame {
       this.actions.push({pos: pos, oldValue: currentValue, newValue: value});
       this.undoActions = [];
     }
+    this.selectedPosition = pos;
     this.save();
   };
 

@@ -328,6 +328,12 @@ describe('Sudoku Game', () => {
       sudokuGame.setValue(pos, 9);
       expect(sudokuGame.undoActions).toHaveLength(0);
     })
+    it('should select the cell that was just set (this is useful for undo/redo)', () => {
+      const pos = {r: 1, c: 0};
+      expect(sudokuGame.selectedPosition).not.toStrictEqual(pos);
+      sudokuGame.setValue(pos, 9);
+      expect(sudokuGame.selectedPosition).toStrictEqual(pos);
+    })
   })
 
   describe('setNote', () => {
