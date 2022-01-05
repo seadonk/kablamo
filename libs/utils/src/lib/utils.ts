@@ -21,11 +21,14 @@ export function shuffle(array: any[]) {
 }
 
 export const stopWatch = (callback: any) => {
-    const start = performance.now();
-    callback();
-    const end = performance.now();
-    console.log(`Finished in ${end - start} ms`);
+  const start = performance.now();
+  callback();
+  const end = performance.now();
+  console.log(`Finished in ${end - start} ms`);
 }
 
 /** returns an array of numbers from 0 to N */
 export const getRange = (n: number) => Array.from(Array(n + 1).keys());
+
+/** returns true if the sets have the exact same values */
+export const areSetsEqual = (a: Set<any>, b: Set<any>) => a.size === b.size && a.size === (new Set([...a, ...b]).size);

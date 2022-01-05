@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component,} from '@angular/core';
-import {_, CellPosition, isSamePosition, isSameSet, SudokuGame, SudokuValue,} from '@kablamo/sudoku';
+import {_, CellPosition, isSamePosition, isSameSudokuSet, SudokuGame, SudokuValue,} from '@kablamo/sudoku';
 import {Settings, SettingsService} from '../../services/settings.service';
 
 @Component({
@@ -9,7 +9,7 @@ import {Settings, SettingsService} from '../../services/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardComponent {
-  isSameSet = isSameSet;
+  isSameSet = isSameSudokuSet;
   get settings(): Settings {
     return this.settingsService.settings;
   }

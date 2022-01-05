@@ -2,6 +2,7 @@ import {TestBed} from "@angular/core/testing";
 import {getRange, shuffle} from "@kablamo/utils";
 import {
   _,
+  areNotesEqual,
   CellPosition,
   Examples,
   generateBoard,
@@ -20,23 +21,27 @@ import {
   isCellInRegion,
   isComplete,
   isSamePosition,
-  isSameSet,
+  isSameSudokuSet,
   isSetUnique,
   isSolveable,
   isSolved,
   isSubsetOf,
   isUnique,
   isValid,
+  parseNotes,
   printBoard,
   printRow,
   randomizeBoard,
   RegionPosition,
   solve,
   solveAll,
+  stringifyNotes,
+  SudokuNotes,
+  SudokuValue,
   transpose
 } from "@kablamo/sudoku";
 
-describe('Sudoku', () => {
+describe('Sudoku Utils', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
@@ -85,6 +90,62 @@ describe('Sudoku', () => {
 
   it('should produce a hash for an array', () => {
     expect(hash(Examples.easyPreset)).toBe('374208501005000000000100000090010800208900705750024190500702900009381207007409610');
+  })
+
+  describe('notes serialization', () => {
+    describe('areNotesEqual', () =>{
+      it('should return false if the notes do not have the same length', () => {
+        const a: SudokuNotes = [[new Set([1,2,3])]];
+        const b: SudokuNotes = [[new Set([1,2,3,4])]];
+        expect(areNotesEqual(a,b)).toBeFalsy();
+      })
+      it('should return false if the notes do not have the same values', () => {
+        const a: SudokuNotes = [[new Set([1,2,3])]];
+        const b: SudokuNotes = [[new Set([1,2,4])]];
+        expect(areNotesEqual(a,b)).toBeFalsy();
+      })
+      it('should return true if the notes have the same size and values', () => {
+        const a: SudokuNotes = [[new Set([1,4,2])]];
+        const b: SudokuNotes = [[new Set([1,4,2])]];
+        expect(areNotesEqual(a,b)).toBeTruthy();
+      })
+      it('should return true if both notes are empty', () => {
+        expect(areNotesEqual([[]], [[]])).toBeTruthy();
+      })
+    })
+    // notes are made up of Sets, which do not serialize to JSON for storage in Localstorage.
+    // instead we must convert them to/from an array, which CAN be serialized.
+    // these helper functions do the to/from conversion.
+    describe('stringifyNotes', () => {
+      it('should stringify the provided SudokuNotes object', () => {
+        const notes: SudokuNotes = [[new Set<SudokuValue>([1, 4, 5])]];
+        expect(stringifyNotes(notes)).toBe('[[[1,4,5]]]')
+      })
+      it('should stringify an empty array of notes', () => {
+        // this case shouldn't normally happen, since we always initialize to [[]]
+        let notes: SudokuNotes = [];
+        expect(stringifyNotes(notes)).toBe('[]');
+        // this is the normal initialized notes value
+        notes = [[]];
+        expect(stringifyNotes(notes)).toBe('[[]]')
+      })
+    })
+    describe('parseNotes', () => {
+      it('should parse an empty stringified SudokuNotes object', () => {
+        const notes: SudokuNotes = [[]];
+        const stringifiedNotes = stringifyNotes(notes);
+        expect(areNotesEqual(parseNotes(stringifiedNotes), notes)).toBeTruthy();
+      })
+      it('should parse a non-empty stringified SudokuNotes object', () => {
+        const notes: SudokuNotes = [[new Set<SudokuValue>([1, 4, 5])]];
+        const stringifiedNotes = stringifyNotes(notes);
+        expect(areNotesEqual(parseNotes(stringifiedNotes), notes)).toBeTruthy();
+      })
+      it('should parse a null value to an empty 2-d array', () => {
+        const notes: SudokuNotes = [[]];
+        expect(areNotesEqual(parseNotes(null), notes)).toBeTruthy();
+      })
+    })
   })
 
   describe('region and cell positions', () => {
@@ -211,25 +272,25 @@ describe('Sudoku', () => {
     it('should return true if two cells are in the same column', () => {
       const a = {r: 1, c: 3};
       const b = {r: 8, c: 3};
-      expect(isSameSet(a, b)).toBeTruthy();
+      expect(isSameSudokuSet(a, b)).toBeTruthy();
     })
 
     it('should return true if two cells are in the same row', () => {
       const a = {r: 6, c: 0};
       const b = {r: 6, c: 8};
-      expect(isSameSet(a, b)).toBeTruthy();
+      expect(isSameSudokuSet(a, b)).toBeTruthy();
     })
 
     it('should return true if two cells are in the same region', () => {
       const a = {r: 6, c: 6};
       const b = {r: 8, c: 8};
-      expect(isSameSet(a, b)).toBeTruthy();
+      expect(isSameSudokuSet(a, b)).toBeTruthy();
     })
 
     it('should return true if two cells do not share any sets', () => {
       const a = {r: 0, c: 0};
       const b = {r: 4, c: 4};
-      expect(isSameSet(a, b)).toBeFalsy();
+      expect(isSameSudokuSet(a, b)).toBeFalsy();
     })
   })
 

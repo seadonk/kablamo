@@ -1,0 +1,20 @@
+<div class="buttons">
+  <button mat-mini-fab (click)="sudokuService.undo()" title="Undo">
+    <mat-icon>undo</mat-icon>
+  </button>
+  <button mat-mini-fab (click)="sudokuService.redo()" title="Redo">
+    <mat-icon>redo</mat-icon>
+  </button>
+  <button mat-mini-fab (click)="sudokuService.solve()" title="Solve">
+    <mat-icon>auto_fix_high</mat-icon>
+  </button>
+  <button mat-mini-fab (click)="sudokuService.reset()" title="Reset">
+    <mat-icon>restart_alt</mat-icon>
+  </button>
+  <button mat-mini-fab (click)="sudokuService.clear()" title="Clear">
+    <mat-icon>delete</mat-icon>
+  </button>
+  <button mat-mini-fab (click)="sudokuService.generate()" title="Generate">
+    <mat-icon>factory</mat-icon>
+  </button>
+</div>

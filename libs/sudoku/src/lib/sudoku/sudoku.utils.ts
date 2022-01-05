@@ -11,6 +11,12 @@ export type SudokuBoard = SudokuSet[];
 export type SudokuNote = Set<SudokuValue>;
 /** notes for an entire board */
 export type SudokuNotes = SudokuNote[][];
+/** represents a turn in a sudoku game */
+export type SudokuAction = {
+  pos: CellPosition;
+  oldValue: SudokuValue;
+  newValue: SudokuValue;
+};
 
 export const printRow = (row: SudokuSet): string => {
   const separator = (index: number) => (index < 8 && (index + 1) % 3 === 0) ? '|' : '';
@@ -120,7 +126,7 @@ export const getCellRegionByPosition = (position: CellPosition) =>
   getRegionPositions().find(p => isCellInRegion(p, position));
 
 /** returns true if two positions are in the same set */
-export const isSameSet = (a: CellPosition, b: CellPosition): boolean => {
+export const isSameSudokuSet = (a: CellPosition, b: CellPosition): boolean => {
   const region = getCellRegionByPosition(b);
   return b.r === a.r || b.c === a.c || (region != null && isCellInRegion(region, a));
 }
@@ -237,3 +243,21 @@ export const getBoardSize = (board: SudokuBoard): BoardSize => ({r: board.length
 /** returns the number of cells in a board */
 export const getNumCells = (board: SudokuBoard): number => board.length * board[0].length;
 
+/** gets a stringified version of the notes for use in local storage
+ *  sets are not serializable, so convert to array in local storage*/
+export const stringifyNotes = (notes: SudokuNotes) => JSON.stringify(notes.map((r) => r?.map((c) => [...c])));
+/** parses the stringified version of notes from local storage
+ *  sets are not serializable, so convert to array in local storage*/
+export const parseNotes = (value: string | null): SudokuNotes => {
+  const storedNotes = ((value && JSON.parse(value)) ?? [[]]) as SudokuNotes;
+  return storedNotes.map((r) =>
+    r?.map((c) => new Set<SudokuValue>(c))
+  );
+}
+
+/** returns true if the sets of notes are the same size and each corresponding
+ * pair of notes hase the same values in the same order.
+ * We do not sort values currently, so the sets may have the correct values but in the wrong order and
+ * will not be considered equal.
+ * During normal serialization/deserialization we should not have to worry about order. */
+export const areNotesEqual = (a: SudokuNotes, b: SudokuNotes) => stringifyNotes(a) === stringifyNotes(b)

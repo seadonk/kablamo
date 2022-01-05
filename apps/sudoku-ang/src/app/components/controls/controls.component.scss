@@ -1,0 +1,13 @@
+.buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  @media (orientation: portrait) {
+    flex-direction: row;
+  }
+  > button {
+    display: block;
+    font-size: 2rem;
+  }
+}

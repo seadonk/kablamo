@@ -90,6 +90,7 @@ export class Examples {
     ]
   };
 
+  /** a solved version of the easyPreset board */
   static get solved(): SudokuBoard {
     return [
       [3, 7, 4, 2, 9, 8, 5, 6, 1],

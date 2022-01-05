@@ -9,7 +9,10 @@ import {
   getNumCells,
   hash,
   initBoard,
+  parseNotes,
   solve,
+  stringifyNotes,
+  SudokuAction,
   SudokuBoard,
   SudokuHash,
   SudokuNotes,
@@ -28,18 +31,12 @@ export class SudokuGame {
     this.update.next();
   }
 
-  valid = false;
-  solved = false;
-  boardSize: BoardSize;
-  numCells: number;
-
-  constructor() {
-    this.load();
-  }
+  boardSize: BoardSize = {r: 0, c: 0};
+  numCells = 0;
 
   /** the original board containing only clues */
-  private initialBoard: SudokuBoard;
-  private _board: SudokuBoard;
+  private initialBoard: SudokuBoard = [];
+  private _board: SudokuBoard = [];
   get board(): SudokuBoard {
     return this._board;
   }
@@ -57,19 +54,19 @@ export class SudokuGame {
     this._notes = value;
   }
 
+  constructor() {
+    this.load();
+  }
+
   /** initializes the board from a given hash */
-  private initBoard = (boardHash?: SudokuHash, initBoardHash?: SudokuHash) => {
+  private initBoard = (boardHash?: SudokuHash, initBoardHash?: SudokuHash, notes?: SudokuNotes) => {
     this.board = initBoard(boardHash);
     this.initialBoard = initBoard(initBoardHash ?? hash(this.board));
-    // sets are not serializable, so convert from array
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const storedNotes = (JSON.parse(localStorage.getItem('notes')) ?? [[]]) as SudokuNotes;
-    this.notes = storedNotes.map((r) =>
-      r?.map((c) => new Set<SudokuValue>(c))
-    );
+    this.notes = notes ?? [[]];
     this.boardSize = getBoardSize(this.board);
     this.numCells = getNumCells(this.board);
+    this.actions = [];
+    this.undoActions = [];
     this.save();
   };
 
@@ -77,6 +74,7 @@ export class SudokuGame {
   getCurrentHash = () => hash(this.board);
   /** Gets the hash of the board in its initial state */
   getInitHash = () => hash(this.initialBoard);
+
 
   /** clears the entire board, producing an empty board */
   clear = () => this.initBoard();
@@ -90,35 +88,23 @@ export class SudokuGame {
   save = () => {
     localStorage.setItem('currentBoard', this.getCurrentHash());
     localStorage.setItem('initBoard', this.getInitHash());
-    // sets are not serializable, so convert to array
-    localStorage.setItem(
-      'notes',
-      JSON.stringify(this.notes.map((r) => r?.map((c) => [...c])))
-    );
+    localStorage.setItem('notes', stringifyNotes(this.notes));
     this.update.next();
   };
 
   load = () => {
-    this.initBoard(
-      localStorage.getItem('currentBoard') || undefined,
-      localStorage.getItem('initBoard') || undefined
-    );
+    const currentBoard = localStorage.getItem('currentBoard') || undefined;
+    const initBoard = localStorage.getItem('initBoard') || undefined;
+    const notes = parseNotes(localStorage.getItem('notes')) || undefined;
+    this.initBoard(currentBoard,initBoard,notes);
   };
 
   /** a stack of actions */
     // eslint-disable-next-line @typescript-eslint/member-ordering
-  actions: {
-    pos: CellPosition;
-    oldValue: SudokuValue;
-    newValue: SudokuValue;
-  }[] = [];
+  actions: SudokuAction[] = [];
   /** a stack of actions that have been undone */
     // eslint-disable-next-line @typescript-eslint/member-ordering
-  undoActions: {
-    pos: CellPosition;
-    oldValue: SudokuValue;
-    newValue: SudokuValue;
-  }[] = [];
+  undoActions: SudokuAction[] = [];
 
   undo = () => {
     const action = this.actions.pop();
@@ -148,6 +134,7 @@ export class SudokuGame {
     this.board[pos.r][pos.c] = currentValue === value ? _ : value;
     if (pushToStack) {
       this.actions.push({pos: pos, oldValue: currentValue, newValue: value});
+      this.undoActions = [];
     }
     this.save();
   };
