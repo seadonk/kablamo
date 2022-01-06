@@ -71,13 +71,18 @@ export const getRegionSets = (board: SudokuBoard): SudokuSet[] =>
   getRegionPositions().map(({r, c}) =>
     board.slice(r * 3, r * 3 + 3).flatMap(t => t.slice(c * 3, c * 3 + 3)));
 
+/** gets the index of the region in order left to right top to bottom */
+export const getRegionIndex = (regionPosition: RegionPosition): number => {
+  const regionWidth = 3;
+  return regionPosition.r * regionWidth + regionPosition.c;
+}
 
-/** gets the cell positions of all cells within in the given region by index */
-export const getRegionCellPositions = (regionIndex: RegionPosition): CellPosition[] => {
+/** gets the cell positions of all cells within in the given region */
+export const getRegionCellPositions = (region: RegionPosition): CellPosition[] => {
   const regionWidth = 3;
   const regionHeight = 3;
-  const rows = Array.from(Array(regionHeight).keys()).map(r => regionHeight * regionIndex.r + r);
-  const columns = Array.from(Array(regionWidth).keys()).map(c => regionWidth * regionIndex.c + c);
+  const rows = Array.from(Array(regionHeight).keys()).map(r => regionHeight * region.r + r);
+  const columns = Array.from(Array(regionWidth).keys()).map(c => regionWidth * region.c + c);
   return rows.flatMap(r => columns.map(c => ({r: r, c})));
 }
 /** returns true if the given cell is contained within the given region */
@@ -122,12 +127,23 @@ export const getCellPositionByIndex = (i: number): CellPosition => ({r: (i - i %
 export const getCellIndexByPosition = (board: SudokuBoard, pos: CellPosition): number => pos && board && pos.r * board[0].length + pos.c;
 
 /** gets the region position in r,c format, from a given cell position within the board */
-export const getCellRegionByPosition = (position: CellPosition) =>
-  getRegionPositions().find(p => isCellInRegion(p, position));
+export const getCellRegionPositions = (position: CellPosition): RegionPosition =>
+  getRegionPositions().find(p => isCellInRegion(p, position)) as RegionPosition;
+
+/** gets the set of values for the region containing the cell position */
+export const getCellRegionSet = (board: SudokuBoard, pos: CellPosition): SudokuSet => {
+  const region = getCellRegionPositions(pos);
+  const regionIndex = getRegionIndex(region);
+  return getRegionSets(board)[regionIndex];
+}
+/** gets the set of values for the row containing the cell position */
+export const getCellRowSet = (board: SudokuBoard, pos: CellPosition): SudokuSet => board[pos.r];
+/** gets the set of values for the column containing the cell position */
+export const getCellColumnSet = (board: SudokuBoard, pos: CellPosition): SudokuSet => transpose(board)[pos.c];
 
 /** returns true if two positions are in the same set */
 export const isSameSudokuSet = (a: CellPosition, b: CellPosition): boolean => {
-  const region = getCellRegionByPosition(b);
+  const region = getCellRegionPositions(b);
   return b.r === a.r || b.c === a.c || (region != null && isCellInRegion(region, a));
 }
 
@@ -261,3 +277,34 @@ export const parseNotes = (value: string | null): SudokuNotes => {
  * will not be considered equal.
  * During normal serialization/deserialization we should not have to worry about order. */
 export const areNotesEqual = (a: SudokuNotes, b: SudokuNotes) => stringifyNotes(a) === stringifyNotes(b)
+
+/** clear any notes that would be invalid in their sets */
+export const clearInvalidNotes = (board: SudokuBoard, notes: SudokuNotes) => {
+  type notePosition = { pos: CellPosition, note: SudokuNote };
+  // get any notes that have values
+  const filledNotes: notePosition[] =
+    notes.flatMap((row, r) => row &&
+      row.map((note, c) => ({pos: {r: r, c: c}, note})))
+      .filter(t => t?.note?.size);
+
+  const clearNote = (n: notePosition) => {
+    const region = getCellRegionSet(board, n.pos);
+    const row = getCellRowSet(board, n.pos);
+    const column = getCellColumnSet(board, n.pos);
+    const noteIsInvalid = (v: SudokuValue) => region.includes(v) || row.includes(v) || column.includes(v);
+    n.note.forEach(v => noteIsInvalid(v) && n.note.delete(v));
+  }
+
+  filledNotes.forEach(t => clearNote(t));
+}
+
+/** toggles a given note value on/off for the given cell */
+export const toggleNote = (pos: CellPosition, value: SudokuValue, notes: SudokuNotes) => {
+  const {r,c} = pos;
+  // init notes, we don't initialize every value by default, untouched notes will be undefined
+  notes[r] = notes[r] ?? [];
+  notes[r][c] = notes[r][c] ?? new Set<SudokuValue>();
+  const note = notes[r][c];
+  note.has(value) ? note.delete(value) : note.add(value);
+  notes[r][c] = new Set<SudokuValue>([...note]);
+}

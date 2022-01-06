@@ -4,16 +4,21 @@ import {
   _,
   areNotesEqual,
   CellPosition,
+  clearInvalidNotes,
   Examples,
   generateBoard,
   getBoardSize,
+  getCellColumnSet,
   getCellIndexByPosition,
   getCellPositionByIndex,
-  getCellRegionByPosition,
+  getCellRegionPositions,
+  getCellRegionSet,
+  getCellRowSet,
   getFilledCells,
   getNextOpenCell,
   getNumCells,
   getRegionCellPositions,
+  getRegionIndex,
   getRegionPositions,
   getRegionSets,
   hash,
@@ -36,8 +41,10 @@ import {
   solve,
   solveAll,
   stringifyNotes,
+  SudokuBoard,
   SudokuNotes,
   SudokuValue,
+  toggleNote,
   transpose
 } from "@kablamo/sudoku";
 
@@ -93,21 +100,21 @@ describe('Sudoku Utils', () => {
   })
 
   describe('notes serialization', () => {
-    describe('areNotesEqual', () =>{
+    describe('areNotesEqual', () => {
       it('should return false if the notes do not have the same length', () => {
-        const a: SudokuNotes = [[new Set([1,2,3])]];
-        const b: SudokuNotes = [[new Set([1,2,3,4])]];
-        expect(areNotesEqual(a,b)).toBeFalsy();
+        const a: SudokuNotes = [[new Set([1, 2, 3])]];
+        const b: SudokuNotes = [[new Set([1, 2, 3, 4])]];
+        expect(areNotesEqual(a, b)).toBeFalsy();
       })
       it('should return false if the notes do not have the same values', () => {
-        const a: SudokuNotes = [[new Set([1,2,3])]];
-        const b: SudokuNotes = [[new Set([1,2,4])]];
-        expect(areNotesEqual(a,b)).toBeFalsy();
+        const a: SudokuNotes = [[new Set([1, 2, 3])]];
+        const b: SudokuNotes = [[new Set([1, 2, 4])]];
+        expect(areNotesEqual(a, b)).toBeFalsy();
       })
       it('should return true if the notes have the same size and values', () => {
-        const a: SudokuNotes = [[new Set([1,4,2])]];
-        const b: SudokuNotes = [[new Set([1,4,2])]];
-        expect(areNotesEqual(a,b)).toBeTruthy();
+        const a: SudokuNotes = [[new Set([1, 4, 2])]];
+        const b: SudokuNotes = [[new Set([1, 4, 2])]];
+        expect(areNotesEqual(a, b)).toBeTruthy();
       })
       it('should return true if both notes are empty', () => {
         expect(areNotesEqual([[]], [[]])).toBeTruthy();
@@ -155,11 +162,11 @@ describe('Sudoku Utils', () => {
       expect(regions).toMatchSnapshot();
     })
 
-    it('should return the corresponding region for the given cell when getCellRegionByPosition is called', () => {
-      expect(getCellRegionByPosition({r: 0, c: 0})).toStrictEqual({r: 0, c: 0});
-      expect(getCellRegionByPosition({r: 3, c: 3})).toStrictEqual({r: 1, c: 1});
-      expect(getCellRegionByPosition({r: 3, c: 7})).toStrictEqual({r: 1, c: 2});
-      expect(getCellRegionByPosition({r: 8, c: 8})).toStrictEqual({r: 2, c: 2});
+    it('should return the corresponding region for the given cell when getCellRegionPositions is called', () => {
+      expect(getCellRegionPositions({r: 0, c: 0})).toStrictEqual({r: 0, c: 0});
+      expect(getCellRegionPositions({r: 3, c: 3})).toStrictEqual({r: 1, c: 1});
+      expect(getCellRegionPositions({r: 3, c: 7})).toStrictEqual({r: 1, c: 2});
+      expect(getCellRegionPositions({r: 8, c: 8})).toStrictEqual({r: 2, c: 2});
     })
 
     it('should return the cell position by index', () => {
@@ -632,4 +639,139 @@ describe('Sudoku Utils', () => {
       })
     })
   })
+
+  describe('getRegionIndex', () => {
+    it('should get the zero based index for the region', () => {
+      // regions are numbered from left to right top to bottom
+      // currently, getRegionIndex assumes a 9x9 board with 3x3 regions, but this should be abstracted
+      // later for other board sizes and region sizes
+      expect(getRegionIndex({r: 0, c: 0})).toBe(0);
+      expect(getRegionIndex({r: 1, c: 1})).toBe(4);
+      expect(getRegionIndex({r: 2, c: 2})).toBe(8);
+    })
+  })
+  describe('get sets', () => {
+    let board: SudokuBoard;
+    beforeEach(() => {
+      board = [
+        [3, 7, 4, 2, _, 8, 5, _, 1],
+        [_, _, 5, _, _, _, _, _, _],
+        [_, _, _, 1, _, _, _, _, _],
+        [_, 9, _, _, 1, _, 8, _, _],
+        [2, _, 8, 9, _, _, 7, _, 5],
+        [7, 5, _, _, 2, 4, 1, 9, _],
+        [5, _, _, 7, _, 2, 9, _, _],
+        [_, _, 9, 3, 8, 1, 2, _, 7],
+        [_, _, 7, 4, _, 9, 6, 1, _],
+      ];
+    })
+    describe('getCellRegionSet', () => {
+      it('should get the set of values for the region containing the cell position', () => {
+        expect(getCellRegionSet(board, {r: 0, c: 0})).toStrictEqual([3, 7, 4, _, _, 5, _, _, _]);
+        expect(getCellRegionSet(board, {r: 0, c: 2})).toStrictEqual([3, 7, 4, _, _, 5, _, _, _]);
+        expect(getCellRegionSet(board, {r: 8, c: 8})).toStrictEqual([9, _, _, 2, _, 7, 6, 1, _]);
+      })
+    })
+
+    describe('getCellRowSet', () => {
+      it('should get the set of values for the row containing the cell position', () => {
+        expect(getCellRowSet(board, {r: 0, c: 0})).toStrictEqual([3, 7, 4, 2, _, 8, 5, _, 1]);
+        expect(getCellRowSet(board, {r: 0, c: 2})).toStrictEqual([3, 7, 4, 2, _, 8, 5, _, 1]);
+        expect(getCellRowSet(board, {r: 8, c: 8})).toStrictEqual([_, _, 7, 4, _, 9, 6, 1, _]);
+      })
+    })
+
+    describe('getCellColumnSet', () => {
+      it('should get the set of values for the row containing the cell position', () => {
+        const board = Examples.easyPreset;
+        expect(getCellColumnSet(board, {r: 0, c: 0})).toStrictEqual([3, _, _, _, 2, 7, 5, _, _]);
+        expect(getCellColumnSet(board, {r: 1, c: 0})).toStrictEqual([3, _, _, _, 2, 7, 5, _, _]);
+        expect(getCellColumnSet(board, {r: 8, c: 8})).toStrictEqual([1, _, _, _, 5, _, _, 7, _]);
+      })
+    })
+  })
+
+  describe('clearInvalidNotes', () => {
+    let board: SudokuBoard;
+    beforeEach(() => {
+      board = [
+        [3, 7, 4, 2, _, 8, 5, _, 1],
+        [_, _, 5, _, _, _, _, _, _],
+        [_, _, _, 1, _, _, _, _, _],
+        [_, 9, _, _, 1, _, 8, _, _],
+        [2, _, 8, 9, _, _, 7, _, 5],
+        [7, 5, _, _, 2, 4, 1, 9, _],
+        [5, _, _, 7, _, 2, 9, _, _],
+        [_, _, 9, 3, 8, 1, 2, _, 7],
+        [_, _, 7, 4, _, 9, 6, 1, _],
+      ];
+    })
+    it('should clear any note values that are not valid within a row', () => {
+      const notes: SudokuNotes = [];
+      const pos: CellPosition = {r:2,c:0};
+      const invalidValue: SudokuValue = 1;
+      const validValue: SudokuValue = 9;
+      toggleNote(pos, invalidValue, notes);
+      toggleNote(pos, validValue, notes);
+      clearInvalidNotes(board,notes);
+      expect(notes[pos.r][pos.c].has(invalidValue)).toBeFalsy();
+      expect(notes[pos.r][pos.c].has(validValue)).toBeTruthy();
+    })
+    it('should clear any note values that are not valid within a column', () => {
+      const notes: SudokuNotes = [];
+      const pos: CellPosition = {r:1,c:0};
+      const invalidValue: SudokuValue = 2;
+      const validValue: SudokuValue = 6;
+      toggleNote(pos, invalidValue, notes);
+      toggleNote(pos, validValue, notes);
+      clearInvalidNotes(board,notes);
+      expect(notes[pos.r][pos.c].has(invalidValue)).toBeFalsy();
+      expect(notes[pos.r][pos.c].has(validValue)).toBeTruthy();
+    })
+    it('should clear any note values that are not valid within a region', () => {
+      const notes: SudokuNotes = [];
+      const pos: CellPosition = {r:1,c:0};
+      const invalidValue: SudokuValue = 4;
+      const validValue: SudokuValue = 6;
+      toggleNote(pos, invalidValue, notes);
+      toggleNote(pos, validValue, notes);
+      clearInvalidNotes(board,notes);
+      expect(notes[pos.r][pos.c].has(invalidValue)).toBeFalsy();
+      expect(notes[pos.r][pos.c].has(validValue)).toBeTruthy();
+    })
+    it('should not clear any note values that are valid', () => {
+      const notes: SudokuNotes = [];
+      const pos: CellPosition = {r:1,c:0};
+      toggleNote(pos, 9, notes);
+      toggleNote(pos, 8, notes);
+      toggleNote(pos, 6, notes);
+      clearInvalidNotes(board,notes);
+      expect(notes[pos.r][pos.c].has(9)).toBeTruthy();
+      expect(notes[pos.r][pos.c].has(8)).toBeTruthy();
+      expect(notes[pos.r][pos.c].has(6)).toBeTruthy();
+    })
+  })
+
+  describe('toggleNote', () => {
+    let notes: SudokuNotes;
+    beforeEach(() => notes = [])
+    it('should add the value to the set of notes for the given cell position if not already added', () => {
+      const pos: CellPosition = {r: 1, c: 0};
+      toggleNote(pos, 9, notes);
+      expect(notes[pos.r][pos.c].size).toBe(1);
+      expect(notes[pos.r][pos.c].has(9)).toBeTruthy();
+      toggleNote(pos, 8, notes);
+      expect(notes[pos.r][pos.c].size).toBe(2);
+      expect(notes[pos.r][pos.c]).toContain(8);
+    })
+    it('should clear the value in the set of notes for the given cell position if already added', () => {
+      const pos: CellPosition = {r: 1, c: 0};
+      toggleNote(pos, 9, notes);
+      expect(notes[pos.r][pos.c].size).toBe(1);
+      expect(notes[pos.r][pos.c].has(9)).toBeTruthy();
+      toggleNote(pos, 9, notes);
+      expect(notes[pos.r][pos.c].size).toBe(0);
+    })
+  })
+
 });

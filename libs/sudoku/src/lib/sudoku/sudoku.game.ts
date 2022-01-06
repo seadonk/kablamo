@@ -4,6 +4,7 @@ import {
   _,
   BoardSize,
   CellPosition,
+  clearInvalidNotes,
   generateBoard,
   getBoardSize,
   getNumCells,
@@ -16,7 +17,8 @@ import {
   SudokuBoard,
   SudokuHash,
   SudokuNotes,
-  SudokuValue
+  SudokuValue,
+  toggleNote
 } from "@kablamo/sudoku";
 
 export class SudokuGame {
@@ -36,6 +38,18 @@ export class SudokuGame {
 
   boardSize: BoardSize = {r: 0, c: 0};
   numCells = 0;
+
+  private _autoClear = false;
+  get autoClear(): boolean {
+    return this._autoClear;
+  }
+
+  set autoClear(value: boolean) {
+    this._autoClear = value;
+    if (value) {
+      this.clearInvalidNotes();
+    }
+  }
 
   /** the original board containing only clues */
   private initialBoard: SudokuBoard = [];
@@ -78,6 +92,11 @@ export class SudokuGame {
   /** Gets the hash of the board in its initial state */
   getInitHash = () => hash(this.initialBoard);
 
+  /** clear any notes that would be invalid in their sets */
+  clearInvalidNotes = () => {
+    this.autoClear && clearInvalidNotes(this.board, this.notes);
+    this.save();
+  }
 
   /** clears the entire board, producing an empty board */
   clear = () => this.initBoard();
@@ -158,26 +177,17 @@ export class SudokuGame {
       this.undoActions = [];
     }
     this.selectedPosition = pos;
+    this.clearInvalidNotes();
     this.save();
   };
 
   setNote = (pos: CellPosition, value: SudokuValue) => {
-    const {r, c} = pos;
-    const currentValue = this.board[r][c];
+    const currentValue = this.getPositionValue(pos);
     // don't write notes in completed cells
     if (currentValue || !value) return;
 
-    // init notes;
-    this.notes[r] = this.notes[r] ?? [];
-    this.notes[r][c] = this.notes[r][c] ?? new Set<SudokuValue>();
-    const notes = this.notes[r][c];
-    notes.has(value) ? notes.delete(value) : notes.add(value);
-    // for now clone notes, so that we trigger change detection in onPush mode;
-    this.notes[r][c] = new Set<SudokuValue>([...notes]);
-    // this.board[pos.r][pos.c] = value;
-    // if (pushToStack) {
-    //   this.actions.push({pos: pos, oldValue: currentValue, newValue: value});
-    // }
+    toggleNote(pos,value,this.notes);
+    this.clearInvalidNotes();
     this.save();
   };
 

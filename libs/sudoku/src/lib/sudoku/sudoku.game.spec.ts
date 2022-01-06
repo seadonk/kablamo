@@ -14,6 +14,8 @@ import {
   SudokuNotes,
   SudokuValue
 } from "@kablamo/sudoku";
+import * as sudokuUtils from './sudoku.utils';
+import {waitForAsync} from "@angular/core/testing";
 
 describe('Sudoku Game', () => {
   let sudokuGame: SudokuGame;
@@ -22,9 +24,9 @@ describe('Sudoku Game', () => {
   })
 
   describe('SudokuGame', () => {
-      it('should begin as a new empty board', () => {
-        expect(sudokuGame.getCurrentHash()).toBe(hash(Examples.emptyBoard));
-      })
+    it('should begin as a new empty board', () => {
+      expect(sudokuGame.getCurrentHash()).toBe(hash(Examples.emptyBoard));
+    })
   })
 
   describe('initBoard', () => {
@@ -133,34 +135,34 @@ describe('Sudoku Game', () => {
   })
 
   describe('generate', () => {
-    it('should generate a solveable board', () => {
-      sudokuGame.generate();
+    it('should generate a solveable board', waitForAsync(async () => {
+      await sudokuGame.generate();
       expect(isSolveable(sudokuGame.board)).toBeTruthy();
-    })
-    it('should generate a board with 25 clues by default', () => {
-      sudokuGame.generate();
+    }))
+    it('should generate a board with 25 clues by default', waitForAsync(async () => {
+      await sudokuGame.generate();
       expect(getFilledCells(sudokuGame.board)).toBe(25);
-    })
-    it('should generate a board with the specified number of clues', () => {
-      sudokuGame.generate(27);
+    }))
+    it('should generate a board with the specified number of clues', waitForAsync(async () => {
+      await sudokuGame.generate(27);
       expect(getFilledCells(sudokuGame.board)).toBe(27);
-    })
-    it('should call initBoard', () => {
+    }))
+    it('should call initBoard', waitForAsync(async() => {
       const initBoard = jest.fn();
       sudokuGame['initBoard'] = initBoard;
-      sudokuGame.generate();
+      await sudokuGame.generate();
       expect(initBoard).toHaveBeenCalledTimes(1);
-    })
+    }))
   })
 
   describe('reset', () => {
     const initBoardHash = hash(Examples.easyPreset);
     beforeEach(() => {
       sudokuGame['initBoard'](initBoardHash);
-      sudokuGame.setValue({r:1,c:0},9);
-      sudokuGame.setValue({r:1,c:0},8);
+      sudokuGame.setValue({r: 1, c: 0}, 9);
+      sudokuGame.setValue({r: 1, c: 0}, 8);
       sudokuGame.undo();
-      sudokuGame.setNote({r:1,c:1}, 2);
+      sudokuGame.setNote({r: 1, c: 1}, 2);
       expect(sudokuGame.getCurrentHash()).not.toBe(initBoardHash);
       expect(sudokuGame.actions).not.toHaveLength(0);
       expect(sudokuGame.undoActions).not.toHaveLength(0);
@@ -168,7 +170,7 @@ describe('Sudoku Game', () => {
     })
     it('should clear any non-locked cells', () => {
       sudokuGame.reset();
-      expect(sudokuGame.getPositionValue({r:1,c:0})).toBe(_);
+      expect(sudokuGame.getPositionValue({r: 1, c: 0})).toBe(_);
       expect(sudokuGame.getCurrentHash()).toBe(sudokuGame.getInitHash());
     })
     it('should clear the undo/redo history', () => {
@@ -190,27 +192,27 @@ describe('Sudoku Game', () => {
   })
 
   describe('solve', () => {
-    it('should solve the current board if possible', () => {
+    it('should solve the current board if possible', waitForAsync(async () => {
       sudokuGame['initBoard'](hash(Examples.easyPreset));
       expect(isSolved(sudokuGame.board)).toBeFalsy();
-      sudokuGame.solve();
+      await sudokuGame.solve();
       expect(isSolved(sudokuGame.board)).toBeTruthy();
       expect(isSubsetOf(Examples.easyPreset, sudokuGame.board));
-    })
-    it('should do nothing if the current board is not solveable', () => {
+    }))
+    it('should do nothing if the current board is not solveable', waitForAsync(async () => {
       sudokuGame['initBoard'](hash(Examples.invalidRegions));
       expect(isSolved(sudokuGame.board)).toBeFalsy();
-      sudokuGame.solve();
+      await sudokuGame.solve();
       expect(isSolved(sudokuGame.board)).toBeFalsy();
       expect(hash(Examples.invalidRegions)).toBe(sudokuGame.getCurrentHash());
-    })
-    it('should do nothing if the current board is already solved', () => {
+    }))
+    it('should do nothing if the current board is already solved', waitForAsync(async () => {
       sudokuGame['initBoard'](hash(Examples.solved));
       expect(isSolved(sudokuGame.board)).toBeTruthy();
       expect(hash(Examples.solved)).toBe(sudokuGame.getCurrentHash());
-      sudokuGame.solve();
+      await sudokuGame.solve();
       expect(hash(Examples.solved)).toBe(sudokuGame.getCurrentHash());
-    })
+    }))
   })
 
   describe('save', () => {
@@ -275,7 +277,7 @@ describe('Sudoku Game', () => {
       const initBoardHash = hash(Examples.easyPreset);
       const notes: SudokuNotes = [[new Set<SudokuValue>([1, 4, 5])]];
       const stringifiedNotes = stringifyNotes(notes);
-      const storage: { [key: string]: any } = {
+      const storage: { [key: string]: string } = {
         currentBoard: boardHash,
         initBoard: initBoardHash,
         notes: stringifiedNotes
@@ -334,34 +336,35 @@ describe('Sudoku Game', () => {
       sudokuGame.setValue(pos, 9);
       expect(sudokuGame.selectedPosition).toStrictEqual(pos);
     })
+    it('should call clearInvalidNotes', () => {
+      const clearInvalidNotes = jest.spyOn(sudokuGame, 'clearInvalidNotes');
+      sudokuGame.setValue({r: 1, c: 0}, 1);
+      expect(clearInvalidNotes).toHaveBeenCalledTimes(1);
+    })
   })
 
   describe('setNote', () => {
     beforeEach(() => {
       sudokuGame['initBoard']();
     })
-    it('should add the value to the set of notes for the given cell position if not already added', () => {
-      const pos: CellPosition = {r: 1, c: 0};
-      sudokuGame.setNote(pos, 9);
-      expect(sudokuGame.notes[pos.r][pos.c].size).toBe(1);
-      expect(sudokuGame.notes[pos.r][pos.c].has(9)).toBeTruthy();
-      sudokuGame.setNote(pos, 8);
-      expect(sudokuGame.notes[pos.r][pos.c].size).toBe(2);
-      expect(sudokuGame.notes[pos.r][pos.c]).toContain(8);
-    })
-    it('should clear the value in the set of notes for the given cell position if already added', () => {
-      const pos: CellPosition = {r: 1, c: 0};
-      sudokuGame.setNote(pos, 9);
-      expect(sudokuGame.notes[pos.r][pos.c].size).toBe(1);
-      expect(sudokuGame.notes[pos.r][pos.c].has(9)).toBeTruthy();
-      sudokuGame.setNote(pos, 9);
-      expect(sudokuGame.notes[pos.r][pos.c].size).toBe(0);
-    })
     it('should not add a note for a completed cell', () => {
       sudokuGame['initBoard'](hash(Examples.easyPreset));
       const pos: CellPosition = {r: 0, c: 0};
       sudokuGame.setNote(pos, 9);
       expect(sudokuGame.notes).toStrictEqual([[]]);
+    })
+    it('should call clearInvalidNotes', () => {
+      const clearInvalidNotes = jest.spyOn(sudokuGame, 'clearInvalidNotes');
+      sudokuGame.setNote({r: 1, c: 0}, 1);
+      expect(clearInvalidNotes).toHaveBeenCalledTimes(1);
+    })
+    it('should call toggleNote', () => {
+      const toggleNote = jest.spyOn(sudokuUtils, 'toggleNote');
+      const pos = {r: 1, c: 0};
+      const value: SudokuValue = 9;
+      sudokuGame.setNote(pos, value);
+      expect(toggleNote).toHaveBeenCalledTimes(1);
+      expect(toggleNote).toHaveBeenCalledWith(pos, value, sudokuGame.notes);
     })
   })
 
@@ -407,7 +410,7 @@ describe('Sudoku Game', () => {
       sudokuGame['initBoard'](hash(Examples.easyPreset));
       expect(sudokuGame.boardSize).toStrictEqual({r: 9, c: 9});
     })
-
+    // this functionality is not implemented yet
     it.skip('should show the size of a non-standard (9x9) initialized board', () => {
       sudokuGame['initBoard']('0000000000000000');
       expect(sudokuGame.boardSize).toStrictEqual({r: 4, c: 4});
@@ -419,6 +422,7 @@ describe('Sudoku Game', () => {
       sudokuGame['initBoard'](hash(Examples.easyPreset));
       expect(sudokuGame.numCells).toBe(81);
     })
+    // this functionality is not implemented yet
     it.skip('should be the number of cells in a non-standard (9x9) initialized board', () => {
       sudokuGame['initBoard']('0000000000000000');
       expect(sudokuGame.boardSize).toStrictEqual({r: 4, c: 4});
@@ -540,10 +544,20 @@ describe('Sudoku Game', () => {
       })
     })
 
-    describe('selectedPosition', ()=> {
+    describe('selectedPosition', () => {
       it('should be undefined by default', () => {
         expect(sudokuGame.selectedPosition).toBeUndefined();
       })
+    })
+  })
+
+  describe('auto clear', () => {
+    it('should call clearInvalidNotes when set to true', () => {
+      const clearInvalidNotes = jest.spyOn(sudokuGame, 'clearInvalidNotes');
+      sudokuGame.autoClear = false;
+      expect(clearInvalidNotes).not.toHaveBeenCalled();
+      sudokuGame.autoClear = true;
+      expect(clearInvalidNotes).toHaveBeenCalledTimes(1);
     })
   })
 

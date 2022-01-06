@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
+import {SudokuGame} from "@kablamo/sudoku";
 
 export interface Settings {
   notesMode: boolean;
@@ -7,6 +8,7 @@ export interface Settings {
   highlightNumber: boolean;
   highlightSets: boolean;
   highlightBlanks: boolean;
+  autoClearNotes: boolean;
 }
 
 export const defaultSettings: Partial<Settings> = {
@@ -15,6 +17,7 @@ export const defaultSettings: Partial<Settings> = {
   highlightNumber: true,
   highlightSets: true,
   highlightBlanks: false,
+  autoClearNotes: true
 };
 
 @Injectable({
@@ -28,20 +31,23 @@ export class SettingsService {
     return this._settings;
   }
 
-  constructor() {
+  constructor(private sudokuGame: SudokuGame) {
     this.load();
   }
 
   setState = (settings: Partial<Settings>) => {
-    this._settings = { ...this.settings, ...settings };
+    this._settings = {...this.settings, ...settings};
     this.update.next(this.settings);
+    this.updateGame();
     this.save();
   };
 
+  /** settings that need to be passed onto the game engine */
+  updateGame = () => this.sudokuGame.autoClear = this.settings.autoClearNotes;
+
   save = () => localStorage.setItem('settings', JSON.stringify(this.settings));
-  load = () =>
-    (this._settings = {
-      ...defaultSettings,
-      ...JSON.parse(localStorage.getItem('settings')),
-    });
+  load = () => this.setState({
+    ...defaultSettings,
+    ...JSON.parse(localStorage.getItem('settings')),
+  });
 }
