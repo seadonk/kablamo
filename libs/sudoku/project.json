@@ -1,0 +1,26 @@
+{
+  "projectType": "library",
+  "root": "libs/sudoku",
+  "sourceRoot": "libs/sudoku/src",
+  "prefix": "kablamo",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/sudoku"],
+      "options": {
+        "jestConfig": "libs/sudoku/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/sudoku/src/**/*.ts",
+          "libs/sudoku/src/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
