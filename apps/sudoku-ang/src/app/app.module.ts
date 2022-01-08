@@ -14,11 +14,11 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {SudokuGame} from "@kablamo/sudoku";
+import {SudokuGame} from '@kablamo/sudoku';
 import {SettingsComponent} from './components/settings/settings.component';
 import {InputsComponent} from './components/inputs/inputs.component';
 import {ControlsComponent} from './components/controls/controls.component';
-import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -31,20 +31,19 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     InputsComponent,
     ControlsComponent,
   ],
-    imports: [
-        BrowserModule,
-        BrowserAnimationsModule,
-        RouterModule.forRoot(routes, {initialNavigation: 'enabledBlocking'}),
-        MatSlideToggleModule,
-        MatButtonModule,
-        MatButtonToggleModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-    ],
-  providers: [{provide: SudokuGame}],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    RouterModule.forRoot(routes, { initialNavigation: 'enabledBlocking' }),
+    MatSlideToggleModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+  ],
+  providers: [{ provide: SudokuGame }],
   bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

@@ -24,7 +24,7 @@ export class BoardComponent {
     // manage change detection, since we aren't using inputs here, and have changeDetection set to onPush
     this.settingsService.update.subscribe(() => this.cd.markForCheck());
     this.sudokuService.update.subscribe(() => this.cd.markForCheck());
-    this.sudokuService.loading.subscribe(t => {
+    this.sudokuService.loading.subscribe((t) => {
       this.loading = t;
       this.cd.markForCheck();
     });

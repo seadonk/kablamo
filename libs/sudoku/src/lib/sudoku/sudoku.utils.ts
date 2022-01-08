@@ -300,7 +300,7 @@ export const clearInvalidNotes = (board: SudokuBoard, notes: SudokuNotes) => {
 
 /** toggles a given note value on/off for the given cell */
 export const toggleNote = (pos: CellPosition, value: SudokuValue, notes: SudokuNotes) => {
-  const {r,c} = pos;
+  const {r, c} = pos;
   // init notes, we don't initialize every value by default, untouched notes will be undefined
   notes[r] = notes[r] ?? [];
   notes[r][c] = notes[r][c] ?? new Set<SudokuValue>();
@@ -308,3 +308,19 @@ export const toggleNote = (pos: CellPosition, value: SudokuValue, notes: SudokuN
   note.has(value) ? note.delete(value) : note.add(value);
   notes[r][c] = new Set<SudokuValue>([...note]);
 }
+
+/** finds a solution for the board, and returns the value at the given position
+ * If no solutions, reject with an error */
+export const solveCell = async (
+  pos: CellPosition,
+  boardHash: SudokuHash
+): Promise<SudokuValue> =>
+  await new Promise((resolve, reject) => {
+    const board = initBoard(boardHash);
+    // if cell is already filled throw error, in the future we could delete it then solve it
+    if (board[pos.r][pos.c]) reject('Cell is already filled');
+    const isSolved = solve(board);
+    if (!isSolved) reject('No solutions found');
+    const solvedValue = board[pos.r][pos.c];
+    resolve(solvedValue);
+  });

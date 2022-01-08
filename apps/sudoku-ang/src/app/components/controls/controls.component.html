@@ -8,6 +8,14 @@
   <button mat-mini-fab (click)="sudokuService.solve()" title="Solve">
     <mat-icon>auto_fix_high</mat-icon>
   </button>
+  <button
+    mat-mini-fab
+    (click)="sudokuService.hint()"
+    title="Hint"
+    [disabled]="!sudokuService.selectedPosition"
+  >
+    <mat-icon>new_releases</mat-icon>
+  </button>
   <button mat-mini-fab (click)="sudokuService.reset()" title="Reset">
     <mat-icon>restart_alt</mat-icon>
   </button>

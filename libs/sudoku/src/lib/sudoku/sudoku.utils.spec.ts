@@ -1,4 +1,4 @@
-import {TestBed} from "@angular/core/testing";
+import {TestBed, waitForAsync} from "@angular/core/testing";
 import {getRange, shuffle} from "@kablamo/utils";
 import {
   _,
@@ -40,6 +40,7 @@ import {
   RegionPosition,
   solve,
   solveAll,
+  solveCell,
   stringifyNotes,
   SudokuBoard,
   SudokuNotes,
@@ -708,44 +709,44 @@ describe('Sudoku Utils', () => {
     })
     it('should clear any note values that are not valid within a row', () => {
       const notes: SudokuNotes = [];
-      const pos: CellPosition = {r:2,c:0};
+      const pos: CellPosition = {r: 2, c: 0};
       const invalidValue: SudokuValue = 1;
       const validValue: SudokuValue = 9;
       toggleNote(pos, invalidValue, notes);
       toggleNote(pos, validValue, notes);
-      clearInvalidNotes(board,notes);
+      clearInvalidNotes(board, notes);
       expect(notes[pos.r][pos.c].has(invalidValue)).toBeFalsy();
       expect(notes[pos.r][pos.c].has(validValue)).toBeTruthy();
     })
     it('should clear any note values that are not valid within a column', () => {
       const notes: SudokuNotes = [];
-      const pos: CellPosition = {r:1,c:0};
+      const pos: CellPosition = {r: 1, c: 0};
       const invalidValue: SudokuValue = 2;
       const validValue: SudokuValue = 6;
       toggleNote(pos, invalidValue, notes);
       toggleNote(pos, validValue, notes);
-      clearInvalidNotes(board,notes);
+      clearInvalidNotes(board, notes);
       expect(notes[pos.r][pos.c].has(invalidValue)).toBeFalsy();
       expect(notes[pos.r][pos.c].has(validValue)).toBeTruthy();
     })
     it('should clear any note values that are not valid within a region', () => {
       const notes: SudokuNotes = [];
-      const pos: CellPosition = {r:1,c:0};
+      const pos: CellPosition = {r: 1, c: 0};
       const invalidValue: SudokuValue = 4;
       const validValue: SudokuValue = 6;
       toggleNote(pos, invalidValue, notes);
       toggleNote(pos, validValue, notes);
-      clearInvalidNotes(board,notes);
+      clearInvalidNotes(board, notes);
       expect(notes[pos.r][pos.c].has(invalidValue)).toBeFalsy();
       expect(notes[pos.r][pos.c].has(validValue)).toBeTruthy();
     })
     it('should not clear any note values that are valid', () => {
       const notes: SudokuNotes = [];
-      const pos: CellPosition = {r:1,c:0};
+      const pos: CellPosition = {r: 1, c: 0};
       toggleNote(pos, 9, notes);
       toggleNote(pos, 8, notes);
       toggleNote(pos, 6, notes);
-      clearInvalidNotes(board,notes);
+      clearInvalidNotes(board, notes);
       expect(notes[pos.r][pos.c].has(9)).toBeTruthy();
       expect(notes[pos.r][pos.c].has(8)).toBeTruthy();
       expect(notes[pos.r][pos.c].has(6)).toBeTruthy();
@@ -774,4 +775,41 @@ describe('Sudoku Utils', () => {
     })
   })
 
+  describe('solveCell', () => {
+    it(
+      'should return an error if the board has no solutions',
+      waitForAsync(async () => {
+        const board = Examples.easyPresetInvalidRegion;
+        const pos: CellPosition = {r: 1, c: 0};
+        await expect(solveCell(pos, hash(board))).rejects.toEqual('No solutions found');
+      })
+    );
+    it(
+      'should return a valid and solveable value for the given cell and board hash',
+      waitForAsync(async () => {
+        {
+          const board = Examples.solved;
+          const pos: CellPosition = {r: 0, c: 0};
+          board[pos.r][pos.c] = _;
+          const result = await solveCell(pos, hash(board));
+          expect(result).toEqual(3);
+        }
+        {
+          const board = Examples.easyPreset;
+          const pos: CellPosition = {r: 1, c: 0};
+          const result = await solveCell(pos, hash(board));
+          board[pos.r][pos.c] = result;
+          // there may be more than one valid solution, so just
+          expect(isValid(board)).toBeTruthy();
+          expect(isSolveable(board)).toBeTruthy();
+        }
+      })
+    );
+    it('should not update the board if the cell is already filled', waitForAsync(async () => {
+      const board = Examples.easyPreset;
+      const pos: CellPosition = {r: 0, c: 0};
+      expect(board[pos.r][pos.c]).toBeTruthy();
+      await expect(solveCell(pos, hash(board))).rejects.toEqual('Cell is already filled');
+    }));
+  });
 });

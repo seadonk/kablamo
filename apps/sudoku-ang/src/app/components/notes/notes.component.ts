@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input,} from '@angular/core';
 import {SudokuGame, SudokuNote} from '@kablamo/sudoku';
 
 @Component({

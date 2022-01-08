@@ -1,12 +1,12 @@
 import {Component, HostListener} from '@angular/core';
-import {getCellPositionByIndex, SudokuGame, SudokuValue} from "@kablamo/sudoku";
-import {SettingsService} from "../../services/settings.service";
+import {getCellPositionByIndex, SudokuGame, SudokuValue,} from '@kablamo/sudoku';
+import {SettingsService} from '../../services/settings.service';
 
 /** handles all keyboard/touch inputs for the game */
 @Component({
   selector: 'sudoku-inputs',
   templateUrl: './inputs.component.html',
-  styleUrls: ['./inputs.component.scss']
+  styleUrls: ['./inputs.component.scss'],
 })
 export class InputsComponent {
   @HostListener('keydown.control.z') undo = () => this.sudokuService.undo();
@@ -18,10 +18,9 @@ export class InputsComponent {
   constructor(
     public sudokuService: SudokuGame,
     public settingsService: SettingsService
-  ) {
-  }
+  ) {}
 
-  numberButtonInput = (i) => this.handleInputEvent({key: i});
+  numberButtonInput = (i) => this.handleInputEvent({ key: i });
 
   // returns true if the keyboard was used to modify a cell value
   private handleInputEvent(
@@ -49,10 +48,10 @@ export class InputsComponent {
   // returns true if a keyboard navigation occurred
   private handleKeyboardNavigation(event: KeyboardEvent): boolean {
     if (this.sudokuService.selectedPosition == null) {
-      this.sudokuService.selectedPosition = {r: 0, c: 0};
+      this.sudokuService.selectedPosition = { r: 0, c: 0 };
       return true;
     }
-    const {c: columns} = this.sudokuService.boardSize;
+    const { c: columns } = this.sudokuService.boardSize;
     let index =
       this.sudokuService.selectedPosition.r * columns +
       this.sudokuService.selectedPosition.c;

@@ -12,6 +12,7 @@ import {
   initBoard,
   parseNotes,
   solve,
+  solveCell,
   stringifyNotes,
   SudokuAction,
   SudokuBoard,
@@ -124,6 +125,18 @@ export class SudokuGame {
     });
     this.loading.next(false);
   }
+
+  /** attempts to set a valid and solveable value for the selected position */
+  hint = async () => {
+    const pos = this.selectedPosition;
+    if (!pos || this.getPositionValue(pos)) return;
+
+    this.loading.next(true);
+    await solveCell(pos, this.getCurrentHash())
+      .then((solvedValue) => this.setValue(pos, solvedValue))
+      .catch((err) => alert(err))
+      .finally(() => this.loading.next(false));
+  };
 
   save = () => {
     localStorage.setItem('currentBoard', this.getCurrentHash());

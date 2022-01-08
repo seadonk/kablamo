@@ -8,6 +8,7 @@ import {
   isSolveable,
   isSolved,
   isSubsetOf,
+  solveCell,
   stringifyNotes,
   SudokuAction,
   SudokuGame,
@@ -147,7 +148,7 @@ describe('Sudoku Game', () => {
       await sudokuGame.generate(27);
       expect(getFilledCells(sudokuGame.board)).toBe(27);
     }))
-    it('should call initBoard', waitForAsync(async() => {
+    it('should call initBoard', waitForAsync(async () => {
       const initBoard = jest.fn();
       sudokuGame['initBoard'] = initBoard;
       await sudokuGame.generate();
@@ -559,6 +560,48 @@ describe('Sudoku Game', () => {
       sudokuGame.autoClear = true;
       expect(clearInvalidNotes).toHaveBeenCalledTimes(1);
     })
+  })
+
+  describe('hint', () => {
+    it('should call solveCell', waitForAsync(async () => {
+      sudokuGame['initBoard'](hash(Examples.easyPreset));
+      const pos: CellPosition = {r: 1, c: 0};
+      const solveCell = jest.spyOn(sudokuUtils, 'solveCell');
+      const boardHash = sudokuGame.getCurrentHash();
+      sudokuGame.selectedPosition = pos;
+      await sudokuGame.hint();
+      expect(solveCell).toHaveBeenCalledTimes(1);
+      expect(solveCell).toHaveBeenCalledWith(pos, boardHash);
+    }))
+    it('should not update a cell if no solution can be found', waitForAsync(async () => {
+      sudokuGame['initBoard'](hash(Examples.easyPresetInvalidRegion));
+      const pos: CellPosition = {r: 1, c: 0};
+      sudokuGame.selectedPosition = pos;
+      await sudokuGame.hint();
+      expect(sudokuGame.getCurrentHash()).toBe(hash(Examples.easyPresetInvalidRegion));
+    }))
+    it('should update the cell with a valid and solveable value', waitForAsync(async () => {
+      sudokuGame['initBoard'](hash(Examples.easyPreset));
+      const pos: CellPosition = {r: 1, c: 0};
+      sudokuGame.selectedPosition = pos;
+      expect(sudokuGame.getPositionValue(pos)).toBe(_);
+      await sudokuGame.hint();
+      expect(sudokuGame.getPositionValue(pos)).toBe(1);
+      expect(isSolveable(sudokuGame.board)).toBeTruthy();
+    }))
+    it('should not update the board if no cell is selected', waitForAsync(async () => {
+      sudokuGame['initBoard'](hash(Examples.easyPreset));
+      sudokuGame.selectedPosition = undefined;
+      await sudokuGame.hint();
+      expect(sudokuGame.getCurrentHash()).toBe(hash(Examples.easyPreset));
+    }))
+    it('should not update the board if the selected cell already has a value', waitForAsync(async () => {
+      sudokuGame['initBoard'](hash(Examples.easyPreset));
+      const pos: CellPosition = {r: 0, c: 0};
+      sudokuGame.selectedPosition = pos;
+      await sudokuGame.hint();
+      expect(sudokuGame.getCurrentHash()).toBe(hash(Examples.easyPreset));
+    }))
   })
 
   // tests are conflicting with eachother somehow, this ensures that there should be no crossover.
