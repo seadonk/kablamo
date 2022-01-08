@@ -1,6 +1,7 @@
 .numbers {
   display: flex;
   flex-direction: column;
+  height:100%;
   @media (orientation: portrait) {
     flex-direction: row;
   }
