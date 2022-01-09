@@ -53,4 +53,6 @@ export class BoardComponent {
     this.sudokuService.notes &&
     this.sudokuService.notes[r] &&
     this.sudokuService.notes[r][c];
+
+  isInvalid = (pos: CellPosition) => this.settingsService.settings.highlightInvalidCells && this.sudokuService.isPositionInvalid(pos);
 }

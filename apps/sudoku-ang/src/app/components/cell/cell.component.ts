@@ -19,6 +19,10 @@ export class CellComponent {
       result += ' --highlightSet';
     }
 
+    if(this.highlightInvalid) {
+      result += ' --invalid';
+    }
+
     if (this.locked) {
       result += ' --locked';
     }
@@ -34,6 +38,8 @@ export class CellComponent {
   @Input() highlightNumber: boolean;
   /** same row,column, or region */
   @Input() highlightSet: boolean;
+  /** this cell is a duplicate in its row, col, or region */
+  @Input() highlightInvalid: boolean;
   /** this is one of the clues, and is locked from editing */
   @Input() locked: boolean;
   @Input() value: SudokuValue;

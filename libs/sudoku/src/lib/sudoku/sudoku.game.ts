@@ -7,6 +7,7 @@ import {
   clearInvalidNotes,
   generateBoard,
   getBoardSize,
+  getInvalidMap,
   getNumCells,
   hash,
   initBoard,
@@ -25,6 +26,7 @@ import {
 export class SudokuGame {
   /** indicates a long task is running */
   loading = new Subject<boolean>();
+  private invalidMap: SudokuBoard = [];
 
   update = new Subject<void>();
   private _selectedPosition: CellPosition | undefined;
@@ -85,6 +87,7 @@ export class SudokuGame {
     this.numCells = getNumCells(this.board);
     this.actions = [];
     this.undoActions = [];
+    this.updateValidity();
     this.save();
   };
 
@@ -119,7 +122,10 @@ export class SudokuGame {
     this.loading.next(true);
     await new Promise(resolve => {
       setTimeout(() => {
-        solve(this.board) && this.save();
+        if(solve(this.board)) {
+          this.save();
+          this.updateValidity();
+        }
         resolve(true);
       }, 1000);
     });
@@ -191,6 +197,7 @@ export class SudokuGame {
     }
     this.selectedPosition = pos;
     this.clearInvalidNotes();
+    this.updateValidity();
     this.save();
   };
 
@@ -209,4 +216,8 @@ export class SudokuGame {
 
   getPositionValue = (pos: CellPosition): SudokuValue =>
     pos && this.board[pos.r][pos.c];
+
+  isPositionInvalid = (pos: CellPosition): boolean => pos && !!this.board[pos.r][pos.c] && !this.invalidMap[pos.r][pos.c];
+
+  private updateValidity = () => this.invalidMap = getInvalidMap(this.board);
 }

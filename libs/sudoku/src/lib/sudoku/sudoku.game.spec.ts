@@ -604,6 +604,44 @@ describe('Sudoku Game', () => {
     }))
   })
 
+  describe('validity', () => {
+    describe('isPositionInvalid', () => {
+      beforeEach(() => initBoardHack())
+      it('should return false if the value is not unique in the row', () => {
+        const a = {r:0,c:0};
+        const b = {r:0,c:1};
+        sudokuGame.setValue(a,1);
+        sudokuGame.setValue(b,1);
+        expect(sudokuGame.isPositionInvalid(a)).toBeTruthy();
+        expect(sudokuGame.isPositionInvalid(b)).toBeTruthy();
+      })
+      it('should return false if the value is not unique in the column', () => {
+        const a = {r:0,c:0};
+        const b = {r:1,c:0};
+        sudokuGame.setValue(a,1);
+        sudokuGame.setValue(b,1);
+        expect(sudokuGame.isPositionInvalid(a)).toBeTruthy();
+        expect(sudokuGame.isPositionInvalid(b)).toBeTruthy();
+      })
+      it('should return false if the value is not unique in the region', () => {
+        const a = {r:0,c:0};
+        const b = {r:1,c:1};
+        sudokuGame.setValue(a,1);
+        sudokuGame.setValue(b,1);
+        expect(sudokuGame.isPositionInvalid(a)).toBeTruthy();
+        expect(sudokuGame.isPositionInvalid(b)).toBeTruthy();
+      })
+      it('should return true if the value is unique in the row, col, and region', () => {
+        const a = {r:0,c:0};
+        const b = {r:1,c:1};
+        sudokuGame.setValue(a,1);
+        sudokuGame.setValue(b,2);
+        expect(sudokuGame.isPositionInvalid(a)).toBeFalsy();
+        expect(sudokuGame.isPositionInvalid(b)).toBeFalsy();
+      })
+    })
+  })
+
   // tests are conflicting with eachother somehow, this ensures that there should be no crossover.
   const initBoardHack = () => sudokuGame['initBoard']();
 })

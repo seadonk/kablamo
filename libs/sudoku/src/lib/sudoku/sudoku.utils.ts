@@ -239,7 +239,7 @@ export const generateBoard = (clues: number): SudokuBoard => {
   return solvedBoard;
 }
 
-/** returns true if all filled cells from the source are contained in the target */
+/** returns true if all filled cells from the source are the same in the target */
 export const isSubsetOf = (source: SudokuBoard, target: SudokuBoard) => {
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
@@ -324,3 +324,47 @@ export const solveCell = async (
     const solvedValue = board[pos.r][pos.c];
     resolve(solvedValue);
   });
+
+/** returns a board where the invalid entries have been cleared */
+export const getInvalidMap = (board: SudokuBoard): SudokuBoard => {
+  const result = initBoard(hash(board));
+
+  const getDuplicates = (t: SudokuSet): SudokuSet => t.filter((e, i, a) => a.indexOf(e) !== i);
+
+  const invalidRows: { row: SudokuSet, r: number }[] = result.map((row, r) => ({
+    row: row,
+    r: r
+  })).filter(t => !isSetUnique(t.row));
+  const invalidRowCells: CellPosition[] = invalidRows.flatMap(({row, r}) => {
+    const duplicates = getDuplicates(row);
+    return row.map((cell, c) => ({pos: {r: r, c: c}, value: cell}))
+      .filter(t => duplicates.includes(t.value))
+      .map(t => t.pos);
+  });
+
+  const invalidColumns: { col: SudokuSet, c: number }[] = transpose(result).map((col, c) => ({
+    col: col,
+    c: c
+  })).filter(t => !isSetUnique(t.col));
+  const invalidColCells: CellPosition[] = invalidColumns.flatMap(({col, c}) => {
+    const duplicates = getDuplicates(col);
+    return col.map((cell, r) => ({pos: {r: r, c: c}, value: result[r][c]}))
+      .filter(t => duplicates.includes(t.value))
+      .map(t => t.pos);
+  });
+
+  const invalidRegions = getRegionPositions()
+    .map(region => getRegionCellPositions(region).map(pos => ({pos: pos, value: result[pos.r][pos.c]})))
+    .filter(cells => !isSetUnique(cells.map(cell => cell.value)));
+  const invalidRegionCells: CellPosition[] = invalidRegions.flatMap(region => {
+    const duplicates = getDuplicates(region.map(t => t.value));
+    return region
+      .filter(t => duplicates.includes(t.value))
+      .map(t => t.pos);
+  });
+
+  // clear invalid cells from map
+  [...invalidRowCells, ...invalidColCells, ...invalidRegionCells].forEach(t => result[t.r][t.c] = _);
+
+  return result;
+}

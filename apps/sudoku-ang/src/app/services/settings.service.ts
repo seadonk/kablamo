@@ -8,6 +8,7 @@ export interface Settings {
   highlightNumber: boolean;
   highlightSets: boolean;
   highlightBlanks: boolean;
+  highlightInvalidCells: boolean;
   autoClearNotes: boolean;
 }
 
@@ -18,6 +19,7 @@ export const defaultSettings: Partial<Settings> = {
   highlightSets: true,
   highlightBlanks: false,
   autoClearNotes: true,
+  highlightInvalidCells: true
 };
 
 @Injectable({

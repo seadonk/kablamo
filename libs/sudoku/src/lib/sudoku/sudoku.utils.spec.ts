@@ -15,6 +15,7 @@ import {
   getCellRegionSet,
   getCellRowSet,
   getFilledCells,
+  getInvalidMap,
   getNextOpenCell,
   getNumCells,
   getRegionCellPositions,
@@ -812,4 +813,154 @@ describe('Sudoku Utils', () => {
       await expect(solveCell(pos, hash(board))).rejects.toEqual('Cell is already filled');
     }));
   });
+
+  describe('getInvalidMap', () => {
+    it('should return an equivalent board if it is valid', () => {
+      const invalidMap = getInvalidMap(Examples.easyPreset);
+      expect(invalidMap).toStrictEqual(Examples.easyPreset);
+    })
+    it('should return an empty board if the board is empty', () => {
+      const invalidMap = getInvalidMap(Examples.emptyBoard);
+      expect(invalidMap).toStrictEqual(Examples.emptyBoard);
+    })
+    it('should return an equivalent board if the board is solved', () => {
+      const invalidMap = getInvalidMap(Examples.solved);
+      expect(invalidMap).toStrictEqual(Examples.solved);
+    })
+    it('should return an board with duplicate row entries removed', () => {
+      const board = [
+        [1, _, _, 1, _, _, 1, _, _],
+        [_, 2, _, _, 2, _, _, 2, _],
+        [_, _, 3, _, _, 3, _, _, 3],
+        [_, _, _, 4, _, _, 4, _, _],
+        [_, _, _, _, 5, _, _, 5, _],
+        [_, _, _, _, _, 6, _, _, 6],
+        [_, _, _, _, _, _, 7, _, _],
+        [_, _, _, _, _, _, _, 8, _],
+        [_, _, _, _, _, _, _, _, 9]
+      ];
+      const expected = [
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, 7, _, _],
+        [_, _, _, _, _, _, _, 8, _],
+        [_, _, _, _, _, _, _, _, 9]
+      ];
+      const invalidMap = getInvalidMap(board);
+      expect(invalidMap).toStrictEqual(expected);
+    })
+    it('should return an board with duplicate column entries removed', () => {
+      const board = transpose([
+        [1, _, _, 1, _, _, 1, _, _],
+        [_, 2, _, _, 2, _, _, 2, _],
+        [_, _, 3, _, _, 3, _, _, 3],
+        [_, _, _, 4, _, _, 4, _, _],
+        [_, _, _, _, 5, _, _, 5, _],
+        [_, _, _, _, _, 6, _, _, 6],
+        [_, _, _, _, _, _, 7, _, _],
+        [_, _, _, _, _, _, _, 8, _],
+        [_, _, _, _, _, _, _, _, 9]
+      ]);
+      const expected = transpose([
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, 7, _, _],
+        [_, _, _, _, _, _, _, 8, _],
+        [_, _, _, _, _, _, _, _, 9]
+      ]);
+      const invalidMap = getInvalidMap(board);
+      expect(invalidMap).toStrictEqual(expected);
+    })
+    it('should return an board with duplicate region entries removed', () => {
+      const board = [
+        [1, 4, 5, _, _, _, _, _, _],
+        [4, 2, 6, _, _, _, _, _, _],
+        [5, 6, 3, _, _, _, _, _, _],
+        [_, _, _, 4, 7, 8, _, _, _],
+        [_, _, _, 7, 5, 9, _, _, _],
+        [_, _, _, 8, 9, 6, _, _, _],
+        [_, _, _, _, _, _, 7, 1, 2],
+        [_, _, _, _, _, _, 1, 8, 3],
+        [_, _, _, _, _, _, 2, 3, 9]
+      ];
+      const expected = [
+        [1, _, _, _, _, _, _, _, _],
+        [_, 2, _, _, _, _, _, _, _],
+        [_, _, 3, _, _, _, _, _, _],
+        [_, _, _, 4, _, _, _, _, _],
+        [_, _, _, _, 5, _, _, _, _],
+        [_, _, _, _, _, 6, _, _, _],
+        [_, _, _, _, _, _, 7, _, _],
+        [_, _, _, _, _, _, _, 8, _],
+        [_, _, _, _, _, _, _, _, 9]
+      ];
+      const invalidMap = getInvalidMap(board);
+      expect(invalidMap).toStrictEqual(expected);
+    })
+    // some cells may be invalid in multiple sets, show all possible invalid values
+    it('should return a board with cells removed that are invalid in rows, columns and groups', () => {
+      const board = [
+        [_, _, _, _, 7, 3, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, 7, 3, _, _, _, _],
+        [7, 3, _, _, 7, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, 7],
+      ];
+      const expected = [
+        [_, _, _, _, _, 3, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, 3, _, _, _, _],
+        [_, 3, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, 7],
+      ];
+      const invalidMap = getInvalidMap(board);
+      expect(invalidMap).toStrictEqual(expected);
+    })
+    it('should return a board that is valid', () => {
+      const board = [
+        [1, _, _, 1, _, _, _, _, _],
+        [_, 2, 3, _, _, _, _, _, _],
+        [_, _, 3, _, _, _, _, _, _],
+        [_, 2, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _]
+      ];
+      const invalidMap = getInvalidMap(board);
+      expect(isValid(invalidMap)).toBeTruthy();
+    })
+    it('should return a board that is a subset of the input board', () => {
+      const board = [
+        [1, _, _, 1, _, _, _, _, _],
+        [_, 2, 3, _, _, _, _, _, _],
+        [_, _, 3, _, _, _, _, _, _],
+        [_, 2, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _]
+      ];
+      const invalidMap = getInvalidMap(board);
+      expect(isSubsetOf(invalidMap, board)).toBeTruthy();
+    })
+  })
 });

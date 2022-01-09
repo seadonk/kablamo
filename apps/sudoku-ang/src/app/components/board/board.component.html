@@ -4,6 +4,7 @@
       (click)="selectCell({ r: r, c: c })"
       [selected]="isSelected({ r: r, c: c })"
       [highlightNumber]="isHighlighted({ r: r, c: c }, cell)"
+      [highlightInvalid]="isInvalid({r: r, c: c})"
       [highlightSet]="
         sudokuService.selectedPosition &&
         settings.highlightSets &&
