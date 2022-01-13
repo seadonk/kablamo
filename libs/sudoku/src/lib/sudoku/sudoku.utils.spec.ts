@@ -1,11 +1,15 @@
 import {TestBed, waitForAsync} from "@angular/core/testing";
 import {getRange, shuffle} from "@kablamo/utils";
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import * as sudokuUtils from "@kablamo/sudoku";
 import {
   _,
   areNotesEqual,
   CellPosition,
   clearInvalidNotes,
   Examples,
+  fillAllNotes,
+  fillValidNotes,
   generateBoard,
   getBoardSize,
   getCellColumnSet,
@@ -14,6 +18,7 @@ import {
   getCellRegionPositions,
   getCellRegionSet,
   getCellRowSet,
+  getDuplicates,
   getFilledCells,
   getInvalidMap,
   getNextOpenCell,
@@ -754,6 +759,63 @@ describe('Sudoku Utils', () => {
     })
   })
 
+  describe('fillAllNotes', () => {
+    it('should fill all note values for every cell', () => {
+      const board = Examples.emptyBoard;
+      const notes: SudokuNotes = [];
+      const boardSize = getBoardSize(board);
+      fillAllNotes(board, notes);
+      expect(notes).toMatchSnapshot();
+      expect(notes).toHaveLength(boardSize.r);
+      expect(notes[0]).toHaveLength(boardSize.c);
+    })
+    it('should fill all note values even if they are invalid', () => {
+      const board = Examples.solved;
+      const notes: SudokuNotes = [];
+      const boardSize = getBoardSize(board);
+      fillAllNotes(board, notes);
+      expect(notes).toMatchSnapshot();
+      expect(notes).toHaveLength(boardSize.r);
+      expect(notes[0]).toHaveLength(boardSize.c);
+    })
+  })
+
+  describe('fillValidNotes', () => {
+    // not sure why these two spys don't work
+    it.skip('should call fillAllNotes', () => {
+      const fillAllNotes = jest.spyOn(sudokuUtils, 'fillAllNotes');
+      const board = Examples.easyPreset;
+      const notes: SudokuNotes = [];
+      fillValidNotes(board, notes);
+      expect(fillAllNotes).toHaveBeenCalledTimes(1);
+      expect(fillAllNotes).toHaveBeenCalledWith(board, notes)
+    })
+    it.skip('should call clearInvalidNotes', () => {
+      const clearInvalidNotes = jest.spyOn(sudokuUtils, 'clearInvalidNotes');
+      const board = Examples.emptyBoard;
+      const notes: SudokuNotes = [];
+      fillValidNotes(board, notes);
+      expect(clearInvalidNotes).toHaveBeenCalledTimes(1);
+      expect(clearInvalidNotes).toHaveBeenCalledWith(board, notes)
+    })
+    it('should fill only valid notes', () => {
+      const board = Examples.twoSolutions;
+      const notes: SudokuNotes = [];
+      fillValidNotes(board, notes);
+      expect(notes).toMatchSnapshot();
+      const filledNotes = notes.flatMap(row => row.map(note => note)).filter(t => t.size);
+      expect(filledNotes).toHaveLength(4);
+      expect([...filledNotes.flatMap(t => [...t])]).toStrictEqual([1,2,1,2,1,2,1,2]);
+    })
+    it('should not fill any notes for a solved board' ,() => {
+      const board = Examples.solved;
+      const notes: SudokuNotes = [];
+      fillValidNotes(board, notes);
+      // no notes
+      expect(notes.find(row => row.find(note => note.size))).toBeUndefined();
+    })
+  })
+
   describe('toggleNote', () => {
     let notes: SudokuNotes;
     beforeEach(() => notes = [])
@@ -798,8 +860,7 @@ describe('Sudoku Utils', () => {
         {
           const board = Examples.easyPreset;
           const pos: CellPosition = {r: 1, c: 0};
-          const result = await solveCell(pos, hash(board));
-          board[pos.r][pos.c] = result;
+          board[pos.r][pos.c] = await solveCell(pos, hash(board));
           // there may be more than one valid solution, so just
           expect(isValid(board)).toBeTruthy();
           expect(isSolveable(board)).toBeTruthy();
@@ -963,4 +1024,19 @@ describe('Sudoku Utils', () => {
       expect(isSubsetOf(invalidMap, board)).toBeTruthy();
     })
   })
+
+  describe('getDuplicates', () => {
+    it('should return an empty array if no duplicates are found', () => {
+      expect(getDuplicates([1, 2, 3, 4, 5])).toStrictEqual([]);
+    })
+    it('should return an array containing values that occur more than once in the source array', () => {
+      expect(getDuplicates([1, 1, 2, 3, 4])).toStrictEqual([1]);
+      expect(getDuplicates([1, 2, 3, 4, 1])).toStrictEqual([1]);
+      expect(getDuplicates([1, 2, 3, 2, 1])).toStrictEqual([2, 1]);
+    })
+    it('should return an array of unique values', () => {
+      expect(getDuplicates([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])).toStrictEqual([1]);
+    })
+  })
+
 });

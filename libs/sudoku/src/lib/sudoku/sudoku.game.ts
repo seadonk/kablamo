@@ -1,10 +1,12 @@
 /** This file holds the stateful logic needed for a sudoku game */
 import {Subject} from "rxjs";
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import {
   _,
   BoardSize,
   CellPosition,
   clearInvalidNotes,
+  fillValidNotes,
   generateBoard,
   getBoardSize,
   getInvalidMap,
@@ -24,6 +26,8 @@ import {
 } from "@kablamo/sudoku";
 
 export class SudokuGame {
+  defaultClues = 30;
+
   /** indicates a long task is running */
   loading = new Subject<boolean>();
   private invalidMap: SudokuBoard = [];
@@ -42,15 +46,30 @@ export class SudokuGame {
   boardSize: BoardSize = {r: 0, c: 0};
   numCells = 0;
 
-  private _autoClear = false;
-  get autoClear(): boolean {
-    return this._autoClear;
+  private _autoClearNotes = false;
+  /** automatically clear any note values which are or become invalid */
+  get autoClearNotes(): boolean {
+    return this._autoClearNotes;
   }
 
-  set autoClear(value: boolean) {
-    this._autoClear = value;
+  set autoClearNotes(value: boolean) {
+    this._autoClearNotes = value;
     if (value) {
       this.clearInvalidNotes();
+      this.save();
+    }
+  }
+
+  private _autoFillNotes = false;
+  /** automatically fill in all valid note values */
+  get autoFillNotes(): boolean {
+    return this._autoFillNotes;
+  }
+
+  set autoFillNotes(value: boolean) {
+    this._autoFillNotes = value;
+    if (value) {
+      this.fillValidNotes();
     }
   }
 
@@ -88,6 +107,7 @@ export class SudokuGame {
     this.actions = [];
     this.undoActions = [];
     this.updateValidity();
+    this.fillValidNotes() || this.clearInvalidNotes();
     this.save();
   };
 
@@ -97,19 +117,24 @@ export class SudokuGame {
   getInitHash = () => hash(this.initialBoard);
 
   /** clear any notes that would be invalid in their sets */
-  clearInvalidNotes = () => {
-    this.autoClear && clearInvalidNotes(this.board, this.notes);
-    this.save();
+  clearInvalidNotes = () => this.autoClearNotes && clearInvalidNotes(this.board, this.notes);
+
+  /** fill in all valid note values, returns true if autoFillNotes is true  */
+  fillValidNotes = (): boolean => {
+    if(!this.autoFillNotes) return false;
+    fillValidNotes(this.board, this.notes);
+    return true;
   }
 
   /** clears the entire board, producing an empty board */
   clear = () => this.initBoard();
 
-  generate = async (clues = 25) => {
+  generate = async (clues?: number) => {
+    const numClues = clues ?? this.defaultClues;
     this.loading.next(true);
     await new Promise(resolve => {
       setTimeout(() => {
-        this.initBoard(hash(generateBoard(clues)));
+        this.initBoard(hash(generateBoard(numClues)));
         resolve(true);
       }, 1000);
     });
@@ -196,7 +221,7 @@ export class SudokuGame {
       this.undoActions = [];
     }
     this.selectedPosition = pos;
-    this.clearInvalidNotes();
+    this.fillValidNotes() || this.clearInvalidNotes();
     this.updateValidity();
     this.save();
   };
@@ -207,7 +232,7 @@ export class SudokuGame {
     if (currentValue || !value) return;
 
     toggleNote(pos,value,this.notes);
-    this.clearInvalidNotes();
+    this.fillValidNotes() || this.clearInvalidNotes();
     this.save();
   };
 

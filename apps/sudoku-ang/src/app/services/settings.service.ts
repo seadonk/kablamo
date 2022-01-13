@@ -10,16 +10,17 @@ export interface Settings {
   highlightBlanks: boolean;
   highlightInvalidCells: boolean;
   autoClearNotes: boolean;
+  autoFillNotes: boolean;
+  defaultClues: number;
 }
 
 export const defaultSettings: Partial<Settings> = {
-  notesMode: false,
   showNotes: true,
   highlightNumber: true,
   highlightSets: true,
-  highlightBlanks: false,
   autoClearNotes: true,
-  highlightInvalidCells: true
+  highlightInvalidCells: true,
+  defaultClues: 30
 };
 
 @Injectable({
@@ -38,14 +39,24 @@ export class SettingsService {
   }
 
   setState = (settings: Partial<Settings>) => {
-    this._settings = { ...this.settings, ...settings };
+    this._settings = {...this.settings, ...settings};
     this.update.next(this.settings);
     this.updateGame();
     this.save();
   };
 
   /** settings that need to be passed onto the game engine */
-  updateGame = () => (this.sudokuGame.autoClear = this.settings.autoClearNotes);
+  updateGame = () => {
+    // some of the properties we need are getters, and can't be queried this way.
+    // for (const key in this.settings) {
+    //   if (Reflect.ownKeys(this.sudokuGame).includes(key)) {
+    //     this.sudokuGame[key] = this.settings[key];
+    //   }
+    // }
+    this.sudokuGame.autoFillNotes = this.settings.autoFillNotes;
+    this.sudokuGame.autoClearNotes = this.settings.autoClearNotes;
+    this.sudokuGame.defaultClues = this.settings.defaultClues;
+  };
 
   save = () => localStorage.setItem('settings', JSON.stringify(this.settings));
   load = () =>

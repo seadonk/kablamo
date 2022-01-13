@@ -1,6 +1,6 @@
 /** This file holds the stateless logic/functions needed for a sudoku game */
 import {_} from "./sudoku.examples";
-import {deepCopy, getRange, shuffle} from "../../../../utils/src/lib/utils";
+import {deepCopy, getRange, shuffle} from "@kablamo/utils";
 
 export type SudokuValue = number;
 export type SudokuSet = SudokuValue[];
@@ -56,7 +56,7 @@ export const transpose = (board: SudokuBoard): SudokuBoard =>
 /** validates a given row, box, or column of 9 values */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isSetUnique = (set: any[]): boolean => {
-  const original = set.filter(v => v); // remove nulls
+  const original = set.filter(v => !!v); // remove nulls
   return original.length === new Set(original).size;
 }
 
@@ -298,6 +298,32 @@ export const clearInvalidNotes = (board: SudokuBoard, notes: SudokuNotes) => {
   filledNotes.forEach(t => clearNote(t));
 }
 
+/** fill in all notes */
+export const fillAllNotes = (board: SudokuBoard, notes: SudokuNotes) => {
+  // we will need a way to generalize this
+  const allValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  // init all notes, to ensure they are defined
+  initNotes(board, notes);
+  // fill in all notes
+  notes.flatMap(row => row.map(note => note)).forEach(note => allValues.forEach(t => note.add(t)));
+}
+
+/** fill in all valid notes */
+export const  fillValidNotes = (board: SudokuBoard, notes: SudokuNotes) => {
+  fillAllNotes(board, notes);
+  clearInvalidNotes(board, notes);
+}
+
+/** initializes all values in a notes set  to empty, so that they are defined */
+const initNotes = (board: SudokuBoard, notes: SudokuNotes) => {
+  const size = getBoardSize(board);
+  const init = Array.from({length: size.r}).map(() => Array.from({length: size.c}).map(() => new Set()));
+  init.forEach((row, r) => row.forEach((cell, c) => {
+    notes[r] = notes[r] ?? [];
+    notes[r][c] = notes[r][c] ?? new Set();
+  }));
+}
+
 /** toggles a given note value on/off for the given cell */
 export const toggleNote = (pos: CellPosition, value: SudokuValue, notes: SudokuNotes) => {
   const {r, c} = pos;
@@ -325,46 +351,47 @@ export const solveCell = async (
     resolve(solvedValue);
   });
 
+/** gets a unique list of duplicate values within the sudoku set */
+export const getDuplicates = (t: SudokuSet): SudokuValue[] => {
+  const distinctValues = new Set(t); // get distinct values
+  distinctValues.forEach(v => t.splice(t.indexOf(v), 1)); // remove one of each distinct value
+  return [...new Set(t)]; // get unique set of remaining elements as duplicates
+}
+
 /** returns a board where the invalid entries have been cleared */
 export const getInvalidMap = (board: SudokuBoard): SudokuBoard => {
   const result = initBoard(hash(board));
 
-  const getDuplicates = (t: SudokuSet): SudokuSet => t.filter((e, i, a) => a.indexOf(e) !== i);
+  type positionValue = { pos: CellPosition, value: SudokuValue };
+  type setInfo = positionValue[][];
 
-  const invalidRows: { row: SudokuSet, r: number }[] = result.map((row, r) => ({
-    row: row,
-    r: r
-  })).filter(t => !isSetUnique(t.row));
-  const invalidRowCells: CellPosition[] = invalidRows.flatMap(({row, r}) => {
-    const duplicates = getDuplicates(row);
-    return row.map((cell, c) => ({pos: {r: r, c: c}, value: cell}))
-      .filter(t => duplicates.includes(t.value))
-      .map(t => t.pos);
-  });
+  // get positions and values from all sets, values are not enough since we will have to go back and modify the source board.
+  const getRows = (board: SudokuBoard): setInfo => board.map((row, r) => row.map((v, c) => ({
+    pos: {r: r, c: c},
+    value: v
+  })));
+  const getColumns = (board: SudokuBoard): setInfo => transpose(board).map((col, c) => col.map((v, r) => ({
+    pos: {
+      r: r,
+      c: c
+    }, value: v
+  })));
+  const getRegions = (board: SudokuBoard): setInfo => getRegionPositions().map(region => getRegionCellPositions(region).map(pos => ({
+    pos: pos,
+    value: board[pos.r][pos.c]
+  })));
 
-  const invalidColumns: { col: SudokuSet, c: number }[] = transpose(result).map((col, c) => ({
-    col: col,
-    c: c
-  })).filter(t => !isSetUnique(t.col));
-  const invalidColCells: CellPosition[] = invalidColumns.flatMap(({col, c}) => {
-    const duplicates = getDuplicates(col);
-    return col.map((cell, r) => ({pos: {r: r, c: c}, value: result[r][c]}))
-      .filter(t => duplicates.includes(t.value))
-      .map(t => t.pos);
-  });
-
-  const invalidRegions = getRegionPositions()
-    .map(region => getRegionCellPositions(region).map(pos => ({pos: pos, value: result[pos.r][pos.c]})))
-    .filter(cells => !isSetUnique(cells.map(cell => cell.value)));
-  const invalidRegionCells: CellPosition[] = invalidRegions.flatMap(region => {
-    const duplicates = getDuplicates(region.map(t => t.value));
-    return region
-      .filter(t => duplicates.includes(t.value))
-      .map(t => t.pos);
-  });
-
+  // get all sets
+  const setInfos: setInfo = [...getRows(result), ...getColumns(result), ...getRegions(result)];
+  // filter out valid sets
+  const invalidSets: setInfo = setInfos.filter(s => !isSetUnique(s.map(t => t.value)));
+  // filter out invalid cells
+  const duplicateCellPositions: CellPosition[] = invalidSets.flatMap(set => {
+    const duplicates = getDuplicates(set.map(s => s.value));
+    return set.filter(s => duplicates.includes(s.value)).map(s => s.pos);
+  })
   // clear invalid cells from map
-  [...invalidRowCells, ...invalidColCells, ...invalidRegionCells].forEach(t => result[t.r][t.c] = _);
+  duplicateCellPositions.forEach(t => result[t.r][t.c] = _);
 
   return result;
 }

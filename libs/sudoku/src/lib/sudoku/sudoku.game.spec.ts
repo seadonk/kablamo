@@ -1,3 +1,4 @@
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import {
   _,
   areNotesEqual,
@@ -8,7 +9,6 @@ import {
   isSolveable,
   isSolved,
   isSubsetOf,
-  solveCell,
   stringifyNotes,
   SudokuAction,
   SudokuGame,
@@ -140,9 +140,10 @@ describe('Sudoku Game', () => {
       await sudokuGame.generate();
       expect(isSolveable(sudokuGame.board)).toBeTruthy();
     }))
-    it('should generate a board with 25 clues by default', waitForAsync(async () => {
+    it('should generate a board with defaultClues clues by default', waitForAsync(async () => {
+      sudokuGame.defaultClues = 34;
       await sudokuGame.generate();
-      expect(getFilledCells(sudokuGame.board)).toBe(25);
+      expect(getFilledCells(sudokuGame.board)).toBe(34);
     }))
     it('should generate a board with the specified number of clues', waitForAsync(async () => {
       await sudokuGame.generate(27);
@@ -552,13 +553,23 @@ describe('Sudoku Game', () => {
     })
   })
 
-  describe('auto clear', () => {
+  describe('autoClearNotes', () => {
     it('should call clearInvalidNotes when set to true', () => {
       const clearInvalidNotes = jest.spyOn(sudokuGame, 'clearInvalidNotes');
-      sudokuGame.autoClear = false;
+      sudokuGame.autoClearNotes = false;
       expect(clearInvalidNotes).not.toHaveBeenCalled();
-      sudokuGame.autoClear = true;
+      sudokuGame.autoClearNotes = true;
       expect(clearInvalidNotes).toHaveBeenCalledTimes(1);
+    })
+  })
+
+  describe('autoFillNotes', () => {
+    it('should call fillValidNotes when set to true', () => {
+      const fillValidNotes = jest.spyOn(sudokuGame, 'fillValidNotes');
+      sudokuGame.autoFillNotes = false;
+      expect(fillValidNotes).not.toHaveBeenCalled();
+      sudokuGame.autoFillNotes = true;
+      expect(fillValidNotes).toHaveBeenCalledTimes(1);
     })
   })
 
@@ -575,8 +586,7 @@ describe('Sudoku Game', () => {
     }))
     it('should not update a cell if no solution can be found', waitForAsync(async () => {
       sudokuGame['initBoard'](hash(Examples.easyPresetInvalidRegion));
-      const pos: CellPosition = {r: 1, c: 0};
-      sudokuGame.selectedPosition = pos;
+      sudokuGame.selectedPosition = {r: 1, c: 0};
       await sudokuGame.hint();
       expect(sudokuGame.getCurrentHash()).toBe(hash(Examples.easyPresetInvalidRegion));
     }))
@@ -597,8 +607,7 @@ describe('Sudoku Game', () => {
     }))
     it('should not update the board if the selected cell already has a value', waitForAsync(async () => {
       sudokuGame['initBoard'](hash(Examples.easyPreset));
-      const pos: CellPosition = {r: 0, c: 0};
-      sudokuGame.selectedPosition = pos;
+      sudokuGame.selectedPosition = {r: 0, c: 0};
       await sudokuGame.hint();
       expect(sudokuGame.getCurrentHash()).toBe(hash(Examples.easyPreset));
     }))
