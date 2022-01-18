@@ -19,6 +19,8 @@ import {SettingsComponent} from './components/settings/settings.component';
 import {InputsComponent} from './components/inputs/inputs.component';
 import {ControlsComponent} from './components/controls/controls.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatDialogModule} from "@angular/material/dialog";
 
 @NgModule({
   declarations: [
@@ -34,7 +36,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    RouterModule.forRoot(routes, { initialNavigation: 'enabledBlocking' }),
+    RouterModule.forRoot(routes, {initialNavigation: 'enabledBlocking'}),
     MatSlideToggleModule,
     MatButtonModule,
     MatButtonToggleModule,
@@ -42,6 +44,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     ReactiveFormsModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatDialogModule,
   ],
   providers: [{ provide: SudokuGame }],
   bootstrap: [AppComponent],
