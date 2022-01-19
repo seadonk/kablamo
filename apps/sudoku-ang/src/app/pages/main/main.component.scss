@@ -9,7 +9,7 @@
   .board {
     display: flex;
     flex-direction: row;
-    height: 100%;
+    justify-content: stretch;
     padding: 0.5rem;
     box-sizing: border-box;
 
@@ -29,5 +29,8 @@
     flex: 0 1 auto;
   }
 
+  .spacer {
+    flex: 1;
+  }
 }
 
