@@ -6,7 +6,10 @@
     <div class="spacer"></div>
     <sudoku-inputs></sudoku-inputs>
   </div>
-  <div class="stats">
-    <sudoku-settings></sudoku-settings>
-  </div>
+  <sudoku-value-or-notes></sudoku-value-or-notes>
+  <div class="spacer"></div>
+  <button class="settings-button" mat-button (click)="openBottomSheet()" title="Open Settings">
+    <mat-icon>settings</mat-icon> Settings
+  </button>
 </div>
+
