@@ -22,6 +22,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatInputModule} from "@angular/material/input";
+import {MatBottomSheetModule} from "@angular/material/bottom-sheet";
+import {ValueOrNotesComponent} from './components/value-or-notes/value-or-notes.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +35,7 @@ import {MatInputModule} from "@angular/material/input";
     SettingsComponent,
     InputsComponent,
     ControlsComponent,
+    ValueOrNotesComponent,
   ],
   imports: [
     BrowserModule,
@@ -48,6 +51,7 @@ import {MatInputModule} from "@angular/material/input";
     MatFormFieldModule,
     MatDialogModule,
     MatInputModule,
+    MatBottomSheetModule
   ],
   providers: [{ provide: SudokuGame }],
   bootstrap: [AppComponent],
