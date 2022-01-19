@@ -43,6 +43,12 @@
       Highlight Invalid Cells
     </mat-slide-toggle>
 
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>Number of Clues</mat-label>
+      <input type="number" min="25" matInput formControlName="defaultClues">
+      <mat-hint>Number of Clues for a new Board</mat-hint>
+    </mat-form-field>
+
     <mat-button-toggle-group
       name="inputMode"
       aria-label="Input Mode"
