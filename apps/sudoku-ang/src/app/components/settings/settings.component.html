@@ -1,6 +1,5 @@
-<form [formGroup]="settingsForm">
+<form [formGroup]="settingsForm" *ngIf="initialized && settingsForm">
   <div class="settings">
-    <div class="numbers"></div>
     <mat-slide-toggle
       formControlName="highlightNumber"
       title="If a filled in cell is selected,all cells with the same value will be highlighted">
