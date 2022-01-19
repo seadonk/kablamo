@@ -1,6 +1,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {NotesComponent} from './notes.component';
+import {SudokuGame} from "@kablamo/sudoku";
 
 describe('NotesComponent', () => {
   let component: NotesComponent;
@@ -9,6 +10,7 @@ describe('NotesComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [NotesComponent],
+      providers: [{ provide: SudokuGame }]
     }).compileComponents();
   });
 

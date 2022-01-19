@@ -14,12 +14,15 @@ export interface Settings {
   defaultClues: number;
 }
 
-export const defaultSettings: Partial<Settings> = {
+export const defaultSettings: Settings = {
+  notesMode: false,
   showNotes: true,
   highlightNumber: true,
   highlightSets: true,
-  autoClearNotes: true,
+  highlightBlanks: false,
   highlightInvalidCells: true,
+  autoClearNotes: true,
+  autoFillNotes: false,
   defaultClues: 30
 };
 

@@ -21,6 +21,7 @@ import {ControlsComponent} from './components/controls/controls.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatDialogModule} from "@angular/material/dialog";
+import {MatInputModule} from "@angular/material/input";
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import {MatDialogModule} from "@angular/material/dialog";
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatDialogModule,
+    MatInputModule,
   ],
   providers: [{ provide: SudokuGame }],
   bootstrap: [AppComponent],
