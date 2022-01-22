@@ -1,39 +1,42 @@
 <div class="buttons">
-  <button mat-mini-fab (click)="sudokuService.undo()" title="Undo">
+  <button mat-stroked-button color="accent" (click)="sudokuService.undo()" title="Undo">
     <mat-icon>undo</mat-icon>
+    Undo
   </button>
-  <button mat-mini-fab (click)="sudokuService.redo()" title="Redo">
+  <button mat-stroked-button color="accent" (click)="sudokuService.redo()" title="Redo">
     <mat-icon>redo</mat-icon>
+    Redo
   </button>
-  <button mat-mini-fab (click)="solve()" title="Solve">
+  <button mat-stroked-button color="accent" (click)="solve()" title="Solve">
     <mat-icon>auto_fix_high</mat-icon>
+    Solve
   </button>
-  <button
-    mat-mini-fab
-    (click)="sudokuService.hint()"
-    title="Hint"
-    [disabled]="!sudokuService.selectedPosition"
-  >
+  <button mat-stroked-button color="accent" (click)="sudokuService.hint()" title="Hint"
+          [disabled]="!sudokuService.selectedPosition">
     <mat-icon>new_releases</mat-icon>
+    Hint
   </button>
-  <button mat-mini-fab (click)="reset()" title="Reset">
+  <button mat-stroked-button color="accent" (click)="reset()" title="Reset">
     <mat-icon>restart_alt</mat-icon>
+    Reset
   </button>
-  <button mat-mini-fab (click)="clear()" title="Clear">
+  <button mat-stroked-button color="accent" (click)="clear()" title="Clear">
     <mat-icon>delete</mat-icon>
+    Clear
   </button>
-  <button mat-mini-fab (click)="generate()" title="Generate">
+  <button mat-stroked-button color="accent" (click)="generate()" title="Generate">
     <mat-icon>factory</mat-icon>
+    Generate
   </button>
 </div>
 
 <ng-template #confirmation let-data>
-<h1 mat-dialog-title>{{data.name}}</h1>
-<div mat-dialog-content>
-  <p>Are you sure you want to {{data.description}}?</p>
-</div>
-<div mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="false">No Thanks</button>
-  <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Yes</button>
-</div>
+  <h1 mat-dialog-title>{{data.name}}</h1>
+  <div mat-dialog-content>
+    <p>Are you sure you want to {{data.description}}?</p>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-stroked-button [mat-dialog-close]="false">No Thanks</button>
+    <button mat-stroked-button [mat-dialog-close]="true" cdkFocusInitial>Yes</button>
+  </div>
 </ng-template>

@@ -2,14 +2,19 @@
   <div class="board">
     <sudoku-board></sudoku-board>
     <div class="spacer"></div>
-    <sudoku-controls></sudoku-controls>
-    <div class="spacer"></div>
     <sudoku-inputs></sudoku-inputs>
   </div>
   <sudoku-value-or-notes></sudoku-value-or-notes>
   <div class="spacer"></div>
-  <button class="settings-button" mat-button (click)="openBottomSheet()" title="Open Settings">
-    <mat-icon>settings</mat-icon> Settings
-  </button>
+  <div class="more">
+    <button class="controls-button" mat-stroked-button (click)="openControls()" title="Open Controls">
+      <mat-icon>construction</mat-icon>
+      Controls
+    </button>
+    <button class="settings-button" mat-stroked-button (click)="openSettings()" title="Open Settings">
+      <mat-icon>settings</mat-icon>
+      Settings
+    </button>
+  </div>
 </div>
 

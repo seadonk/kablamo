@@ -24,6 +24,7 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatInputModule} from "@angular/material/input";
 import {MatBottomSheetModule} from "@angular/material/bottom-sheet";
 import {ValueOrNotesComponent} from './components/value-or-notes/value-or-notes.component';
+import {MatSidenavModule} from "@angular/material/sidenav";
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import {ValueOrNotesComponent} from './components/value-or-notes/value-or-notes.
     MatFormFieldModule,
     MatDialogModule,
     MatInputModule,
-    MatBottomSheetModule
+    MatBottomSheetModule,
+    MatSidenavModule
   ],
   providers: [{ provide: SudokuGame }],
   bootstrap: [AppComponent],

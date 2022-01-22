@@ -34,3 +34,19 @@
   }
 }
 
+mat-drawer-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+}
+
+.more {
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+
+  > * {
+    flex: 1;
+  }
+}
