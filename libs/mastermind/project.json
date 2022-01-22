@@ -1,0 +1,23 @@
+{
+  "root": "libs/mastermind",
+  "sourceRoot": "libs/mastermind/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/mastermind/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/mastermind"],
+      "options": {
+        "jestConfig": "libs/mastermind/jest.config.js",
+        "passWithNoTests": false
+      }
+    }
+  },
+  "tags": []
+}

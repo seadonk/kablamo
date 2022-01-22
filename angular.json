@@ -3,6 +3,7 @@
   "projects": {
     "demo": "apps/demo",
     "demo-e2e": "apps/demo-e2e",
+    "mastermind": "libs/mastermind",
     "sudoku": "libs/sudoku",
     "sudoku-ang": "apps/sudoku-ang",
     "sudoku-ang-e2e": "apps/sudoku-ang-e2e",
