@@ -32,16 +32,16 @@ export class AppComponent {
   changeMode = (mode: ArtMode) => {
     this.selectedMode = mode;
     if (this.selectedMode === 'serpinskiTurtle') {
-      this.theta = 60;
+      this.theta = 64.14066;
       this.iterations = 12;
     }
     if (this.selectedMode === 'serpinskiTurtle2') {
-      this.theta = 354;
+      this.theta = 59.07692;
       this.iterations = 12;
     }
     if (this.selectedMode === 'eulerSpirals') {
       this.theta = 1.4433;
-      this.iterations = 1000000;
+      this.iterations = 50000;
     }
     this.drawFn = ArtModeMap[mode];
   }

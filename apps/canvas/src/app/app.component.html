@@ -11,24 +11,28 @@
 
 
 <ng-template #controls>
-  <div>
+  <div class="input-container">
     <input type="range" [(ngModel)]="theta" step="0.00001" max="360"/>
-    <input type="number" [(ngModel)]="theta" step="0.00001" max="360"/> degrees
-    [ {{ getRadians(theta) | number: '.3' }} radians ]
+    <input type="number" [(ngModel)]="theta" step="0.00001" max="360"/> °
+    [ {{ getRadians(theta) | number: '.3' }} rads ]
   </div>
-  <div>
+  <div class="input-container">
     <input type="range" [(ngModel)]="iterations" step="10" max="100000"
            [disabled]="selectedMode === 'serpinskiTurtle'"/> {{ iterations }}iterations
   </div>
-  <div>
+  <div class="input-container">
     <input type="range" [(ngModel)]="scale" step="0.01" max="10"/> {{ scale }}scale
   </div>
-  <button (click)="play = !play">{{ play ? 'stop' : 'play'}}</button>
 
-  {{ selectedMode }}
-  <ng-container *ngFor="let mode of modes">
-    <div>
-      <button (click)="changeMode(mode)">{{mode}}</button>
-    </div>
-  </ng-container>
+
+  <div class="button-container">
+    <button (click)="play = !play">{{ play ? 'stop' : 'play'}}</button>
+    <ng-container *ngFor="let mode of modes">
+      <div>
+        <button (click)="changeMode(mode)">{{mode}}</button>
+      </div>
+    </ng-container>
+  </div>
+  <div class="selectedPattern">
+    Pattern: {{ selectedMode }}</div>
 </ng-template>
