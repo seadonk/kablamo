@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component,} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input,} from '@angular/core';
 import {_, CellPosition, isSamePosition, isSameSudokuSet, SudokuGame, SudokuValue,} from '@kablamo/sudoku';
 import {Settings, SettingsService} from '../../services/settings.service';
 
@@ -10,10 +10,17 @@ import {Settings, SettingsService} from '../../services/settings.service';
 })
 export class BoardComponent {
   loading: boolean;
+  @Input()
+  solved: boolean;
 
   isSameSet = isSameSudokuSet;
   get settings(): Settings {
     return this.settingsService.settings;
+  }
+
+  @HostBinding('class')
+  get class(): string {
+    return this.solved ? '--solved' : '';
   }
 
   constructor(

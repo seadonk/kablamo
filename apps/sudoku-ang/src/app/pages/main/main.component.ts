@@ -14,4 +14,5 @@ export class MainComponent {
 
   openSettings = () => this._bottomSheet.open(SettingsComponent);
   openControls = () => this._bottomSheet.open(ControlsComponent);
+  solved: boolean;
 }

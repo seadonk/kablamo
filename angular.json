@@ -1,8 +1,11 @@
 {
   "version": 2,
   "projects": {
+    "canvas": "apps/canvas",
+    "canvas-e2e": "apps/canvas-e2e",
     "demo": "apps/demo",
     "demo-e2e": "apps/demo-e2e",
+    "drawing": "libs/drawing",
     "mastermind": "libs/mastermind",
     "sudoku": "libs/sudoku",
     "sudoku-ang": "apps/sudoku-ang",

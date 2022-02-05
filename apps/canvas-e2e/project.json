@@ -1,0 +1,28 @@
+{
+  "root": "apps/canvas-e2e",
+  "sourceRoot": "apps/canvas-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/canvas-e2e/cypress.json",
+        "devServerTarget": "canvas:serve:development"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "canvas:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/canvas-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["canvas"]
+}

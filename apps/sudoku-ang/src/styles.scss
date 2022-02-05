@@ -4,7 +4,38 @@ html,
 body {
   height: 100%;
 }
+
 body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+
+sudoku-board {
+  > sudoku-cell {
+    transition: all 0.03s * 81 ease-in-out;
+    @for $i from 1 through 81 {
+      $transTime: 0.03s * $i;
+      &:nth-child(#{$i}) {
+        > .body {
+          transition: all $transTime ease-in-out;
+        }
+      }
+    }
+  }
+
+  &.--solved {
+    > sudoku-cell {
+      border-color: green !important;
+      @for $i from 1 through 81 {
+        &:nth-child(#{$i}) {
+          > .body {
+            transform: rotate3d(0,0,0,360deg) scale(1.5);
+            background-color: #b6f5b6;
+            color: green;
+          }
+        }
+      }
+    }
+  }
 }

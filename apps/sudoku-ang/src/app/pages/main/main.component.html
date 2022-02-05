@@ -1,6 +1,8 @@
 <div class="container">
   <div class="board">
-    <sudoku-board></sudoku-board>
+    <sudoku-board [solved]="solved"></sudoku-board>
+    <div class="spacer"></div>
+    <button (click)="solved = !solved">{{solved ? 'solved' : 'unsolved'}}</button>
     <div class="spacer"></div>
     <sudoku-inputs></sudoku-inputs>
   </div>
