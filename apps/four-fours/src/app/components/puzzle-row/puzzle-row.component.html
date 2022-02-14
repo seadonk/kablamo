@@ -1,0 +1,4 @@
+{{ answer }} =
+<input *ngIf="!success" type="text" [readOnly]="success" [(ngModel)]="guess" (ngModelChange)="updateGuess($event)"/>
+<div class="correct-guess" *ngIf="success">{{guess  }}</div>
+{{ success && 'Correct!' || '' }}

@@ -1,0 +1,3 @@
+<ng-container *ngFor="let ans of answers">
+  <ff-puzzle-row [number]="number" [answer]="ans" (completed)="onComplete()"></ff-puzzle-row>
+</ng-container>

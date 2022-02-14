@@ -6,6 +6,8 @@
     "demo": "apps/demo",
     "demo-e2e": "apps/demo-e2e",
     "drawing": "libs/drawing",
+    "four-fours": "apps/four-fours",
+    "four-fours-e2e": "apps/four-fours-e2e",
     "mastermind": "libs/mastermind",
     "sudoku": "libs/sudoku",
     "sudoku-ang": "apps/sudoku-ang",

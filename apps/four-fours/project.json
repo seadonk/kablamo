@@ -1,0 +1,94 @@
+{
+  "projectType": "application",
+  "root": "apps/four-fours",
+  "sourceRoot": "apps/four-fours/src",
+  "prefix": "ff",
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/four-fours",
+        "index": "apps/four-fours/src/index.html",
+        "main": "apps/four-fours/src/main.ts",
+        "polyfills": "apps/four-fours/src/polyfills.ts",
+        "tsConfig": "apps/four-fours/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/four-fours/src/favicon.ico",
+          "apps/four-fours/src/assets"
+        ],
+        "styles": ["apps/four-fours/src/styles.scss"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/four-fours/src/environments/environment.ts",
+              "with": "apps/four-fours/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "browserTarget": "four-fours:build:production"
+        },
+        "development": {
+          "browserTarget": "four-fours:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "browserTarget": "four-fours:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/four-fours/src/**/*.ts",
+          "apps/four-fours/src/**/*.html"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/four-fours"],
+      "options": {
+        "jestConfig": "apps/four-fours/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
