@@ -4,11 +4,9 @@ import {ArtPatternFn} from "./canvas.common";
 export const drawEulerSpirals: ArtPatternFn = async (ctx: CanvasRenderingContext2D, theta: number, iterations: number, scale: number) => {
   draw(ctx, () => {
     let position: Coord = getCanvasCenter(ctx.canvas);
-    let i = 0;
-    while (i < iterations) {
+    for (let i = 0; i < iterations; i++) {
       position = getRadialMove(position, scale, i * i * theta);
       ctx.lineTo(...position);
-      i++;
     }
   });
 }
@@ -45,7 +43,7 @@ export const drawSerpinski: ArtPatternFn = (ctx: CanvasRenderingContext2D, theta
     type Step = 'X' | 'Y' | '+' | '-';
     const A: Step[] = ['Y', '+', 'X', '+', 'Y'];
     const B: Step[] = ['X', '-', 'Y', '-', 'X'];
-    const stepMap: {[index: string]: Step[]} = {
+    const stepMap: { [index: string]: Step[] } = {
       'X': A,
       'Y': B,
       '+': ['+'],
@@ -53,7 +51,7 @@ export const drawSerpinski: ArtPatternFn = (ctx: CanvasRenderingContext2D, theta
     };
     type Round = Step[];
     let currentRound: Round = ['X'];
-    let position: Coord = [0,0];//getCanvasCenter(ctx.canvas);
+    let position: Coord = [0, 0];//getCanvasCenter(ctx.canvas);
     let heading = 0;
     const getNextRound = (lastRound: Round): Round => {
       const result: Round = [];
@@ -62,7 +60,7 @@ export const drawSerpinski: ArtPatternFn = (ctx: CanvasRenderingContext2D, theta
     };
     const performStep = (step: Step) => {
       const isGroup = step === 'X' || step === 'Y';
-      if(isGroup) return;
+      if (isGroup) return;
       // turn right or left
       heading = step === '+' ? heading + theta : heading - theta;
       // move
@@ -85,7 +83,7 @@ export const drawSerpinski2: ArtPatternFn = (ctx: CanvasRenderingContext2D, thet
     type Step = 'X' | 'Y' | '+' | '-';
     const A: Step[] = ['Y', '+', 'X', '+', 'Y', '+', 'X'];
     const B: Step[] = ['-', 'X', '-'];
-    const stepMap: {[index: string]: Step[]} = {
+    const stepMap: { [index: string]: Step[] } = {
       'X': A,
       'Y': B,
       '+': ['+'],
@@ -103,7 +101,7 @@ export const drawSerpinski2: ArtPatternFn = (ctx: CanvasRenderingContext2D, thet
     };
     const performStep = (step: Step) => {
       const isGroup = step === 'X' || step === 'Y';
-      if(isGroup) return;
+      if (isGroup) return;
       // turn right or left
       heading = step === '+' ? heading + theta : heading - theta;
       // move
