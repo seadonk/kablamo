@@ -77,7 +77,6 @@ export const drawSerpinski: ArtPatternFn = (ctx: CanvasRenderingContext2D, theta
   }, false)
 }
 
-
 export const drawSerpinski2: ArtPatternFn = (ctx: CanvasRenderingContext2D, theta: number = 60 * 2 * Math.PI / 360, iterations = 12, scale = 1) => {
   draw(ctx, () => {
     type Step = 'X' | 'Y' | '+' | '-';

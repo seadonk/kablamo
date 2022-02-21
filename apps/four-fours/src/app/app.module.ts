@@ -7,10 +7,11 @@ import {PuzzleComponent} from './components/puzzle/puzzle.component';
 import {PuzzleRowComponent} from './components/puzzle-row/puzzle-row.component';
 import {RouterModule} from "@angular/router";
 import {FormsModule} from "@angular/forms";
+import {DragDropModule} from "@angular/cdk/drag-drop";
 
 @NgModule({
   declarations: [AppComponent, NxWelcomeComponent, PuzzleComponent, PuzzleRowComponent],
-  imports: [BrowserModule, RouterModule, FormsModule],
+  imports: [BrowserModule, RouterModule, FormsModule, DragDropModule],
   providers: [],
   bootstrap: [AppComponent],
 })

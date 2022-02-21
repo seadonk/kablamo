@@ -18,7 +18,10 @@
           "apps/four-fours/src/favicon.ico",
           "apps/four-fours/src/assets"
         ],
-        "styles": ["apps/four-fours/src/styles.scss"],
+        "styles": [
+          "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
+          "apps/four-fours/src/styles.scss"
+        ],
         "scripts": []
       },
       "configurations": {

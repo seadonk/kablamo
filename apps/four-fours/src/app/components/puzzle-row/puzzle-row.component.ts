@@ -1,67 +1,79 @@
-import {Component, EventEmitter, HostBinding, Input, Output} from '@angular/core';
-import {getRange} from "@kablamo/utils";
-import {evaluate} from "mathjs";
+import {Component, EventEmitter, HostBinding, Input, OnInit, Output} from '@angular/core';
+import {CdkDrag, CdkDragDrop, CdkDropList, copyArrayItem, moveItemInArray} from "@angular/cdk/drag-drop";
+import {Equation, mathEvaluateGuess, Operators} from "../common";
 
 @Component({
   selector: 'ff-puzzle-row',
   templateUrl: './puzzle-row.component.html',
   styleUrls: ['./puzzle-row.component.scss']
 })
-export class PuzzleRowComponent {
-  @Input() answer: number | undefined;
-  private _number: number;
-  @Input()
-  get number(): number {
-    return this._number;
-  }
-  set number(value: number) {
-    this._number = value;
-    this.guess = getInitialGuess(value);
-  }
-  @Output() completed = new EventEmitter<void>();
-
-  guess: string;
+export class PuzzleRowComponent implements OnInit{
+  isNaN = isNaN;
+  Operators = Operators;
   calculatedAnswer: number;
+  @Input() answer: number | undefined;
+  @Input() number: number;
+  private _equation: Equation;
+  @Input()
+  get equation():Equation{
+    return this._equation;
+  }
+  set equation(value: Equation){
+    this._equation = value;
+    console.log('set equation');
+  }
 
-  get success():boolean {return this.calculatedAnswer === this.answer;}
+  /** emits the valid equation as a string */
+  @Output() completed = new EventEmitter<Equation>();
+
+  get equationText(): string {
+    return this.equation && this.equation.join('');
+  }
+
+  get solved(): boolean {
+    return !isNaN(this.calculatedAnswer) && this.calculatedAnswer === this.answer;
+  }
 
   @HostBinding('class')
   get class() {
-    return this.success ? '--success' : '';
+    return this.solved ? '--success' : '';
   }
 
-  constructor() {
-    this._number = 0;
-    this.answer = 0;
-    this.guess = '';
-    this.calculatedAnswer = undefined;
+  ngOnInit(){
+    this.calculatedAnswer = mathEvaluateGuess(this.equationText);
   }
 
-  updateGuess($event: any) {
-    console.log($event);
-    this.calculatedAnswer = mathEvaluateGuess($event);
-    if(this.success){
-      this.completed.emit();
+  updateGuess() {
+    this.calculatedAnswer = mathEvaluateGuess(this.equationText);
+    if (this.solved) {
+      this.completed.emit(this.equation);
     }
   }
 
+  drop(event: CdkDragDrop<Equation>) {
+    const moveItem = () => moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    const copyItem = () => copyArrayItem(
+      event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex,
+    );
+    // don't remove items, if they are being dragged from another container, because they don't exist in this
+    // container for them to be removed.
+    const isSameContainer = event.previousContainer === event.container;
+    const removeItem = () => isSameContainer && event.container.data.splice(event.previousIndex, 1);
 
-}
+    if (!event.isPointerOverContainer) {
+      removeItem();
+    } else {
+      if (event.previousContainer === event.container) {
+        moveItem();
+      } else {
+        copyItem();
+      }
+      this.updateGuess()
+    }
+  }
 
-/**
- * Alternative to using eval()
- * @param guess
- * @see https://developer.mozilla.org/en-US/docs/web/javascript/reference/global_objects/eval#never_use_eval!
- */
-const evaluateGuess = (guess: string): number | undefined => {
-  return Function('"use strict";return (' + guess + ')')();
+  inputsDropListEnterPredicate: (drag: CdkDrag, drop: CdkDropList) => boolean = () => false;
 }
-/**
- * Using mathjs
- * @see https://mathjs.org/docs/expressions/parsing.html#evaluate
- * @param guess
- */
-const mathEvaluateGuess = (guess: string): number | undefined => {
-  return evaluate(guess);
-}
-const getInitialGuess = (number: number): string => getRange(number - 1).map(() => number).join(" ");

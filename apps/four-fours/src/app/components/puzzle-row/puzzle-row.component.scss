@@ -1,3 +1,5 @@
+$itemWidth: 2rem;
+
 :host {
   display: block;
   margin: 1rem;
@@ -6,9 +8,86 @@
     border: 2px solid darkgreen;
     border-radius: 4px;
     background-color: #c3e3c3;
-  }
-
-  .correct-guess {
-    display: inline-block;
+    .solution {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      >* {
+        margin-right: 0.5rem;
+      }
+    }
   }
 }
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .answer, .spacer {
+    width: $itemWidth;
+  }
+
+  .operators {
+    display: flex;
+    align-items: center;
+  }
+
+  .equation {
+    display: flex;
+    align-items: center;
+
+    .answer {
+
+    }
+
+    .guess {
+
+    }
+
+    .correct-guess {
+
+    }
+  }
+}
+
+.operator, .equation-item {
+  border-radius: 5px;
+  background-color: lightblue;
+  border: 1px solid dimgray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1;
+  width: $itemWidth;
+
+  cursor: move;
+  margin: 0.25rem;
+
+  &--operator {
+    width: $itemWidth;
+  }
+
+  &--disabled {
+    cursor: unset;
+    background-color: white;
+  }
+}
+
+.operators-list, .equation-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .cdk-drag-placeholder {
+    opacity: 0;
+  }
+
+  .cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+
