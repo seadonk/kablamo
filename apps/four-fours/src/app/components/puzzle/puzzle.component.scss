@@ -1,0 +1,4 @@
+$spacing: 1rem;
+:host {
+  margin: $spacing $spacing*0.25 $spacing $spacing*0.25;
+}
