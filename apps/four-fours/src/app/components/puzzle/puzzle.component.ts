@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {
   addProblem,
+  clearEquations,
   Equation,
   getHighestStoredAnswer,
   isSolved,
@@ -55,5 +56,10 @@ export class PuzzleComponent {
     const nextAnswer = getHighestStoredAnswer(this.number, this.solutions) + 1;
     addProblem(this.solutions, this.number, nextAnswer);
     this.currentSolutions = this.getCurrentSolutions();
+  }
+
+  reset = () => {
+    clearEquations();
+    this.initSolutions();
   }
 }

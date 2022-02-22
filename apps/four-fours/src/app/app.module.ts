@@ -8,10 +8,11 @@ import {PuzzleRowComponent} from './components/puzzle-row/puzzle-row.component';
 import {RouterModule} from "@angular/router";
 import {FormsModule} from "@angular/forms";
 import {DragDropModule} from "@angular/cdk/drag-drop";
-
+import {MatIconModule} from "@angular/material/icon";
+ 
 @NgModule({
   declarations: [AppComponent, NxWelcomeComponent, PuzzleComponent, PuzzleRowComponent],
-  imports: [BrowserModule, RouterModule, FormsModule, DragDropModule],
+  imports: [BrowserModule, RouterModule, FormsModule, DragDropModule, MatIconModule],
   providers: [],
   bootstrap: [AppComponent],
 })
