@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostBinding, Input, OnInit, Output} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, copyArrayItem, moveItemInArray} from "@angular/cdk/drag-drop";
-import {Equation, mathEvaluateGuess, Operators} from "../common";
+import {Equation, isSolved, mathEvaluateGuess, Operators} from "../common";
 
 @Component({
   selector: 'ff-puzzle-row',
@@ -30,9 +30,7 @@ export class PuzzleRowComponent implements OnInit{
     return this.equation && this.equation.join('');
   }
 
-  get solved(): boolean {
-    return !isNaN(this.calculatedAnswer) && this.calculatedAnswer === this.answer;
-  }
+  get solved(): boolean { return isSolved(this.answer, this.equation); }
 
   @HostBinding('class')
   get class() {

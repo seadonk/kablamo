@@ -1,12 +1,20 @@
 import {Component, Input} from '@angular/core';
-import {addProblem, Equation, getHighestStoredAnswer, loadSolutions, Solutions, storeSolution} from "../common";
+import {
+  addProblem,
+  Equation,
+  getHighestStoredAnswer,
+  isSolved,
+  loadSolutions,
+  Solutions,
+  storeSolution
+} from "../common";
 
 @Component({
   selector: 'ff-puzzle',
   templateUrl: './puzzle.component.html',
   styleUrls: ['./puzzle.component.scss']
 })
-export class PuzzleComponent{
+export class PuzzleComponent {
   @Input() number: number;
   solutions: Solutions;
   currentSolutions: { answer: number, equation: Equation }[];
@@ -18,17 +26,22 @@ export class PuzzleComponent{
 
   initSolutions = () => {
     this.solutions = loadSolutions();
-    if(!this.solutions) {
+    if (!this.solutions) {
       this.solutions = {};
       this.incrementAnswer();
-    };
+    }
     this.currentSolutions = this.getCurrentSolutions();
+    // temporary, need to fix typing on solutions
+    const current = this.currentSolutions[this.currentSolutions.length - 1];
+    if (isSolved(current.answer, current.equation)) {
+      this.incrementAnswer();
+    }
   }
 
   getCurrentSolutions(): { answer: number, equation: Equation }[] {
     return Object.keys(this.solutions[this.number]).map((k => ({
-        answer: +k, equation: this.solutions[this.number][+k]
-      })));
+      answer: +k, equation: this.solutions[this.number][+k]
+    })));
   }
 
   onComplete = (number, answer, equation: Equation) => {

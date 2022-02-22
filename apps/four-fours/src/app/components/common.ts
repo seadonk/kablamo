@@ -41,3 +41,10 @@ export const evaluateGuess = (guess: string): number | undefined =>
  */
 export const mathEvaluateGuess = (guess: string): number | undefined => evaluate(guess);
 export const getDefaultEquation = (number: number): Equation => getRange(number - 1).map(() => number);
+
+
+export const isSolved = (answer: number, equation: Equation): boolean => {
+  const equationText = equation.join("");
+  const calculatedAnswer = mathEvaluateGuess(equationText);
+  return !isNaN(calculatedAnswer) && calculatedAnswer === answer;
+}
