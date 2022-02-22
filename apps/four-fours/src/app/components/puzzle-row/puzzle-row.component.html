@@ -1,46 +1,41 @@
-<div class="container">
+<div class="rows">
   <ng-container *ngIf="!solved; then unsolvedTemplate; else solvedTemplate;"></ng-container>
 </div>
 
 <ng-template #solvedTemplate>
   <div class="solution">
-    <div>{{ answer }} = {{ equationText }}</div><div>{{ 'Correct!' }}</div>
+    <div>{{ answer }} = {{ equationText }}</div>
+    <div>{{ 'Correct!' }}</div>
   </div>
 </ng-template>
 
 <ng-template #unsolvedTemplate>
-  <div class="operators">
-    <div class="spacer"></div>
-    <div
-      id="operatorsList"
-      cdkDropList
-      cdkDropListSortingDisabled
-      cdkDropListOrientation="horizontal"
-      #operatorsList="cdkDropList"
-      [cdkDropListData]="Operators"
-      [cdkDropListConnectedTo]="[equationList]"
-      [cdkDropListEnterPredicate]="inputsDropListEnterPredicate"
-      class="operators-list">
-      <div class="operator operator--operator" *ngFor="let operator of Operators" cdkDrag>{{operator}}</div>
-    </div>
+  <div
+    id="operatorsList"
+    cdkDropList
+    cdkDropListSortingDisabled
+    cdkDropListOrientation="horizontal"
+    #operatorsList="cdkDropList"
+    [cdkDropListData]="Operators"
+    [cdkDropListConnectedTo]="[equationList]"
+    [cdkDropListEnterPredicate]="inputsDropListEnterPredicate"
+    class="list operators-list">
+    <div class="cell cell--operator" *ngFor="let operator of Operators" cdkDrag>{{operator}}</div>
   </div>
 
-  <div class="equation">
-    <div class="answer">{{ answer }} =</div>
-    <div
-      id="equations-list"
-      cdkDropList
-      cdkDropListOrientation="horizontal"
-      #equationList="cdkDropList"
-      [cdkDropListData]="equation"
-      [cdkDropListConnectedTo]="[operatorsList]"
-      class="equation-list"
-      (cdkDropListDropped)="drop($event)">
-      <div class="equation-item"
-           [ngClass]="{'equation-item--disabled':!isNaN(+equationElement), 'equation-item--operator': isNaN(+equationElement)}"
-           *ngFor="let equationElement of equation" cdkDrag
-           [cdkDragDisabled]="!isNaN(+equationElement)"
-      >{{equationElement}}</div>
-    </div>
+  <div
+    id="equations-list"
+    cdkDropList
+    cdkDropListOrientation="horizontal"
+    #equationList="cdkDropList"
+    [cdkDropListData]="equation"
+    [cdkDropListConnectedTo]="[operatorsList]"
+    class="list equation-list"
+    (cdkDropListDropped)="drop($event)">
+    <div class="cell cell--answer cell--disabled">{{ answer }} =</div>
+    <div class="cell"
+         [ngClass]="{'cell--disabled':!isNaN(+equationElement), 'cell--operator': isNaN(+equationElement)}"
+         *ngFor="let equationElement of equation" cdkDrag
+         [cdkDragDisabled]="!isNaN(+equationElement)">{{equationElement}}</div>
   </div>
 </ng-template>

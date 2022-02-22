@@ -1,93 +1,79 @@
-$itemWidth: 2rem;
+$itemHeight: 2rem;
+$operatorColor: lightblue;
+$lockedCellColor: #cbc9c9;
+$answerColor: #ceff96;
+$solutionColor: darkgreen;
+$cellBorder: 1px solid dimgray;
+$solutionBorder: 2px solid $solutionColor;
 
 :host {
   display: block;
-  margin: 1rem;
-
-  &.--success {
-    border: 2px solid darkgreen;
-    border-radius: 4px;
-    background-color: #c3e3c3;
-    .solution {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      >* {
-        margin-right: 0.5rem;
-      }
-    }
-  }
 }
 
-.container {
+.rows {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: start;
 
-  .answer, .spacer {
-    width: $itemWidth;
+  > .solution {
+    border: $solutionBorder;
+    border-radius: 5px;
+    background-color: #c3e3c3;
+    align-self: stretch;
+    height: $itemHeight;
+
+    > *:first-child {
+      flex: 1;
+    }
   }
 
-  .operators {
+  // operators and equation rows
+  > * {
     display: flex;
-    align-items: center;
-  }
+    flex-direction: row;
+    justify-content: center;
 
-  .equation {
-    display: flex;
-    align-items: center;
-
-    .answer {
-
+    .cdk-drag-placeholder {
+      //opacity: 0;
     }
 
-    .guess {
-
+    .cdk-drag-animating {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
 
-    .correct-guess {
+    &.list {
+      .cell {
+        border-radius: 5px;
+        border: $cellBorder;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        aspect-ratio: 1;
+        height: $itemHeight;
 
+        cursor: move;
+        margin: 0.25rem;
+
+
+        &--operator {
+          background-color: $operatorColor;
+        }
+
+        &--disabled {
+          cursor: unset;
+          background-color: $lockedCellColor;
+        }
+
+        &--answer {
+          background-color: $answerColor;
+        }
+
+      }
     }
+
   }
 }
 
-.operator, .equation-item {
-  border-radius: 5px;
-  background-color: lightblue;
-  border: 1px solid dimgray;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  aspect-ratio: 1;
-  width: $itemWidth;
-
-  cursor: move;
-  margin: 0.25rem;
-
-  &--operator {
-    width: $itemWidth;
-  }
-
-  &--disabled {
-    cursor: unset;
-    background-color: white;
-  }
-}
-
-.operators-list, .equation-list {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  .cdk-drag-placeholder {
-    opacity: 0;
-  }
-
-  .cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-  }
-}
 
 
