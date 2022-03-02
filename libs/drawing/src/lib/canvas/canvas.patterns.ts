@@ -1,14 +1,65 @@
 import {Coord, draw, getCanvasCenter, getRadialMove} from "./canvas.utils";
 import {ArtPatternFn} from "./canvas.common";
 
-export const drawEulerSpirals: ArtPatternFn = async (ctx: CanvasRenderingContext2D, theta: number, iterations: number, scale: number) => {
+export interface DrawResult {
+  touchedBorder?: boolean
+}
+
+
+export const additiveSpirals: ArtPatternFn = async (ctx: CanvasRenderingContext2D, theta: number, iterations: number, scale: number): Promise<DrawResult> => {
+  const result: DrawResult = {touchedBorder: false};
+  draw(ctx, () => {
+    let position: Coord = getCanvasCenter(ctx.canvas);
+    for (let i = 0; i < iterations; i++) {
+      position = getRadialMove(position, scale, i + (i % 2 ? 1 : -1) * (i * theta * i));
+      if (!result.touchedBorder) {
+        const [x, y] = position;
+        if (x <= 0 || y <= 0 || x >= ctx.canvas.width || y >= ctx.canvas.height) {
+          result.touchedBorder = true;
+        }
+      }
+      ctx.lineTo(...position);
+    }
+  });
+  return result;
+}
+
+
+export const drawEulerSpirals: ArtPatternFn = async (ctx: CanvasRenderingContext2D, theta: number, iterations: number, scale: number): Promise<DrawResult> => {
+  const result: DrawResult = {touchedBorder: false};
   draw(ctx, () => {
     let position: Coord = getCanvasCenter(ctx.canvas);
     for (let i = 0; i < iterations; i++) {
       position = getRadialMove(position, scale, i * i * theta);
+      if (!result.touchedBorder) {
+        const [x, y] = position;
+        if (x <= 0 || y <= 0 || x >= ctx.canvas.width || y >= ctx.canvas.height) {
+          result.touchedBorder = true;
+        }
+      }
       ctx.lineTo(...position);
     }
   });
+  return result;
+}
+
+
+export const drawEulerSpirals2: ArtPatternFn = async (ctx: CanvasRenderingContext2D, theta: number, iterations: number, scale: number): Promise<DrawResult> => {
+  const result: DrawResult = {touchedBorder: false};
+  draw(ctx, () => {
+    let position: Coord = getCanvasCenter(ctx.canvas);
+    for (let i = 0; i < iterations; i++) {
+      position = getRadialMove(position, scale, (i % 2 ? 1 : -1) * i * i * theta);
+      if (!result.touchedBorder) {
+        const [x, y] = position;
+        if (x <= 0 || y <= 0 || x >= ctx.canvas.width || y >= ctx.canvas.height) {
+          result.touchedBorder = true;
+        }
+      }
+      ctx.lineTo(...position);
+    }
+  });
+  return result;
 }
 
 export const drawGrid: ArtPatternFn = (ctx: CanvasRenderingContext2D) => {

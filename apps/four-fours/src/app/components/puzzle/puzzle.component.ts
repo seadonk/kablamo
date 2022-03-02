@@ -42,7 +42,7 @@ export class PuzzleComponent {
   getCurrentSolutions(): { answer: number, equation: Equation }[] {
     return Object.keys(this.solutions[this.number]).map((k => ({
       answer: +k, equation: this.solutions[this.number][+k]
-    })));
+    }))).reverse();
   }
 
   onComplete = (number, answer, equation: Equation) => {

@@ -1,5 +1,11 @@
 import {Component} from '@angular/core';
-import {ArtMode, ArtModeMap, ArtModes, ArtPatternFn} from "@kablamo/drawing";
+import {ArtMode, ArtModeMap, ArtModes, ArtPatternFn, getRadians, presets} from "@kablamo/drawing";
+
+export interface AlgorithmPreset {
+  name: string,
+  theta: number,
+  iterations?: number
+}
 
 @Component({
   selector: 'kablamo-root',
@@ -9,41 +15,58 @@ import {ArtMode, ArtModeMap, ArtModes, ArtPatternFn} from "@kablamo/drawing";
 export class AppComponent {
   title = 'canvas';
   theta = 1.4433;
+
+  get radians() {
+    return getRadians(this.theta);
+  }
+
+  stopOnCircle = true;
   iterations = 100000;
   scale = 5;
-  selectedMode: ArtMode = 'eulerSpirals';
-  modes = ArtModes;
+  selectedAlgorithm: ArtMode = 'eulerSpirals';
+  algorithms = ArtModes;
   play = false;
-  drawFn: ArtPatternFn = ArtModeMap[this.selectedMode];
+  selectedPreset: AlgorithmPreset | undefined;
 
-  getRadians = (degrees: number) => degrees / 360 * 2 * Math.PI;
+  get presets(): AlgorithmPreset[] | undefined {
+    const algorithmPresets = presets[this.selectedAlgorithm];
+    if (!algorithmPresets) return undefined;
+    return Object.keys(algorithmPresets).map(t => {
+      const isTheta = !isNaN(algorithmPresets[t] as any);
+      const theta = isTheta
+        ? algorithmPresets[t] as number : (algorithmPresets[t] as any).theta;
+      const iterations= !isTheta && (algorithmPresets[t] as any).iterations || undefined;
 
-  constructor() {
-    this.changeMode('serpinskiTurtle2');
-
-
-    setInterval(() => {
-      if (this.play) {
-        this.theta = this.theta + 0.1
-      }
+      return {
+        name: t,
+        theta: theta,
+        iterations: iterations
+      };
     });
   }
 
+  drawFn: ArtPatternFn = ArtModeMap[this.selectedAlgorithm];
+
   changeMode = (mode: ArtMode) => {
-    this.selectedMode = mode;
-    if (this.selectedMode === 'serpinskiTurtle') {
+    this.selectedAlgorithm = mode;
+    if (this.selectedAlgorithm === 'serpinskiTurtle') {
       this.theta = 64.14066;
       this.iterations = 12;
     }
-    if (this.selectedMode === 'serpinskiTurtle2') {
+    if (this.selectedAlgorithm === 'serpinskiTurtle2') {
       this.theta = 59.07692;
       this.iterations = 12;
     }
-    if (this.selectedMode === 'eulerSpirals') {
+    if (this.selectedAlgorithm === 'eulerSpirals') {
       this.theta = 1.4433;
       this.iterations = 50000;
     }
     this.drawFn = ArtModeMap[mode];
+  }
+
+  onPresetChange($event: Event) {
+    this.theta = this.selectedPreset?.theta ?? this.theta;
+    this.iterations = this.selectedPreset?.iterations ?? this.iterations;
   }
 }
 

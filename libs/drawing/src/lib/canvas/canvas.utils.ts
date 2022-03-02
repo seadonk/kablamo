@@ -8,13 +8,15 @@ export const getCanvasCenter = (canvas: HTMLCanvasElement): Coord => [canvas.wid
 export const fromCenter = (rawPosition: Coord, canvas: HTMLCanvasElement): Coord => offsetPosition(rawPosition, getCanvasCenter(canvas));
 
 /** translates the position according to the offset */
-export const offsetPosition = (position: Coord, offset: Coord): Coord => [position[0] + offset[0], offset[0] - position[1]]
+export const offsetPosition = (position: Coord, offset: Coord): Coord => [position[0] + offset[0],
+  offset[0] - position[1]]
 
 export const setUpCanvas = (canvas: HTMLCanvasElement) => {
   // Feed the size back to the canvas.
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 };
+
 
 ///
 
@@ -86,12 +88,13 @@ export function trackTransforms(ctx: CanvasRenderingContext2D) {
   }
 }
 
+type Point = { x: number, y: number };
 
 export const setupPanAndZoom = (ctx: CanvasRenderingContext2D, redraw: (...rest: any[]) => void) => {
   const {canvas} = ctx;
 
   let lastX = canvas.width / 2, lastY = canvas.height / 2;
-  let dragStart: { x: number, y: number } | null;
+  let dragStart: Point | null;
   let dragged: boolean;
 
   canvas.addEventListener('mousedown', function (evt) {

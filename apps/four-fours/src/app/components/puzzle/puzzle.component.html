@@ -1,4 +1,4 @@
-<ng-container *ngFor="let solution of currentSolutions.reverse(); let i = index;">
+<ng-container *ngFor="let solution of currentSolutions; let i = index;">
   <ff-puzzle-row [number]="number"
                  [answer]="solution.answer"
                  [equation]="solution.equation"

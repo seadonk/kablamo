@@ -40,3 +40,5 @@ Thumbs.db
 
 .angular
 explosion.png
+/apps/four-fours/deploy.sh
+/apps/four-fours/.htaccess
