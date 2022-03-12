@@ -1,11 +1,5 @@
 import {Component} from '@angular/core';
-import {ArtMode, ArtModeMap, ArtModes, ArtPatternFn, getRadians, presets} from "@kablamo/drawing";
-
-export interface AlgorithmPreset {
-  name: string,
-  theta: number,
-  iterations?: number
-}
+import {AlgorithmPreset, ArtMode, ArtModeMap, ArtModes, ArtPatternFn, getRadians, presets} from "@kablamo/drawing";
 
 @Component({
   selector: 'kablamo-root',
@@ -15,18 +9,18 @@ export interface AlgorithmPreset {
 export class AppComponent {
   title = 'canvas';
   theta = 1.4433;
+  stopOnCircle = true;
+  iterations = 100000;
+  scale = 5;
+  selectedAlgorithm: ArtMode;
+  algorithms = ArtModes;
+  play = false;
+  selectedPreset: AlgorithmPreset | undefined;
+  drawFn: ArtPatternFn;
 
   get radians() {
     return getRadians(this.theta);
   }
-
-  stopOnCircle = true;
-  iterations = 100000;
-  scale = 5;
-  selectedAlgorithm: ArtMode = 'eulerSpirals';
-  algorithms = ArtModes;
-  play = false;
-  selectedPreset: AlgorithmPreset | undefined;
 
   get presets(): AlgorithmPreset[] | undefined {
     const algorithmPresets = presets[this.selectedAlgorithm];
@@ -35,7 +29,7 @@ export class AppComponent {
       const isTheta = !isNaN(algorithmPresets[t] as any);
       const theta = isTheta
         ? algorithmPresets[t] as number : (algorithmPresets[t] as any).theta;
-      const iterations= !isTheta && (algorithmPresets[t] as any).iterations || undefined;
+      const iterations = !isTheta && (algorithmPresets[t] as any).iterations || undefined;
 
       return {
         name: t,
@@ -45,28 +39,24 @@ export class AppComponent {
     });
   }
 
-  drawFn: ArtPatternFn = ArtModeMap[this.selectedAlgorithm];
+  constructor(){
+    this.changeMode('spirograph');
+  }
 
   changeMode = (mode: ArtMode) => {
     this.selectedAlgorithm = mode;
-    if (this.selectedAlgorithm === 'serpinskiTurtle') {
-      this.theta = 64.14066;
-      this.iterations = 12;
-    }
-    if (this.selectedAlgorithm === 'serpinskiTurtle2') {
-      this.theta = 59.07692;
-      this.iterations = 12;
-    }
-    if (this.selectedAlgorithm === 'eulerSpirals') {
-      this.theta = 1.4433;
-      this.iterations = 50000;
-    }
+    this.selectedPreset = this.presets && this.presets[0];
+    this.onPresetChange();
     this.drawFn = ArtModeMap[mode];
   }
 
-  onPresetChange($event: Event) {
-    this.theta = this.selectedPreset?.theta ?? this.theta;
-    this.iterations = this.selectedPreset?.iterations ?? this.iterations;
+  onPresetChange() {
+    const {selectedPreset} = this;
+    for (const key in selectedPreset) {
+      if (this[key]) {
+        this[key] = (selectedPreset[key] ?? this[key]) as any;
+      }
+    }
   }
 }
 

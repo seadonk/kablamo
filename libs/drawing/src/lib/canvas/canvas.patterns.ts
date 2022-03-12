@@ -5,6 +5,27 @@ export interface DrawResult {
   touchedBorder?: boolean
 }
 
+export const spirograph: ArtPatternFn = async (ctx: CanvasRenderingContext2D, theta: number, iterations: number, scale: number): Promise<DrawResult> => {
+  const radii: number[] = [60, 40];
+  const thetas: number[] = [1, 4, 10 ];
+  const numDiscs = radii.length;
+  const center: Coord = getCanvasCenter(ctx.canvas);
+  const result: DrawResult = {touchedBorder: false};
+  ctx.moveTo(...center);
+  draw(ctx, () => {
+    const positions: Coord[] = [];
+    for (let i = 0; i < iterations; i++) {
+      for(let n = 0; n < numDiscs; n++){
+        const prevPosition: Coord = [...(!n ? center : positions[n-1])];
+        positions[n] = getRadialMove(prevPosition, scale * radii[n], thetas[n] * i);
+      }
+      const position = positions[positions.length - 1];
+      checkIfContained(result, position, ctx);
+      ctx.lineTo(...position);
+    }
+  }, false);
+  return result;
+}
 
 export const additiveSpirals: ArtPatternFn = async (ctx: CanvasRenderingContext2D, theta: number, iterations: number, scale: number): Promise<DrawResult> => {
   const result: DrawResult = {touchedBorder: false};
@@ -12,12 +33,7 @@ export const additiveSpirals: ArtPatternFn = async (ctx: CanvasRenderingContext2
     let position: Coord = getCanvasCenter(ctx.canvas);
     for (let i = 0; i < iterations; i++) {
       position = getRadialMove(position, scale, i + (i % 2 ? 1 : -1) * (i * theta * i));
-      if (!result.touchedBorder) {
-        const [x, y] = position;
-        if (x <= 0 || y <= 0 || x >= ctx.canvas.width || y >= ctx.canvas.height) {
-          result.touchedBorder = true;
-        }
-      }
+      checkIfContained(result, position, ctx);
       ctx.lineTo(...position);
     }
   });
@@ -31,12 +47,7 @@ export const drawEulerSpirals: ArtPatternFn = async (ctx: CanvasRenderingContext
     let position: Coord = getCanvasCenter(ctx.canvas);
     for (let i = 0; i < iterations; i++) {
       position = getRadialMove(position, scale, i * i * theta);
-      if (!result.touchedBorder) {
-        const [x, y] = position;
-        if (x <= 0 || y <= 0 || x >= ctx.canvas.width || y >= ctx.canvas.height) {
-          result.touchedBorder = true;
-        }
-      }
+      checkIfContained(result, position, ctx);
       ctx.lineTo(...position);
     }
   });
@@ -44,18 +55,23 @@ export const drawEulerSpirals: ArtPatternFn = async (ctx: CanvasRenderingContext
 }
 
 
+/** Latches the result.touchedBorder if the drawing touches or exceeds the canvas */
+function checkIfContained(result: DrawResult, position: [number, number], ctx: CanvasRenderingContext2D) {
+  if (!result.touchedBorder) {
+    const [x, y] = position;
+    if (x <= 0 || y <= 0 || x >= ctx.canvas.width || y >= ctx.canvas.height) {
+      result.touchedBorder = true;
+    }
+  }
+}
+
 export const drawEulerSpirals2: ArtPatternFn = async (ctx: CanvasRenderingContext2D, theta: number, iterations: number, scale: number): Promise<DrawResult> => {
   const result: DrawResult = {touchedBorder: false};
   draw(ctx, () => {
     let position: Coord = getCanvasCenter(ctx.canvas);
     for (let i = 0; i < iterations; i++) {
       position = getRadialMove(position, scale, (i % 2 ? 1 : -1) * i * i * theta);
-      if (!result.touchedBorder) {
-        const [x, y] = position;
-        if (x <= 0 || y <= 0 || x >= ctx.canvas.width || y >= ctx.canvas.height) {
-          result.touchedBorder = true;
-        }
-      }
+      checkIfContained(result, position, ctx);
       ctx.lineTo(...position);
     }
   });
@@ -102,7 +118,7 @@ export const drawSerpinski: ArtPatternFn = (ctx: CanvasRenderingContext2D, theta
     };
     type Round = Step[];
     let currentRound: Round = ['X'];
-    let position: Coord = [0, 0];//getCanvasCenter(ctx.canvas);
+    let position: Coord = [0, 0];//getCanvasCenter(ctx.draw-canvas);
     let heading = 0;
     const getNextRound = (lastRound: Round): Round => {
       const result: Round = [];

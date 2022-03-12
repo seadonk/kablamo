@@ -1,8 +1,30 @@
 import {ArtMode} from "@kablamo/drawing";
 
 
+export interface AlgorithmPreset {
+  name: string,
+  theta: number,
+  iterations?: number
+}
+
 export const presets: { [index: ArtMode]: { [index: string]: number | { theta: number, iterations: number } } } = {
+  serpinskiTurtle: {
+    default: {
+      theta: 64.14066,
+      iterations: 12
+    }
+  },
+  serpinskiTurtle2: {
+    default: {
+      theta: 59.07692,
+      iterations: 12
+    }
+  },
   eulerSpirals: {
+    default: {
+      theta: 1.4433,
+      iterations: 50000
+    },
     theDot: 154.10072,
     doubleLobe: 154.10437,
     fuzzyEye: 54.10251,
@@ -36,6 +58,12 @@ export const presets: { [index: ArtMode]: { [index: string]: number | { theta: n
     yinYangSin: {
       theta: 194.97345,
       iterations: 5000
+    }
+  },
+  spirograph: {
+    default: {
+      theta: 89.20354,
+      iterations: 200
     }
   }
 }

@@ -4,7 +4,7 @@ export const clearCanvas = (ctx: CanvasRenderingContext2D) => ctx.clearRect(0, 0
 
 export const getCanvasCenter = (canvas: HTMLCanvasElement): Coord => [canvas.width / 2, canvas.height / 2]
 
-/** converts the raw position relative to the top left corner, to one relative to the center of the canvas. */
+/** converts the raw position relative to the top left corner, to one relative to the center of the draw-canvas. */
 export const fromCenter = (rawPosition: Coord, canvas: HTMLCanvasElement): Coord => offsetPosition(rawPosition, getCanvasCenter(canvas));
 
 /** translates the position according to the offset */
@@ -12,7 +12,7 @@ export const offsetPosition = (position: Coord, offset: Coord): Coord => [positi
   offset[0] - position[1]]
 
 export const setUpCanvas = (canvas: HTMLCanvasElement) => {
-  // Feed the size back to the canvas.
+  // Feed the size back to the draw-canvas.
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 };

@@ -6,7 +6,8 @@ import {
   drawRectangles,
   DrawResult,
   drawSerpinski,
-  drawSerpinski2
+  drawSerpinski2,
+  spirograph
 } from "./canvas.patterns";
 
 export type ArtPatternFn = (ctx: CanvasRenderingContext2D, ...rest: any[]) => Promise<DrawResult> | void;
@@ -18,7 +19,8 @@ export const ArtModeMap: { [index: string]: ArtPatternFn } = {
   'rectangles': drawRectangles,
   'serpinskiTurtle': drawSerpinski,
   'serpinskiTurtle2': drawSerpinski2,
-  additiveSpirals
+  additiveSpirals,
+  spirograph
 }
 export type ArtMode = keyof typeof ArtModeMap;
 export const ArtModes = Object.keys(ArtModeMap);

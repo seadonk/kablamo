@@ -61,8 +61,8 @@
     <div class="input-container presets" *ngIf="presets">
       <label>Presets:</label>
       <div>
-        <select [(ngModel)]="selectedPreset" (change)="onPresetChange($event)">
-          <option [ngValue]="preset" *ngFor="let preset of presets">{{preset.name}}</option>
+        <select [(ngModel)]="selectedPreset" (change)="onPresetChange()">
+          <option [ngValue]="preset" *ngFor="let preset of presets" [selected]="selectedPreset?.name === preset.name">{{preset.name}}</option>
         </select>
       </div>
     </div>
