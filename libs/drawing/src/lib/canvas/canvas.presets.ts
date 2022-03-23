@@ -1,13 +1,40 @@
-import {ArtMode} from "@kablamo/drawing";
+import {ArtMode} from "./canvas.common";
 
+export type Preset = {
+  // currently presets are in degrees, but we should change this
+  theta?: number,
+  iterations?: number,
+  value?: string,
+  stopOnCircle?: boolean,
+  scale?: number
+} | any;
 
-export interface AlgorithmPreset {
+export interface NamedPreset {
   name: string,
-  theta: number,
-  iterations?: number
+  preset: Preset
 }
 
-export const presets: { [index: ArtMode]: { [index: string]: number | { theta: number, iterations: number } } } = {
+export const DefaultPreset: Partial<Preset> = {
+  iterations: 50000,
+  scale: 5
+}
+
+export const getPresets = (artMode: ArtMode): NamedPreset[] => {
+  const modePresets = (presets[artMode] || {});
+  return Object.keys(modePresets).map(key => {
+    const value = modePresets[key]; // some presets are simply a number representing theta
+    const artModeDefault = modePresets['default'];
+    const _preset = {...DefaultPreset, ...artModeDefault, ...(value instanceof Object ? value : {theta: value})};
+    return {name: key, preset: _preset};
+  });
+}
+
+const presets: { [index: ArtMode]: { [index: string]: Preset | number } } = {
+  rectangles: {
+    default: {
+      scale: 1
+    }
+  },
   serpinskiTurtle: {
     default: {
       theta: 64.14066,
@@ -23,7 +50,7 @@ export const presets: { [index: ArtMode]: { [index: string]: number | { theta: n
   eulerSpirals: {
     default: {
       theta: 1.4433,
-      iterations: 50000
+      iterations: 100000
     },
     theDot: 154.10072,
     doubleLobe: 154.10437,
@@ -62,8 +89,45 @@ export const presets: { [index: ArtMode]: { [index: string]: number | { theta: n
   },
   spirograph: {
     default: {
-      theta: 89.20354,
-      iterations: 200
+      radii: [60, 60],
+      thetas: [1, 2],
+      iterations: 10000
+    },
+    life: {
+      iterations: 3540,
+      scale: 75,
+      radii: "51", // these need to be strings for some reason
+      thetas: "26"
+    },
+    celtic: {
+      iterations: 781,
+      scale: 18,
+      radii: [10, 20],
+      thetas: [-1, 2]
+    },
+    janetSpecial: {
+      radii: [60, 40],
+      thetas: [1, 4, 10],
+      iterations: 10000
+      //      ` const radii: number[] = [60, 40];
+      // const thetas: number[] = [1, 4, 10 ];
+      // const numDiscs = radii.length;
+      // const center: Coord = getCanvasCenter(ctx.canvas);
+      // const result: DrawResult = {touchedBorder: false};
+      // ctx.moveTo(...center);
+      // draw(ctx, () => {
+      //   const positions: Coord[] = [];
+      //   for (let i = 0; i < iterations; i++) {
+      //     for(let n = 0; n < numDiscs; n++){
+      //       const prevPosition: Coord = [...(!n ? center : positions[n-1])];
+      //       positions[n] = getRadialMove(prevPosition, scale * radii[n], thetas[n] * i);
+      //     }
+      //     const position = positions[positions.length - 1];
+      //     checkIfContained(result, position, ctx);
+      //     ctx.lineTo(...position);
+      //   }
+      // }, false);
+      // return result;`
     }
   }
 }

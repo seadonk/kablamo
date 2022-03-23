@@ -3,6 +3,8 @@
   "projects": {
     "canvas": "apps/canvas",
     "canvas-e2e": "apps/canvas-e2e",
+    "canvas-react": "apps/canvas-react",
+    "canvas-react-e2e": "apps/canvas-react-e2e",
     "demo": "apps/demo",
     "demo-e2e": "apps/demo-e2e",
     "drawing": "libs/drawing",

@@ -1,62 +1,111 @@
-import {Component} from '@angular/core';
-import {AlgorithmPreset, ArtMode, ArtModeMap, ArtModes, ArtPatternFn, getRadians, presets} from "@kablamo/drawing";
+import {Component, ViewChild} from '@angular/core';
+import {
+    ArtMode,
+    ArtModeMap,
+    ArtModes,
+    ArtPatternFn,
+    getPresets,
+    getRadians,
+    NamedPreset,
+    Preset,
+} from "@kablamo/drawing";
+import {CanvasComponent} from "./components/canvas/canvas.component";
 
 @Component({
-  selector: 'kablamo-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+    selector: 'kablamo-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'canvas';
-  theta = 1.4433;
-  stopOnCircle = true;
-  iterations = 100000;
-  scale = 5;
-  selectedAlgorithm: ArtMode;
-  algorithms = ArtModes;
-  play = false;
-  selectedPreset: AlgorithmPreset | undefined;
-  drawFn: ArtPatternFn;
+    @ViewChild('canvasRef') canvasComponent: CanvasComponent;
+    title = 'canvas';
+    stopOnCircle = true;
+    selectedAlgorithm: ArtMode;
+    algorithms = ArtModes;
+    play = false;
+    selectedNamedPreset: NamedPreset | undefined;
+    selectedPresetKeys: (keyof Preset)[];
+    selectedPreset: Preset;
+    drawFn: ArtPatternFn;
+    model: Preset = {};
+    inputs: Preset = {};
+    presets: NamedPreset[];
 
-  get radians() {
-    return getRadians(this.theta);
-  }
+    radians = getRadians;
 
-  get presets(): AlgorithmPreset[] | undefined {
-    const algorithmPresets = presets[this.selectedAlgorithm];
-    if (!algorithmPresets) return undefined;
-    return Object.keys(algorithmPresets).map(t => {
-      const isTheta = !isNaN(algorithmPresets[t] as any);
-      const theta = isTheta
-        ? algorithmPresets[t] as number : (algorithmPresets[t] as any).theta;
-      const iterations = !isTheta && (algorithmPresets[t] as any).iterations || undefined;
-
-      return {
-        name: t,
-        theta: theta,
-        iterations: iterations
-      };
-    });
-  }
-
-  constructor(){
-    this.changeMode('spirograph');
-  }
-
-  changeMode = (mode: ArtMode) => {
-    this.selectedAlgorithm = mode;
-    this.selectedPreset = this.presets && this.presets[0];
-    this.onPresetChange();
-    this.drawFn = ArtModeMap[mode];
-  }
-
-  onPresetChange() {
-    const {selectedPreset} = this;
-    for (const key in selectedPreset) {
-      if (this[key]) {
-        this[key] = (selectedPreset[key] ?? this[key]) as any;
-      }
+    constructor() {
+        this.changeMode('spirograph');
     }
-  }
+    changeMode = (mode: ArtMode) => {
+        this.selectedAlgorithm = mode;
+        this.presets = getPresets(this.selectedAlgorithm);
+        this.selectedNamedPreset = this.presets[0];
+        this.drawFn = ArtModeMap[mode];
+
+        this.onPresetChange();
+    }
+
+    onPresetChange = () => {
+        const {selectedNamedPreset} = this;
+        for (const key in selectedNamedPreset) {
+            if (this[key]) {
+                this[key] = (selectedNamedPreset[key] ?? this[key]) as any;
+            }
+        }
+        this.selectedPresetKeys = Object.keys(this.selectedNamedPreset?.preset) as (keyof Preset)[];
+        this.selectedPreset = this.selectedNamedPreset.preset;
+
+        this.setModel({...selectedNamedPreset.preset}, true);
+
+        this.updateCanvas();
+    }
+
+    setModel = (value: Partial<Preset>, clear = false) => {
+        if (clear) {
+            this.model = {};
+        }
+        this.model = {...this.model, ...value};
+        // keep inputs separate since the theta is in different units
+        this.inputs = {...this.model};
+        const {theta} = this.inputs;
+        if (theta) {
+            this.inputs.theta = getRadians(theta);
+        }
+    }
+
+    onChange(key: any, value: any, index?: number) {
+        if (index != null) {
+            const result = [...this.model[key]];
+            result[index] = +value;
+            this.setModel({[key]: result});
+        } else {
+            this.setModel({[key]: +value});
+        }
+        this.updateCanvas();
+    }
+
+    updateCanvas() {
+        this.canvasComponent?.update();
+    }
+
+    getStep(key: keyof Preset) {
+        switch (key) {
+            case 'theta':
+                return 0.0001;
+            default:
+                return 1;
+        }
+    }
+
+    getMaxInput(key: keyof Preset) {
+        switch (key) {
+            case 'iterations':
+                return 100000;
+            case 'theta':
+                return 360;
+            default:
+                return 100;
+        }
+    }
 }
 

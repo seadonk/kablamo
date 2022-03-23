@@ -1,24 +1,24 @@
 import {
   additiveSpirals,
-  drawEulerSpirals,
-  drawEulerSpirals2,
-  drawGrid,
-  drawRectangles,
-  DrawResult,
-  drawSerpinski,
-  drawSerpinski2,
+  eulerSpirals,
+  eulerSpirals2,
+  grid,
+  rectangles,
+  serpinskiTurtle,
+  serpinskiTurtle2,
   spirograph
-} from "./canvas.patterns";
+} from "./patterns";
+import {Preset} from "./canvas.presets";
 
-export type ArtPatternFn = (ctx: CanvasRenderingContext2D, ...rest: any[]) => Promise<DrawResult> | void;
+export type ArtPatternFn = (ctx: CanvasRenderingContext2D, preset?: Preset, ...rest: any[]) => Promise<DrawResult> | void;
 
 export const ArtModeMap: { [index: string]: ArtPatternFn } = {
-  'eulerSpirals': drawEulerSpirals,
-  'eulerSpirals2': drawEulerSpirals2,
-  'grid': drawGrid,
-  'rectangles': drawRectangles,
-  'serpinskiTurtle': drawSerpinski,
-  'serpinskiTurtle2': drawSerpinski2,
+  eulerSpirals,
+  eulerSpirals2,
+  grid,
+  rectangles,
+  serpinskiTurtle,
+  serpinskiTurtle2,
   additiveSpirals,
   spirograph
 }
@@ -27,3 +27,17 @@ export const ArtModes = Object.keys(ArtModeMap);
 
 export const getRadians = (degrees: number) => degrees / 360 * 2 * Math.PI;
 export const getDegrees = (radians: number) => radians * 360 / 2 / Math.PI;
+
+export interface DrawResult {
+  touchedBorder?: boolean
+}
+
+/** Latches the result.touchedBorder if the drawing touches or exceeds the canvas */
+export function checkIfContained(result: DrawResult, position: [number, number], ctx: CanvasRenderingContext2D) {
+  if (position && !result.touchedBorder) {
+    const [x, y] = position;
+    if (x <= 0 || y <= 0 || x >= ctx.canvas.width || y >= ctx.canvas.height) {
+      result.touchedBorder = true;
+    }
+  }
+}

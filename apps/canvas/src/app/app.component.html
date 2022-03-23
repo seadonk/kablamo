@@ -3,30 +3,37 @@
     <ng-container *ngTemplateOutlet="controls"></ng-container>
   </div>
   <kablamo-canvas #canvasRef
-                  [(theta)]="theta"
-                  [iterations]="iterations"
-                  [scale]="scale"
                   [drawFn]="drawFn"
-                  [stopOnCircle]="stopOnCircle"></kablamo-canvas>
+                  [stopOnCircle]="stopOnCircle"
+                  [inputs]="inputs"></kablamo-canvas>
 </div>
 
 
 <ng-template #controls>
-  <div class="input-container">
-    <input type="range" [(ngModel)]="theta" step="0.00001" max="360"/>
-    <input type="number" [(ngModel)]="theta" step="0.00001" max="360"/> °
-    [ {{ radians | number: '.3' }} rads ]
-  </div>
-  <div class="input-container">
-    <input type="range" [(ngModel)]="iterations" step="10" max="100000"
-           [disabled]="selectedAlgorithm === 'serpinskiTurtle'"/>
-    <input type="number" [(ngModel)]="iterations" step="10" max="100000"
-           [disabled]="selectedAlgorithm === 'serpinskiTurtle'"/>  iterations
-  </div>
-  <div class="input-container">
-    <input type="range" [(ngModel)]="scale" step="0.01" max="10"/>
-    <input type="number" [(ngModel)]="scale" step="0.01" max="10"/>{{ scale }}scale
-  </div>
+  <ng-container *ngFor="let key of selectedPresetKeys">
+    {{ key }}
+    <div class="input-container">
+
+      <ng-container *ngIf="key!=='radii' && key!=='thetas'">
+        <input type="range" [value]="model[key]" (input)="onChange(key, $event.target['value'])"
+               [step]="getStep(key)" [max]="getMaxInput(key)"/>
+        <input type="number" [value]="model[key]" (input)="onChange(key, $event.target['value'])"
+               [step]="getStep(key)" [max]="getMaxInput(key)"/>
+        <ng-container *ngIf="key === 'theta'"> °
+          [ {{ radians(model[key]) | number: '.3' }} rads ]
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="key==='radii' || key==='thetas'">
+        [
+        <ng-container *ngFor="let v of model[key]; let i = index;">
+          <input type="number" [value]="model[key][i]" (input)="onChange(key, $event.target['value'], i)"
+                 [step]="getStep(key)" [max]="getMaxInput(key)"/>,
+        </ng-container>
+        ]
+      </ng-container>
+    </div>
+  </ng-container>
+
   <div class="input-container">
     <div><input type="checkbox" [(ngModel)]="stopOnCircle"/> Stop On Circle</div>
   </div>
@@ -39,11 +46,6 @@
 
 
   <div class="button-container">
-
-    <div class="selectedPattern">
-      Pattern: {{ selectedAlgorithm }}</div>
-
-    <div></div>
     <div class="input-container">
       <label>Algorithm:</label>
       <div>
@@ -52,27 +54,15 @@
         </select>
       </div>
     </div>
-    <!--    <ng-container *ngFor="let mode of algorithms">-->
-    <!--      <div>-->
-    <!--        <button (click)="changeMode(mode)">{{mode}}</button>-->
-    <!--      </div>-->
-    <!--    </ng-container>-->
 
     <div class="input-container presets" *ngIf="presets">
       <label>Presets:</label>
       <div>
-        <select [(ngModel)]="selectedPreset" (change)="onPresetChange()">
-          <option [ngValue]="preset" *ngFor="let preset of presets" [selected]="selectedPreset?.name === preset.name">{{preset.name}}</option>
+        <select [(ngModel)]="selectedNamedPreset" (change)="onPresetChange()">
+          <option [ngValue]="preset" *ngFor="let preset of presets"
+                  [selected]="selectedNamedPreset?.name === preset.name">{{preset.name}}</option>
         </select>
       </div>
     </div>
-
-    <!--      <ng-container>-->
-    <!--        <ng-container *ngFor="let preset of eulerSpiralPresetOptions">-->
-    <!--          <div>-->
-    <!--            <button (click)="theta = preset.theta">{{preset.name}}</button>-->
-    <!--          </div>-->
-    <!--        </ng-container>-->
-    <!--      </ng-container>-->
   </div>
 </ng-template>

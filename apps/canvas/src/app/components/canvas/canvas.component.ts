@@ -4,18 +4,17 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  EventEmitter,
   Input,
   OnChanges,
-  Output,
   ViewChild
 } from '@angular/core';
 import {
   ArtPatternFn,
   clearCanvas,
-  drawEulerSpirals,
   DrawResult,
+  eulerSpirals,
   getRadians,
+  Preset,
   setUpCanvas,
   setupPanAndZoom,
   trackTransforms
@@ -30,29 +29,51 @@ import {
 export class CanvasComponent implements AfterViewInit, OnChanges {
   @ViewChild('canvas') canvasElementRef!: ElementRef<HTMLCanvasElement>;
 
-  private _theta = 0.1;
-  private radians: number = getRadians(this._theta);
+  // private _theta = 0.1;
+  private _inputs: Preset = {};
   private drawResult: DrawResult | undefined;
-  /** angle in degrees */
-  @Input()
-  get theta(): number{
-    return this._theta;
-  }
-  set theta(value: number) {
-    this._theta = value;
-    this.radians = getRadians(value);
-    this.thetaChange.emit(value);
-  }
-  @Input() iterations = 10000;
-  @Input() scale = 1.5;
-  @Input() drawFn: ArtPatternFn = drawEulerSpirals;
-  @Input() stopOnCircle = true;
-  @Output() thetaChange = new EventEmitter<number>();
-
-  public get playing(): boolean { return !!this.playInterval; }
-
   private initialized = false;
   private playInterval: number | undefined;
+
+  // @Input() iterations = 10000;
+  // @Input() scale = 1.5;
+  @Input() drawFn: ArtPatternFn = eulerSpirals;
+  @Input() stopOnCircle = true;
+
+  get theta(): number {
+    return this.inputs.theta;
+  }
+
+  get radians(): number {
+    return getRadians(this.inputs.theta);
+  }
+
+  get iterations(): number {
+    return this.inputs.iterations;
+  }
+
+  get scale(): number {
+    return this.inputs.scale;
+  }
+
+  @Input()
+  get inputs(): Preset {
+    return this._inputs;
+  }
+
+  set inputs(value: Preset) {
+    this._inputs = value;
+  }
+
+  setInputs = (value: Partial<Preset>) => {
+    for (const key in value) {
+      this.inputs[key] = value[key];
+    }
+  }
+
+  public get playing(): boolean {
+    return !!this.playInterval;
+  }
 
   get canvas(): HTMLCanvasElement {
     const {nativeElement: canvas} = this.canvasElementRef || {};
@@ -63,9 +84,11 @@ export class CanvasComponent implements AfterViewInit, OnChanges {
     return this.canvas.getContext('2d');
   }
 
-  constructor(private cd: ChangeDetectorRef){
+  constructor(private cd: ChangeDetectorRef) {
 
   }
+
+  update = () => this.ngOnChanges();
 
   ngAfterViewInit() {
     this.initialize();
@@ -99,18 +122,18 @@ export class CanvasComponent implements AfterViewInit, OnChanges {
   play = () => {
     this.drawResult = undefined;
     this.playInterval = setInterval(async () => {
-      this.cd.detectChanges();
-      if(this.stopOnCircle && this.drawResult && !this.drawResult?.touchedBorder){
+      if (this.stopOnCircle && this.drawResult && !this.drawResult?.touchedBorder) {
         this.stop();
       } else {
-        this.theta = this.theta + 0.0001;
+        this.setInputs({theta: this.inputs.theta + 0.0001});
       }
+      this.ngOnChanges();
     });
   }
 
   redraw = async (ctx: CanvasRenderingContext2D) => {
     clearCanvas(ctx);
-    this.drawResult = await this.drawFn(ctx, this.radians, this.iterations, this.scale, this.play) || undefined;
+    this.drawResult = await this.drawFn(ctx, this.inputs, this.play) || undefined;
     this.cd.detectChanges();
   }
 }
