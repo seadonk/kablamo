@@ -9,6 +9,7 @@ import {
   spirograph
 } from "./patterns";
 import {Preset} from "./canvas.presets";
+import {serpinskiDots} from "./patterns/serpinskiDots";
 
 export type ArtPatternFn = (ctx: CanvasRenderingContext2D, preset?: Preset, ...rest: any[]) => Promise<DrawResult> | void;
 
@@ -20,7 +21,8 @@ export const ArtModeMap: { [index: string]: ArtPatternFn } = {
   serpinskiTurtle,
   serpinskiTurtle2,
   additiveSpirals,
-  spirograph
+  spirograph,
+  serpinskiDots
 }
 export type ArtMode = keyof typeof ArtModeMap;
 export const ArtModes = Object.keys(ArtModeMap);

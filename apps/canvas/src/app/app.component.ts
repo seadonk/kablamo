@@ -34,7 +34,7 @@ export class AppComponent {
     radians = getRadians;
 
     constructor() {
-        this.changeMode('spirograph');
+        this.changeMode('serpinskiDots');
     }
     changeMode = (mode: ArtMode) => {
         this.selectedAlgorithm = mode;

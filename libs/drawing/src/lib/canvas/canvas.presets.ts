@@ -35,6 +35,12 @@ const presets: { [index: ArtMode]: { [index: string]: Preset | number } } = {
       scale: 1
     }
   },
+  serpinskiDots: {
+    default: {
+      iterations: 50000,
+      scale: 1
+    }
+  },
   serpinskiTurtle: {
     default: {
       theta: 64.14066,
