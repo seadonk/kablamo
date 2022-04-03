@@ -1,68 +1,73 @@
 <div class="container">
-  <div class="controls">
-    <ng-container *ngTemplateOutlet="controls"></ng-container>
-  </div>
-  <kablamo-canvas #canvasRef
-                  [drawFn]="drawFn"
-                  [stopOnCircle]="stopOnCircle"
-                  [inputs]="inputs"></kablamo-canvas>
+    <div class="controls">
+        <ng-container *ngTemplateOutlet="controls"></ng-container>
+    </div>
+    <kablamo-canvas #canvasRef
+                    [drawFn]="drawFn"
+                    [inputs]="inputs"></kablamo-canvas>
 </div>
 
 
 <ng-template #controls>
-  <ng-container *ngFor="let key of selectedPresetKeys">
-    {{ key }}
-    <div class="input-container">
+    <ng-container *ngFor="let key of selectedPresetKeys">
+        <span *ngIf="keyType(key) === 'number'">{{ key }}</span>
+        <div class="input-container">
 
-      <ng-container *ngIf="key!=='radii' && key!=='thetas'">
-        <input type="range" [value]="model[key]" (input)="onChange(key, $event.target['value'])"
-               [step]="getStep(key)" [max]="getMaxInput(key)"/>
-        <input type="number" [value]="model[key]" (input)="onChange(key, $event.target['value'])"
-               [step]="getStep(key)" [max]="getMaxInput(key)"/>
-        <ng-container *ngIf="key === 'theta'"> °
-          [ {{ radians(model[key]) | number: '.3' }} rads ]
-        </ng-container>
-      </ng-container>
-      <ng-container *ngIf="key==='radii' || key==='thetas'">
-        [
-        <ng-container *ngFor="let v of model[key]; let i = index;">
-          <input type="number" [value]="model[key][i]" (input)="onChange(key, $event.target['value'], i)"
-                 [step]="getStep(key)" [max]="getMaxInput(key)"/>,
-        </ng-container>
-        ]
-      </ng-container>
-    </div>
-  </ng-container>
+            <ng-container *ngIf="key!=='radii' && key!=='thetas'">
 
-  <div class="input-container">
-    <div><input type="checkbox" [(ngModel)]="stopOnCircle"/> Stop On Circle</div>
-  </div>
-  <div>
-    <button
-      (click)="canvasRef.playing ? canvasRef.stop() : canvasRef.play()">
-      {{canvasRef.playing ? 'Stop' : 'Play'}}
-    </button>
-  </div>
+                <ng-container *ngIf="keyType(key) === 'number'">
+                    <input type="range" [value]="model[key]" (input)="onChange(key, $event.target['value'])"
+                           [step]="getStep(key)" [max]="getMaxInput(key)"/>
+                    <input type="number" [value]="model[key]" (input)="onChange(key, $event.target['value'])"
+                           [step]="getStep(key)" [max]="getMaxInput(key)"/>
+                    <ng-container *ngIf="key === 'theta'"> °
+                        [ {{ radians(model[key]) | number: '.3' }} rads ]
+                    </ng-container>
+                </ng-container>
 
+                <ng-container *ngIf="keyType(key) === 'boolean'">
+                    <div><input type="checkbox" [checked]="model[key]"
+                                (input)="onChange(key, $event.target['checked'])"/>{{key}}</div>
+                </ng-container>
+            </ng-container>
 
-  <div class="button-container">
-    <div class="input-container">
-      <label>Algorithm:</label>
-      <div>
-        <select [(ngModel)]="selectedAlgorithm" (change)="changeMode(selectedAlgorithm)">
-          <option [value]="algorithm" *ngFor="let algorithm of algorithms">{{algorithm}}</option>
-        </select>
-      </div>
+            <ng-container *ngIf="key==='radii' || key==='thetas'">
+                [
+                <ng-container *ngFor="let v of model[key]; let i = index;">
+                    <input type="number" [value]="model[key][i]" (input)="onChange(key, $event.target['value'], i)"
+                           [step]="getStep(key)" [max]="getMaxInput(key)"/>,
+                </ng-container>
+                ]
+            </ng-container>
+        </div>
+    </ng-container>
+
+    <div>
+        <button
+                (click)="canvasRef.playing ? canvasRef.stop() : canvasRef.play()">
+            {{canvasRef.playing ? 'Stop' : 'Play'}}
+        </button>
     </div>
 
-    <div class="input-container presets" *ngIf="presets">
-      <label>Presets:</label>
-      <div>
-        <select [(ngModel)]="selectedNamedPreset" (change)="onPresetChange()">
-          <option [ngValue]="preset" *ngFor="let preset of presets"
-                  [selected]="selectedNamedPreset?.name === preset.name">{{preset.name}}</option>
-        </select>
-      </div>
+
+    <div class="button-container">
+        <div class="input-container">
+            <label>Algorithm:</label>
+            <div>
+                <select [(ngModel)]="selectedAlgorithm" (change)="changeMode(selectedAlgorithm)">
+                    <option [value]="algorithm" *ngFor="let algorithm of algorithms">{{algorithm}}</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-container presets" *ngIf="presets">
+            <label>Presets:</label>
+            <div>
+                <select [(ngModel)]="selectedNamedPreset" (change)="onPresetChange()">
+                    <option [ngValue]="preset" *ngFor="let preset of presets"
+                            [selected]="selectedNamedPreset?.name === preset.name">{{preset.name}}</option>
+                </select>
+            </div>
+        </div>
     </div>
-  </div>
 </ng-template>

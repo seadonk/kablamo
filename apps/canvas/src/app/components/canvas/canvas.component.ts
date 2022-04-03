@@ -38,7 +38,6 @@ export class CanvasComponent implements AfterViewInit, OnChanges {
   // @Input() iterations = 10000;
   // @Input() scale = 1.5;
   @Input() drawFn: ArtPatternFn = eulerSpirals;
-  @Input() stopOnCircle = true;
 
   get theta(): number {
     return this.inputs.theta;
@@ -122,7 +121,7 @@ export class CanvasComponent implements AfterViewInit, OnChanges {
   play = () => {
     this.drawResult = undefined;
     this.playInterval = setInterval(async () => {
-      if (this.stopOnCircle && this.drawResult && !this.drawResult?.touchedBorder) {
+      if (this.inputs.stopOnCircle && this.drawResult && !this.drawResult?.touchedBorder) {
         this.stop();
       } else {
         this.setInputs({theta: this.inputs.theta + 0.0001});

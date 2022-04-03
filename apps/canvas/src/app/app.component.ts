@@ -19,7 +19,6 @@ import {CanvasComponent} from "./components/canvas/canvas.component";
 export class AppComponent {
     @ViewChild('canvasRef') canvasComponent: CanvasComponent;
     title = 'canvas';
-    stopOnCircle = true;
     selectedAlgorithm: ArtMode;
     algorithms = ArtModes;
     play = false;
@@ -34,8 +33,9 @@ export class AppComponent {
     radians = getRadians;
 
     constructor() {
-        this.changeMode('serpinskiDots');
+        this.changeMode('eulerSpirals');
     }
+
     changeMode = (mode: ArtMode) => {
         this.selectedAlgorithm = mode;
         this.presets = getPresets(this.selectedAlgorithm);
@@ -107,5 +107,7 @@ export class AppComponent {
                 return 100;
         }
     }
+
+    keyType = (key: keyof Preset): string => this.selectedPreset && typeof this.selectedPreset[key];
 }
 
