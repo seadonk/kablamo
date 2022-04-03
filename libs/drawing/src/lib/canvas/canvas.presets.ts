@@ -38,7 +38,17 @@ const presets: { [index: ArtMode]: { [index: string]: Preset | number } } = {
   serpinskiDots: {
     default: {
       iterations: 50000,
-      scale: 1
+      scale: 1,
+      numSides: 3,
+      theta: 0
+    },
+    sebbenPentagon: {
+      iterations: 1000000,
+      numSides: 5
+    },
+    sebbenSnowflake: {
+      iterations: 1000000,
+      numSides: 6
     }
   },
   serpinskiTurtle: {
